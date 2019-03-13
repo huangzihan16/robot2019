@@ -5,6 +5,6 @@
           args="0.15 0.0 0.05 1.57 0.0 0.0 base_link base_laser_link" />
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_camera_link_broadcaster"
-          args="0.0  0.0 0.0  0.0  0.0 0.0 base_link camera" />
+          args="0.0  0.0 0.0  0.0  0.0 0.0 base_link camera0" />
 
 </launch>

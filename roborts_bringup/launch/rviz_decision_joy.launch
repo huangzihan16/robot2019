@@ -1,0 +1,17 @@
+<launch>
+
+  <!-- Launch the node that allows to control the gamepad -->
+  <!-- % rosrun joy joy_node _dev:=/dev/input/js0 _deadzone:=0.12 --> 
+  <node respawn="true" pkg="joy" type="joy_node" name="gamepad" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+  
+  <!-- Run the node -->
+  <node pkg="roborts_decision" type="behavior_test_node" name="behavior_test_node" output="screen" />
+
+  <!-- Run the rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts_bringup)/rviz/roborts.rviz" />
+
+</launch>
+
