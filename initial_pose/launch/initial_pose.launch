@@ -1,0 +1,14 @@
+<launch>
+
+  <rosparam command="load" file="$(find initial_pose)/config/initialpose.yaml" />
+
+  <!-- Publish static tf -->
+  <include file="$(find roborts_bringup)/launch/static_tf.launch" />
+  
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts_bringup)/maps/icra2019.yaml" respawn="false" />
+  
+  <!-- Run the initial pose node -->
+  <node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" output="screen" />
+
+</launch>

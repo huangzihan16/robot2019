@@ -1,0 +1,6 @@
+laser_topic_name        : "/scan"
+base_frame_name         : "base_link"
+boundary_distance       : 2.1
+prob_threshold          : 0.88
+corner_type             : 1
+initialpose_topic_name  : "initialpose"
