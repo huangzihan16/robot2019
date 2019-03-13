@@ -118,8 +118,10 @@ class Blackboard {
       }
     } else{
       enemy_detected_ = false;
-    }
+      ROS_INFO(" nnnnnnnnnnnnnnnnFind Enemy!");
 
+    }
+  
   }
 
   geometry_msgs::PoseStamped GetEnemy() const {
@@ -127,8 +129,20 @@ class Blackboard {
   }
 
   bool IsEnemyDetected() const{
+    
     ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);
     return enemy_detected_;
+
+  }
+
+  bool IsBulletLeft() const{
+    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num);
+    return true;
+    if(bullet_num > 5){
+      return true;
+    } else{
+      return false;
+    }
   }
 
   // Goal
@@ -149,7 +163,20 @@ class Blackboard {
       return false;
     }
   }
-  /*---------------------------------- Tools ------------------------------------------*/
+  
+  //测试，给固定目标点
+  geometry_msgs::PoseStamped GetFixedGoal() {
+
+    geometry_msgs::PoseStamped fix_goal;
+    ros::Time current_time = ros::Time::now();
+    fix_goal.header.stamp = current_time;
+    fix_goal.pose.position.x = 3.7;
+    fix_goal.pose.position.y = 4.3;
+    fix_goal.pose.position.z = 0.0;
+    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
+
+    return fix_goal;
+  }  /*---------------------------------- Tools ------------------------------------------*/
 
   double GetDistance(const geometry_msgs::PoseStamped &pose1,
                      const geometry_msgs::PoseStamped &pose2) {
@@ -226,6 +253,9 @@ class Blackboard {
 
   //! robot map pose
   geometry_msgs::PoseStamped robot_map_pose_;
+
+  //! bullet info
+  int bullet_num;
 
 };
 } //namespace roborts_decision

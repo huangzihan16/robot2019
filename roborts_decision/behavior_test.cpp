@@ -9,6 +9,10 @@
 #include "example_behavior/patrol_behavior.h"
 #include "example_behavior/goal_behavior.h"
 
+#include "blackboard/blackboard.h"
+#include "behavior_tree/behavior_node.h"
+#include "executor/gimbal_executor.h"
+
 void Command();
 char command = '0';
 
@@ -17,13 +21,14 @@ int main(int argc, char **argv) {
   std::string full_path = ros::package::getPath("roborts_decision") + "/config/decision.prototxt";
 
   auto chassis_executor = new roborts_decision::ChassisExecutor;
+	auto gimbal_executor = new roborts_decision::GimbalExecutor;
   auto blackboard = new roborts_decision::Blackboard(full_path);
-
+	
   roborts_decision::BackBootAreaBehavior back_boot_area_behavior(chassis_executor, blackboard, full_path);
   roborts_decision::ChaseBehavior        chase_behavior(chassis_executor, blackboard, full_path);
   roborts_decision::SearchBehavior       search_behavior(chassis_executor, blackboard, full_path);
   roborts_decision::EscapeBehavior       escape_behavior(chassis_executor, blackboard, full_path);
-  roborts_decision::PatrolBehavior       patrol_behavior(chassis_executor, blackboard, full_path);
+  roborts_decision::PatrolBehavior       patrol_behavior(chassis_executor, gimbal_executor, blackboard, full_path);
   roborts_decision::GoalBehavior       goal_behavior(chassis_executor, blackboard);
 
   auto command_thread= std::thread(Command);

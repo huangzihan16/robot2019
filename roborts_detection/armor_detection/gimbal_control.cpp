@@ -19,6 +19,8 @@
 #include <stdio.h>
 
 #include "gimbal_control.h"
+#include "roborts_msgs/ShootCmd.h"
+#include "../../roborts_base/gimbal/gimbal.h"
 
 namespace roborts_detection {
 
@@ -60,11 +62,62 @@ float GimbalContrl::GetPitch(float x, float y, float v) {
 
 }
 
+/*
+void ShootCallBack(const roborts_msgs::Shootfk::ConstPtr& msg)
+{
+roborts_msgs::ShootCmd srv;
+ 
+    srv.request.mode = msg->mode;
+    srv.request.number = msg->number;
+}
+*/
+
 void GimbalContrl::Transform(cv::Point3f &postion, float &pitch, float &yaw) {
-  pitch =
-      -GetPitch((postion.z + offset_.z) / 100, -(postion.y + offset_.y) / 100, 15) + (float)(offset_pitch_ * 3.1415926535 / 180);
+//  pitch =
+//      GetPitch((postion.z + offset_.z) / 100, -(postion.y + offset_.y) / 100, 15) + (float)(offset_pitch_ * 3.1415926535 / 180);
+
+
+//pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+
+if(postion.z <=1000 )
+{
+offset_pitch_ = 3.5;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+if(postion.z > 1000 && postion.z <=2000)
+{
+offset_pitch_ = 3;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+
+if(postion.z > 2000 && postion.z <=3000)
+{
+offset_pitch_ = 2.5;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+if(postion.z > 3000 && postion.z <=4000)
+{
+offset_pitch_ = 1.5;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+
+if(postion.z >4000 )
+{
+offset_pitch_ = 1;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+
   //yaw positive direction :anticlockwise
   yaw = -(float) (atan2(postion.x + offset_.x, postion.z + offset_.z)) + (float)(offset_yaw_ * 3.1415926535 / 180);
+  yaw = yaw * 0.7;
+std::cout<<"pitch is: "<<pitch<<std::endl;
+std::cout<<"yaw is: "<<yaw<<std::endl;
+
 }
 
 } // roborts_detection

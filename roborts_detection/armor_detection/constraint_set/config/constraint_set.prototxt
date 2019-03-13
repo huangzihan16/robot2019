@@ -6,7 +6,7 @@ threshold {
 
   armor_max_angle: 15.0
   armor_min_area: 100
-  armor_max_aspect_ratio: 4
+  armor_max_aspect_ratio: 3 ##4
   armor_max_pixel_val: 150.0
   armor_max_stddev: 90
   armor_max_mean: 90
@@ -27,7 +27,7 @@ armor_size {
   height: 60 # mm
 }
 
-using_hsv: false
+using_hsv: true
 enable_debug: true
 enable_neon: false
 enemy_color: BLUE

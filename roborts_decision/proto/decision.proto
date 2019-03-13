@@ -9,6 +9,11 @@ message Point {
     optional float roll  = 4;
     optional float pitch = 5;
     optional float yaw   = 6;
+    
+    optional bool yaw_mode = 7;
+    optional bool pitch_mode = 8;
+    optional float yaw_angle= 9;
+    optional float pitch_angle = 10;
 }
 
 message EscapeConstraint {

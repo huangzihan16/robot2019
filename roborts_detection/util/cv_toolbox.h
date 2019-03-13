@@ -203,19 +203,19 @@ class CVToolbox {
       if (color == 0) {
         cv::Mat img_hsv_blue, img_threshold_blue;
         img_hsv_blue = img_hsv.clone();
-        cv::Mat blue_low(cv::Scalar(90, 150, 46));
-        cv::Mat blue_higher(cv::Scalar(140, 255, 255));
+        cv::Mat blue_low(cv::Scalar(80, 0, 0));   //90 150 46
+        cv::Mat blue_higher(cv::Scalar(165, 255, 255));  //140 255 255
         cv::inRange(img_hsv_blue, blue_low, blue_higher, img_threshold_blue);
         return img_threshold_blue;
       } else {
         cv::Mat img_hsv_red1, img_hsv_red2, img_threshold_red, img_threshold_red1, img_threshold_red2;
         img_hsv_red1 = img_hsv.clone();
         img_hsv_red2 = img_hsv.clone();
-        cv::Mat red1_low(cv::Scalar(0, 43, 46));
-        cv::Mat red1_higher(cv::Scalar(3, 255, 255));
+        cv::Mat red1_low(cv::Scalar(0, 0, 80));  //0 43 46     0 0 235
+        cv::Mat red1_higher(cv::Scalar(80, 255, 255));//3 255 255     50 255 255
 
-        cv::Mat red2_low(cv::Scalar(170, 43, 46));
-        cv::Mat red2_higher(cv::Scalar(180, 255, 255));
+        cv::Mat red2_low(cv::Scalar(180, 255, 255));//170 43 46      172 142 178
+        cv::Mat red2_higher(cv::Scalar(180, 255, 255));// 180 255 255    180 255 255
         cv::inRange(img_hsv_red1, red1_low, red1_higher, img_threshold_red1);
         cv::inRange(img_hsv_red2, red2_low, red2_higher, img_threshold_red2);
         img_threshold_red = img_threshold_red1 | img_threshold_red2;

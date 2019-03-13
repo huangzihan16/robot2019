@@ -411,7 +411,9 @@ void ConstraintSet::CalcControlInfo(const ArmorInfo & armor, cv::Point3f &target
                rvec,
                tvec);
   target_3d = cv::Point3f(tvec);
-
+std::cout<<"x"<<target_3d.x<<std::endl;
+std::cout<<"y"<<target_3d.y<<std::endl;
+std::cout<<"z"<<target_3d.z<<std::endl;
 }
 
 void ConstraintSet::CalcArmorInfo(std::vector<cv::Point2f> &armor_points,
