@@ -203,7 +203,7 @@ int main(int argc, char** argv)
         return 0;
     }
 */
-    ros::Rate loop_rate(60);
+    ros::Rate loop_rate(90);
     bool run = true;
     int loop_num=1;
     while(run == true && nh.ok())
@@ -232,8 +232,8 @@ int main(int argc, char** argv)
 	//check
 	if(!m_image.empty())
 	{
-	    //namedWindow("image");
-            //imshow("image", m_image);
+	    namedWindow("image");
+            imshow("image", m_image);
             waitKey(5);
            cam_info.height=1280;
 	    cam_info.width=1024;
@@ -241,7 +241,14 @@ int main(int argc, char** argv)
     // Add the most common distortion model as sensor_msgs/CameraInfo says
     cam_info.distortion_model = "plumb_bob";
     // Don't let distorsion matrix be empty
-    cam_info.D.resize(5, 0.0);
+    cam_info.D.resize(5, 0.0); 
+    cam_info.D[0] = -0.1457;// = boost::assign::list_of (-0.1457) (0.3406) (0.0) (0.0) (-0.2874);
+    cam_info.D[1] = 0.3406;
+    cam_info.D[2] = 0;
+    cam_info.D[3] = 0;
+    cam_info.D[4] = -0.2874;
+
+
     // Give a reasonable default intrinsic camera matrix
     cam_info.K = boost::assign::list_of(1070.05) (0.0) (660.4984)//(img->width/2.0)
             (0.0) (1069.202) (512.1221)

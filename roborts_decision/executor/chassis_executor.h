@@ -6,6 +6,7 @@
 #include "roborts_msgs/GlobalPlannerAction.h"
 #include "roborts_msgs/LocalPlannerAction.h"
 #include "roborts_msgs/TwistAccel.h"
+#include "roborts_msgs/GimbalAngle.h"
 #include "geometry_msgs/Twist.h"
 
 #include "../behavior_tree/behavior_state.h"
@@ -48,6 +49,8 @@ class ChassisExecutor{
    * @param twist_accel Given velocity with acceleration
    */
   void Execute(const roborts_msgs::TwistAccel &twist_accel);
+	
+  void Execute(const double yaw);	
   /**
    * @brief Update the current chassis executor state
    * @return Current chassis executor state(same with behavior state)
@@ -82,7 +85,7 @@ class ChassisExecutor{
   ros::Publisher cmd_vel_pub_;
   //! zero twist in form of ROS geometry_msgs::Twist
   geometry_msgs::Twist zero_twist_;
-
+  geometry_msgs::Twist set_w;
   //! velocity with accel publisher in ROS
   ros::Publisher cmd_vel_acc_pub_;
   //! zero twist with acceleration in form of ROS roborts_msgs::TwistAccel

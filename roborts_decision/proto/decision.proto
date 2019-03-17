@@ -10,10 +10,8 @@ message Point {
     optional float pitch = 5;
     optional float yaw   = 6;
     
-    optional bool yaw_mode = 7;
-    optional bool pitch_mode = 8;
-    optional float yaw_angle= 9;
-    optional float pitch_angle = 10;
+    optional float yaw_angle_min = 7;
+    optional float yaw_angle_max = 8;
 }
 
 message EscapeConstraint {
@@ -56,5 +54,8 @@ message DecisionConfig {
     repeated Point search_region_2 = 12;
     repeated Point search_region_3 = 13;
     repeated Point search_region_4 = 14;
+    optional float offset_x = 15;
+    optional float half_robot_length = 16;
+    optional int32 initial_bullet_num = 17;
 }
 

@@ -14,6 +14,8 @@
 #include "../example_behavior/goal_behavior.h"
 
 #include "../example_behavior/shoot_behavior.h"
+#include "../example_behavior/supply_behavior.h"
+#include "../example_behavior/round_behavior.h"
 
 #include "../behavior_tree/behavior_tree.h"
 #include "../behavior_tree/behavior_node.h"
@@ -33,6 +35,8 @@ class PatrolAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     std::cout << "PatrolAction OnInitialize" << std::endl;
+		patrol_behavior_.have_time_ = true;
+		patrol_behavior_.start_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {
@@ -282,6 +286,91 @@ class GoalAction : public ActionNode {
 
 }; // class GoalAction
 
+class SupplyGoalAction : public ActionNode {
+ public:
+  SupplyGoalAction(const Blackboard::Ptr &blackboard_ptr, SupplyGoalBehavior &supply_goal_behavior) :
+      ActionNode::ActionNode("supply_goal_behavior", blackboard_ptr), supply_goal_behavior_(supply_goal_behavior){
+
+  }
+
+  virtual ~SupplyGoalAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "SupplyGoalAction OnInitialize" << std::endl;
+		supply_goal_behavior_.have_execute_ = false;
+  };
+
+  virtual BehaviorState Update() {
+    supply_goal_behavior_.Run();
+
+    return supply_goal_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				supply_goal_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  SupplyGoalBehavior supply_goal_behavior_;
+};
+
+class GainBuffGoalAction : public ActionNode {
+ public:
+  GainBuffGoalAction(const Blackboard::Ptr &blackboard_ptr, GainBuffGoalBehavior &buff_goal_behavior) :
+      ActionNode::ActionNode("gain_buff_goal_behavior", blackboard_ptr), buff_goal_behavior_(buff_goal_behavior){
+  }
+
+  virtual ~GainBuffGoalAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "GainBuffGoalAction OnInitialize" << std::endl;
+		buff_goal_behavior_.have_execute_ = false;
+  };
+
+  virtual BehaviorState Update() {
+    buff_goal_behavior_.Run();
+
+    return buff_goal_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				buff_goal_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  GainBuffGoalBehavior buff_goal_behavior_;
+};
+
 class ShootAction : public ActionNode {
  public:
   ShootAction(const Blackboard::Ptr &blackboard_ptr, ShootBehavior &shoot_behavior) :
@@ -325,7 +414,138 @@ class ShootAction : public ActionNode {
 
 };// class ShootAction
 
+class SupplyApplicateNode : public ActionNode {
+ public:
+  SupplyApplicateNode(const Blackboard::Ptr &blackboard_ptr, SupplyBehavior &supply_application_behavior) :
+      ActionNode::ActionNode("supply_application_behavior", blackboard_ptr), supply_application_behavior_(supply_application_behavior){
 
+  }
+
+  virtual ~SupplyApplicateNode() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "SupplyApplicateNode OnInitialize" << std::endl;
+		supply_application_behavior_.application_time_ = ros::Time::now();
+  };
+
+  virtual BehaviorState Update() {
+    supply_application_behavior_.Run();
+	
+    return supply_application_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				supply_application_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  SupplyBehavior supply_application_behavior_;
+
+};
+
+class GainBuffGuardAction : public ActionNode {
+ public:
+  GainBuffGuardAction(const Blackboard::Ptr &blackboard_ptr, RoundBehavior &round_behavior) :
+      ActionNode::ActionNode("gain_buff_guard_behavior", blackboard_ptr), round_behavior_(round_behavior){
+  }
+
+  virtual ~GainBuffGuardAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "GainBuffGuardAction OnInitialize" << std::endl;
+		start_time_ = ros::Time::now();
+
+  };
+
+  virtual BehaviorState Update() {
+		round_behavior_.Run();
+		std::cout << "Buff Gainning" << std::endl;
+		ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 2) {
+			blackboard_ptr_->AddGainBuffNum();
+			round_behavior_.Cancel();
+			return BehaviorState::SUCCESS;
+		}
+		else
+			return BehaviorState::RUNNING;
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				round_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  RoundBehavior round_behavior_;
+	ros::Time start_time_;
+};
+
+class GuardAction : public ActionNode {
+ public:
+  GuardAction(const Blackboard::Ptr &blackboard_ptr, RoundBehavior &round_behavior) :
+      ActionNode::ActionNode("guard_behavior", blackboard_ptr), round_behavior_(round_behavior){
+  }
+
+  virtual ~GuardAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "GuardAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+			round_behavior_.Run();
+			return round_behavior_.Update();
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				round_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  RoundBehavior round_behavior_;
+};
 
 }//namespace roborts_decision
 #endif //ROBORTS_DECISION_ACTION_BEHAVIOR_H

@@ -1,6 +1,11 @@
 simulate: false
 master: true
 
+offset_x: 50
+half_robot_length: 350
+
+initial_bullet_num: 40
+
 wing_bot {
   start_position {
     x: 1.25 # 7.23
@@ -35,10 +40,8 @@ point {
   pitch: 0
   yaw:   0
   
-  yaw_mode:    true
-  pitch_mode:  true
-  yaw_angle:	 0
-  pitch_angle: 0
+  yaw_angle_min:	 0
+  yaw_angle_max:  1.57
 }
 
 point {
@@ -50,10 +53,8 @@ point {
   pitch: 0
   yaw:   3.14
   
-  yaw_mode:    true
-  pitch_mode:  true
-  yaw_angle:	 0
-  pitch_angle: 0
+  yaw_angle_min:	 0
+  yaw_angle_max:  1.57
 }
 
 
@@ -66,10 +67,8 @@ point {
   pitch: 0
   yaw:   3.14
   
-  yaw_mode:    true
-  pitch_mode:  true
-  yaw_angle:	 0
-  pitch_angle: 0
+  yaw_angle_min:	 0
+  yaw_angle_max:  1.57
 }
 
 point {
@@ -81,10 +80,8 @@ point {
   pitch: 0
   yaw:   0
   
-  yaw_mode:    true
-  pitch_mode:  true
-  yaw_angle:	 0
-  pitch_angle: 0
+  yaw_angle_min:	 0
+  yaw_angle_max:  1.57
 }
 
 escape {

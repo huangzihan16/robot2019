@@ -197,7 +197,7 @@ class ActionNode: public BehaviorNode{
    * @param blackboard_ptr Blackboard of the behavior node
    */
   ActionNode(std::string name, const Blackboard::Ptr &blackboard_ptr):
-      BehaviorNode::BehaviorNode(name, BehaviorType::ACTION, blackboard_ptr){}
+      BehaviorNode::BehaviorNode(name,BehaviorType::ACTION, blackboard_ptr){}
   virtual ~ActionNode() = default;
 
  protected:

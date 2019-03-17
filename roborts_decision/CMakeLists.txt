@@ -44,7 +44,8 @@ add_executable(behavior_test_node
   example_behavior/search_behavior.h
   behavior_test.cpp
   executor/chassis_executor.cpp
-  executor/gimbal_executor.cpp
+   executor/gimbal_executor.cpp
+   executor/shoot_executor.cpp
   )
 
 target_link_libraries(behavior_test_node
@@ -55,16 +56,10 @@ target_link_libraries(behavior_test_node
   )
 add_dependencies(behavior_test_node
   roborts_msgs_generate_messages)
-  
+
 add_executable(behavior_tree_test
 	${DecisionProtoHds}
   ${DecisionProtoSrc}
-  example_behavior/escape_behavior.h
-  example_behavior/back_boot_area_behavior.h
-  example_behavior/chase_behavior.h
-  example_behavior/patrol_behavior.h
-  example_behavior/search_behavior.h
-  example_behavior/shoot_behavior.h
   behavior_tree_test.cpp
   executor/chassis_executor.cpp
   executor/gimbal_executor.cpp
@@ -77,4 +72,21 @@ target_link_libraries(behavior_tree_test
   ${PROTOBUF_LIBRARIES}
 )
 add_dependencies(behavior_tree_test
+  roborts_msgs_generate_messages)
+  
+add_executable(test_chassis_round
+	${DecisionProtoHds}
+  ${DecisionProtoSrc}
+  test.cpp
+  executor/chassis_executor.cpp
+  executor/gimbal_executor.cpp
+  executor/shoot_executor.cpp
+)
+target_link_libraries(test_chassis_round
+  PRIVATE
+  roborts_costmap
+  ${catkin_LIBRARIES}
+  ${PROTOBUF_LIBRARIES}
+)
+add_dependencies(test_chassis_round
   roborts_msgs_generate_messages)

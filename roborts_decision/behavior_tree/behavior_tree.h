@@ -60,7 +60,7 @@ class BehaviorTree {
       if (sleep_time > std::chrono::microseconds(0)) {
 
         std::this_thread::sleep_for(sleep_time);
-        ROS_INFO("Excution Duration: %ld / %ld ms", cycle_duration_.count(), cycle_duration_.count());
+        ROS_INFO("Excution Duration: %ld / %ld ms", execution_duration.count(), cycle_duration_.count());
 
       } else {
 

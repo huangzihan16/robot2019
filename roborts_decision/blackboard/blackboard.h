@@ -22,6 +22,7 @@
 #include <tf/transform_listener.h>
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <roborts_msgs/GimbalAngle.h>
 
 #include "roborts_msgs/ArmorDetectionAction.h"
 
@@ -38,7 +39,12 @@ class Blackboard {
   typedef roborts_costmap::Costmap2D CostMap2D;
   explicit Blackboard(const std::string &proto_file_path):
       enemy_detected_(false),
-      armor_detection_actionlib_client_("armor_detection_node_action", true){
+      armor_detection_actionlib_client_("armor_detection_node_action", true),
+			remain_hp_(2000), shooter_heat_(0), shoot_vel_(25),
+			supply_number_(0),
+			gain_buff_number_(0){
+
+    start_time_ = ros::Time::now();
 
     tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
 
@@ -55,6 +61,7 @@ class Blackboard {
     enemy_sub_ = rviz_nh.subscribe<geometry_msgs::PoseStamped>("goal", 1, &Blackboard::GoalCallback, this);
 
     ros::NodeHandle nh;
+		gimbal_angle_sub_= nh.subscribe<roborts_msgs::GimbalAngle>("cmd_gimbal_angle",100 , &Blackboard::GimbalCallback, this);
 
     roborts_decision::DecisionConfig decision_config;
     roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config);
@@ -71,8 +78,7 @@ class Blackboard {
                                                  actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleActiveCallback(),
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
     }
-
-
+		bullet_num_ = decision_config.initial_bullet_num();
   }
 
   ~Blackboard() = default;
@@ -87,12 +93,25 @@ class Blackboard {
       tf::Stamped<tf::Pose> tf_pose, global_tf_pose;
       geometry_msgs::PoseStamped camera_pose_msg, global_pose_msg;
       camera_pose_msg = feedback->enemy_pos;
+      //剔除无效值
+      if(camera_pose_msg.pose.position.z < 1.0)
+        return;
 
-      double distance = std::sqrt(camera_pose_msg.pose.position.x * camera_pose_msg.pose.position.x +
-          camera_pose_msg.pose.position.y * camera_pose_msg.pose.position.y);
-      double yaw = atan(camera_pose_msg.pose.position.y / camera_pose_msg.pose.position.x);
+			enemy_pose_camera_ = camera_pose_msg;
 
+      camera_pose_msg.header.frame_id = "base_link";
+      double yaw = GetGimbalYaw();
+      double pos_x = camera_pose_msg.pose.position.z/1000;
+      double pos_y = -camera_pose_msg.pose.position.x/1000;
+      camera_pose_msg.pose.position.x = pos_x * cos(yaw) - pos_y * sin(yaw);
+      camera_pose_msg.pose.position.y = pos_x * sin(yaw) + pos_y * cos(yaw);
+			camera_pose_msg.pose.position.z = 0;
+
+      // double distance = std::sqrt(camera_pose_msg.pose.position.x * camera_pose_msg.pose.position.x +
+      //     camera_pose_msg.pose.position.y * camera_pose_msg.pose.position.y);
+      // double yaw = atan(camera_pose_msg.pose.position.y / camera_pose_msg.pose.position.x);
       //camera_pose_msg.pose.position.z=camera_pose_msg.pose.position.z;
+      yaw = 0;
       tf::Quaternion quaternion = tf::createQuaternionFromRPY(0,
                                                               0,
                                                               yaw);
@@ -100,18 +119,24 @@ class Blackboard {
       camera_pose_msg.pose.orientation.x = quaternion.x();
       camera_pose_msg.pose.orientation.y = quaternion.y();
       camera_pose_msg.pose.orientation.z = quaternion.z();
-      poseStampedMsgToTF(camera_pose_msg, tf_pose);
 
+      // std::cout <<"camera_pose_msg:" << camera_pose_msg << std::endl;
+
+      poseStampedMsgToTF(camera_pose_msg, tf_pose);
+			
       tf_pose.stamp_ = ros::Time(0);
       try
       {
         tf_ptr_->transformPose("map", tf_pose, global_tf_pose);
         tf::poseStampedTFToMsg(global_tf_pose, global_pose_msg);
 
+        //tf_ptr_->transformPose("map", camera_pose_msg, global_pose_msg);
         if(GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.2){
           enemy_pose_ = global_pose_msg;
 
+
         }
+        // std::cout <<"enemy_pose:" << enemy_pose_ << std::endl;
       }
       catch (tf::TransformException &ex) {
         ROS_ERROR("tf error when transform enemy pose from camera to map");
@@ -127,6 +152,10 @@ class Blackboard {
   geometry_msgs::PoseStamped GetEnemy() const {
     return enemy_pose_;
   }
+  
+  geometry_msgs::PoseStamped GetEnemyInCamera() const {
+    return enemy_pose_camera_;
+  }
 
   bool IsEnemyDetected() const{
     
@@ -136,9 +165,9 @@ class Blackboard {
   }
 
   bool IsBulletLeft() const{
-    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num);
+    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
     return true;
-    if(bullet_num > 5){
+    if(bullet_num_ > 5){
       return true;
     } else{
       return false;
@@ -163,20 +192,61 @@ class Blackboard {
       return false;
     }
   }
-  
+  void GimbalCallback(const roborts_msgs::GimbalAngle gimbalangle){
+    cmd_gimbal_angle_ = gimbalangle;
+  }
+  roborts_msgs::GimbalAngle GetGimbalAngle() const {
+     return cmd_gimbal_angle_;
+  }
+
+  double GetGimbalYaw()
+  {
+    UpdateGimbalPose();
+    tf::Quaternion q;
+    tf::quaternionMsgToTF(gimbal_base_pose_.pose.orientation, q);
+    double roll,pitch,yaw;
+    tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+    return yaw;
+  }
+
   //测试，给固定目标点
   geometry_msgs::PoseStamped GetFixedGoal() {
 
     geometry_msgs::PoseStamped fix_goal;
     ros::Time current_time = ros::Time::now();
     fix_goal.header.stamp = current_time;
-    fix_goal.pose.position.x = 3.7;
-    fix_goal.pose.position.y = 4.3;
+    fix_goal.pose.position.x = 4;
+    fix_goal.pose.position.y = 0.5;
+    fix_goal.pose.position.z = 0.0;
+    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(90.0/180*3.14);
+
+    return fix_goal;
+  }
+  geometry_msgs::PoseStamped GetSupplyGoal() {
+
+    geometry_msgs::PoseStamped fix_goal;
+    ros::Time current_time = ros::Time::now();
+    fix_goal.header.stamp = current_time;
+    fix_goal.pose.position.x = 4;
+    fix_goal.pose.position.y = 4.5;
     fix_goal.pose.position.z = 0.0;
     fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
 
     return fix_goal;
-  }  /*---------------------------------- Tools ------------------------------------------*/
+  }
+  geometry_msgs::PoseStamped GetGuardGoal() {
+
+    geometry_msgs::PoseStamped fix_goal;
+    ros::Time current_time = ros::Time::now();
+    fix_goal.header.stamp = current_time;
+    fix_goal.pose.position.x = 6.3;
+    fix_goal.pose.position.y = 1.75;
+    fix_goal.pose.position.z = 0.0;
+    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(90.0/180*3.14);
+
+    return fix_goal;
+  }
+  /*---------------------------------- Tools ------------------------------------------*/
 
   double GetDistance(const geometry_msgs::PoseStamped &pose1,
                      const geometry_msgs::PoseStamped &pose2) {
@@ -202,6 +272,12 @@ class Blackboard {
     return robot_map_pose_;
   }
 
+  const geometry_msgs::PoseStamped GetGimbalBasePose() {
+    UpdateGimbalPose();
+    return gimbal_base_pose_;
+  }
+
+
   const std::shared_ptr<CostMap> GetCostMap(){
     return costmap_ptr_;
   }
@@ -213,7 +289,52 @@ class Blackboard {
   const unsigned char* GetCharMap() {
     return charmap_;
   }
-
+  
+  const int GetBulletNum() {
+		return bullet_num_;
+	}
+	const int GetRemainHP() {
+		return remain_hp_;
+	}
+	const int GetShooterHeat() {
+		return shooter_heat_;
+	}
+	const int GetShootVel() {
+		return shoot_vel_;
+	}
+	
+	bool IsSupplyCondition() {
+		ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 60 * supply_number_)
+			return true;
+		else
+			return false;
+	}
+	void AddSupplyNum() {
+		supply_number_++;
+		bullet_num_ += 50;
+	}
+	void AddGainBuffNum() {
+		gain_buff_number_++;
+	}
+	
+	bool IsGainBuffCondition() {
+		ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 60 * gain_buff_number_)
+			return true;
+		else
+			return false;
+	}
+	bool ArriveGainBuff() {
+		UpdateRobotPose();
+		double delta_x = robot_map_pose_.pose.position.x - 6.3;
+		double delta_y = robot_map_pose_.pose.position.y - 1.75;
+		
+		if (delta_x * delta_x + delta_y * delta_y < 0.01) 
+			return true;
+		else 
+			return false;
+	}
  private:
   void UpdateRobotPose() {
     tf::Stamped<tf::Pose> robot_tf_pose;
@@ -230,6 +351,23 @@ class Blackboard {
       ROS_ERROR("Transform Error looking up robot pose: %s", ex.what());
     }
   }
+
+  void UpdateGimbalPose() {
+    tf::Stamped<tf::Pose> gimbal_tf_pose;
+    gimbal_tf_pose.setIdentity();
+
+    gimbal_tf_pose.frame_id_ = "gimbal";
+    gimbal_tf_pose.stamp_ = ros::Time();
+    try {
+      geometry_msgs::PoseStamped gimbal_pose;
+      tf::poseStampedTFToMsg(gimbal_tf_pose, gimbal_pose);
+      tf_ptr_->transformPose("base_link", gimbal_pose, gimbal_base_pose_);
+    }
+    catch (tf::LookupException &ex) {
+      ROS_ERROR("Transform Error looking up robot pose: %s", ex.what());
+    }
+  }
+
   //! tf
   std::shared_ptr<tf::TransformListener> tf_ptr_;
 
@@ -243,7 +381,9 @@ class Blackboard {
   //! Enemy info
   actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction> armor_detection_actionlib_client_;
   roborts_msgs::ArmorDetectionGoal armor_detection_goal_;
+	geometry_msgs::PoseStamped enemy_pose_camera_;
   geometry_msgs::PoseStamped enemy_pose_;
+		
   bool enemy_detected_;
 
   //! cost map
@@ -253,10 +393,24 @@ class Blackboard {
 
   //! robot map pose
   geometry_msgs::PoseStamped robot_map_pose_;
+  //云台相对底盘位姿  
+  geometry_msgs::PoseStamped  gimbal_base_pose_;
 
   //! bullet info
-  int bullet_num;
-
+  int bullet_num_;
+  int remain_hp_;
+  int bullet_freq_;
+  int shooter_heat_;
+  int shoot_vel_;
+	
+	ros::Subscriber gimbal_angle_sub_;
+	roborts_msgs::GimbalAngle cmd_gimbal_angle_;
+	//time and supply
+	ros::Time start_time_;
+public:
+	int supply_number_;	
+	
+	int gain_buff_number_;
 };
 } //namespace roborts_decision
 #endif //ROBORTS_DECISION_BLACKBOARD_H

@@ -1,5 +1,6 @@
 #ifndef ROBORTS_DECISION_SHOOT_EXECUTOR_H
 #define ROBORTS_DECISION_SHOOT_EXECUTOR_H
+
 #include "ros/ros.h"
 
 #include "roborts_msgs/ShootCmd.h"
