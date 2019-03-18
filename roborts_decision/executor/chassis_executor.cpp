@@ -45,24 +45,11 @@ void ChassisExecutor::Execute(const roborts_msgs::TwistAccel &twist_accel){
 void ChassisExecutor::Execute(const double yaw){
   static float angular_vel = 1.0;
 	if( execution_mode_ == ExcutionMode::GOAL_MODE){
-		std::cout << "111111111111111" << std::endl;
-
-    Cancel();
+	  Cancel();
   }
 	execution_mode_ = ExcutionMode::SPEED_MODE;
 	
   float limitangle_ = M_PI/4;
-    // if(yaw>=0){
-    //   if(limitangle_-yaw>0)
-    //      set_w.angular.z=-1;
-    //   else  set_w.angular.z=1;
-    // }
-
-    // if(yaw<0){
-    //   if(yaw+limitangle_>0)
-    //      set_w.angular.z=1;
-    //   else  set_w.angular.z=-1;
-    // }
 
   if(yaw < -limitangle_)
     angular_vel = -1;
@@ -75,6 +62,7 @@ void ChassisExecutor::Execute(const double yaw){
 
 BehaviorState ChassisExecutor::Update(){
   actionlib::SimpleClientGoalState state = actionlib::SimpleClientGoalState::LOST;
+  std::cout << "mode" << (int)execution_mode_ << std::endl;
   switch (execution_mode_){
     case ExcutionMode::IDLE_MODE:
       execution_state_ = BehaviorState::IDLE;
@@ -146,6 +134,12 @@ void ChassisExecutor::Cancel(){
   }
 
 }
+
+void ChassisExecutor::SetMode(ExcutionMode mode)
+{
+  execution_mode_ = mode;
+}
+
 
 void ChassisExecutor::GlobalPlannerFeedbackCallback(const roborts_msgs::GlobalPlannerFeedbackConstPtr& global_planner_feedback){
   if (!global_planner_feedback->path.poses.empty()) {

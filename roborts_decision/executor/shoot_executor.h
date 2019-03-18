@@ -22,7 +22,10 @@ class ShootExecutor{
   ~ShootExecutor() = default;
 
   void Execute(roborts_msgs::ShootCmd &shoot_cmd);
-
+  
+  bool GetIsPublished(){
+    return is_published_;
+  }
 
   BehaviorState Update();
 

@@ -26,20 +26,25 @@ class ShootBehavior {
   }
 
   void Run() {
-		float enemy_x_shooter = (float)blackboard_->GetEnemyInCamera().pose.position.x + offset_x_;
-		if (enemy_x_shooter < 350) {
+		float enemy_x_shooter = (float)blackboard_->GetEnemyInCamera().pose.position.x/1000 + offset_x_;
+    std::cout << "enemy_x_shooter" << enemy_x_shooter << std::endl;
+		if (enemy_x_shooter < 0.35 && enemy_x_shooter > -0.35) {
 		
 			auto executor_state = Update();
 			std::cout << "state: " << (int)(executor_state) << std::endl;
 
 			std::cout << "send shoot_cmd" << std::endl;
 			
-			shootdecision();
-			//shoot_cmd_.request.mode = 1;
-			//shoot_cmd_.request.number = 1;
+			//shootdecision();
+			shoot_cmd_.request.mode = 1;
+			shoot_cmd_.request.number = 1;
 			shoot_executor_->Execute(shoot_cmd_);
-			chassis_executor_->Execute(blackboard_->GetGimbalYaw());
+      //if(shoot_executor_->GetIsPublished()){
+        //blackboard_->MinusShootNum(shoot_cmd_);
+      //}
+			
 		}
+    chassis_executor_->Execute(blackboard_->GetGimbalYaw());
   }
 
   void Cancel() {
@@ -49,7 +54,6 @@ class ShootBehavior {
   BehaviorState Update() {
     return shoot_executor_->Update();
   }
-
 
   ~ShootBehavior() = default;
 
@@ -85,7 +89,7 @@ class ShootBehavior {
     
     //mode 0 stop 1 once 2 continuous 
     shoot_cmd_.request.mode = 1;
-    shoot_cmd_.request.number = f_max;
+    shoot_cmd_.request.number = 1;
 	}
   //! executor
   ShootExecutor* const shoot_executor_;

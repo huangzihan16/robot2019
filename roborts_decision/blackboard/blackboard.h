@@ -29,8 +29,15 @@
 #include "io/io.h"
 #include "../proto/decision.pb.h"
 #include "costmap/costmap_interface.h"
+#include "std_msgs/Int16.h"
 
 namespace roborts_decision{
+
+enum class Identity {
+	MASTER = 0,
+	SERVANT,
+	SAME
+};
 
 class Blackboard {
  public:
@@ -62,7 +69,10 @@ class Blackboard {
 
     ros::NodeHandle nh;
 		gimbal_angle_sub_= nh.subscribe<roborts_msgs::GimbalAngle>("cmd_gimbal_angle",100 , &Blackboard::GimbalCallback, this);
-
+    
+    //robort2_bullet_num_sub_= nh.subscribe<std_msgs::Int16>("/robort2/bullet_num", 1, &Blackboard::Robort2BulletNumCallback, this);
+    //robort2_remain_HP_sub_= nh.subscribe<std_msgs::Int16>("/robort2/remain_HP", 1, &Blackboard::Robort2RemainHPCallback, this);
+		
     roborts_decision::DecisionConfig decision_config;
     roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config);
 
@@ -82,7 +92,6 @@ class Blackboard {
   }
 
   ~Blackboard() = default;
-
 
   // Enemy
   void ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback){
@@ -133,8 +142,6 @@ class Blackboard {
         //tf_ptr_->transformPose("map", camera_pose_msg, global_pose_msg);
         if(GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.2){
           enemy_pose_ = global_pose_msg;
-
-
         }
         // std::cout <<"enemy_pose:" << enemy_pose_ << std::endl;
       }
@@ -166,7 +173,7 @@ class Blackboard {
 
   bool IsBulletLeft() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
-    return true;
+    //return true;
     if(bullet_num_ > 5){
       return true;
     } else{
@@ -192,6 +199,15 @@ class Blackboard {
       return false;
     }
   }
+
+  void Robort2BulletNumCallback(const std_msgs::Int16::ConstPtr& robort2_bullet_num){
+    robort2_bullet_num_ = *robort2_bullet_num;
+  }
+
+  void Robort2RemainHPCallback(const std_msgs::Int16::ConstPtr& robort2_remain_HP){
+    robort2_remain_HP_ = *robort2_remain_HP;
+  }
+
   void GimbalCallback(const roborts_msgs::GimbalAngle gimbalangle){
     cmd_gimbal_angle_ = gimbalangle;
   }
@@ -314,6 +330,12 @@ class Blackboard {
 		supply_number_++;
 		bullet_num_ += 50;
 	}
+
+    void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
+    bullet_num_ -= shoot_cmd.request.number;
+    ROS_INFO("%d can't open file", bullet_num_);
+  }
+  
 	void AddGainBuffNum() {
 		gain_buff_number_++;
 	}
@@ -407,6 +429,12 @@ class Blackboard {
 	roborts_msgs::GimbalAngle cmd_gimbal_angle_;
 	//time and supply
 	ros::Time start_time_;
+
+    // robort2 information
+  std_msgs::Int16 robort2_bullet_num_;
+  std_msgs::Int16 robort2_remain_HP_;
+  ros::Subscriber robort2_bullet_num_sub_;
+  ros::Subscriber robort2_remain_HP_sub_;
 public:
 	int supply_number_;	
 	

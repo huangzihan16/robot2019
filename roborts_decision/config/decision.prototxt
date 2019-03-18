@@ -1,7 +1,7 @@
 simulate: false
 master: true
 
-offset_x: 50
+offset_x: 0.03
 half_robot_length: 350
 
 initial_bullet_num: 40
@@ -40,8 +40,8 @@ point {
   pitch: 0
   yaw:   0
   
-  yaw_angle_min:	 0
-  yaw_angle_max:  1.57
+  yaw_angle_min:	-0.43
+  yaw_angle_max:  0.43
 }
 
 point {
@@ -53,8 +53,8 @@ point {
   pitch: 0
   yaw:   3.14
   
-  yaw_angle_min:	 0
-  yaw_angle_max:  1.57
+  yaw_angle_min:	-0.43
+  yaw_angle_max:  0.43
 }
 
 
@@ -67,8 +67,8 @@ point {
   pitch: 0
   yaw:   3.14
   
-  yaw_angle_min:	 0
-  yaw_angle_max:  1.57
+  yaw_angle_min:	-0.43
+  yaw_angle_max:  0.43
 }
 
 point {
@@ -80,8 +80,8 @@ point {
   pitch: 0
   yaw:   0
   
-  yaw_angle_min:	 0
-  yaw_angle_max:  1.57
+  yaw_angle_min:	 -0.43
+  yaw_angle_max:  0.43
 }
 
 escape {

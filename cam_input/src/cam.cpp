@@ -50,8 +50,8 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   image_transport::ImageTransport it(nh);
-  image_transport::Publisher pub = it.advertise("/back_camera/image_raw", 100);
-  ros::Publisher pub2 = nh.advertise<sensor_msgs::CameraInfo>("/back_camera/camera_info",100);
+  image_transport::Publisher pub = it.advertise("back_camera/image_raw", 100);
+  ros::Publisher pub2 = nh.advertise<sensor_msgs::CameraInfo>("back_camera/camera_info",100);
   
   //dhcam
     uid_t user = 0;

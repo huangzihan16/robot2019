@@ -51,6 +51,8 @@ class ChassisExecutor{
   void Execute(const roborts_msgs::TwistAccel &twist_accel);
 	
   void Execute(const double yaw);	
+
+  void SetMode(ExcutionMode mode);
   /**
    * @brief Update the current chassis executor state
    * @return Current chassis executor state(same with behavior state)

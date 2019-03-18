@@ -17,7 +17,7 @@ class PatrolBehavior {
   PatrolBehavior(ChassisExecutor* &chassis_executor, GimbalExecutor* &gimbal_executor,
                  Blackboard* &blackboard,
                  const std::string & proto_file_path) : chassis_executor_(chassis_executor), gimbal_executor_(gimbal_executor),
-                                                        blackboard_(blackboard), have_time_(false) {
+                                                        blackboard_(blackboard), have_time_(true) {
 
     patrol_count_ = 0;
     point_size_ = 0;
@@ -32,12 +32,15 @@ class PatrolBehavior {
 
     auto executor_state = Update();
 
-    std::cout << "state: " << (int)(executor_state) << std::endl;
+    std::cout << "state: " << (int)(executor_state) << have_time_<< std::endl;
 
-    // ros::Duration patrol_duration = ros::Time::now() - start_time_;
-		// int patrol_gimbal_goal = patrol_duration.toNSec() % 2;
+     ros::Duration patrol_duration = ros::Time::now() - start_time_;
+		 int patrol_gimbal_goal = (int)(patrol_duration.toSec()) % 2;
 			
-		// gimbal_executor_->Execute(patrol_gimbal_goals_[patrol_count_][patrol_gimbal_goal]);
+		 gimbal_executor_->Execute(patrol_gimbal_goals_[patrol_count_][patrol_gimbal_goal]);
+
+    chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
+
     if (executor_state != BehaviorState::RUNNING) {
 
       if (patrol_goals_.empty()) {
@@ -47,8 +50,6 @@ class PatrolBehavior {
 
       std::cout << "send goal" << std::endl;
       chassis_executor_->Execute(patrol_goals_[patrol_count_]);
-			
-			
 			
       patrol_count_ = ++patrol_count_ % point_size_;
     }

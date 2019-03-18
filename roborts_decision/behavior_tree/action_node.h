@@ -35,12 +35,13 @@ class PatrolAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     std::cout << "PatrolAction OnInitialize" << std::endl;
-		patrol_behavior_.have_time_ = true;
+		// patrol_behavior_.have_time_ = true;
 		patrol_behavior_.start_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {
     patrol_behavior_.Run();
+    std::cout << "PatrolAction up" << std::endl;
 	
     return patrol_behavior_.Update();
 

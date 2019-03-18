@@ -18,6 +18,8 @@
 #include "blackboard/blackboard.h"
 #include "behavior_tree/action_node.h"
 
+#include "std_msgs/Int16.h"
+
 int main(int argc, char **argv) {
   ros::init(argc, argv, "behavior_test_node");
   std::string full_path = ros::package::getPath("roborts_decision") + "/config/decision.prototxt";
@@ -27,13 +29,16 @@ int main(int argc, char **argv) {
   auto shoot_executor = new roborts_decision::ShootExecutor;
   auto blackboard = new roborts_decision::Blackboard(full_path);
 	
+  //ros::NodeHandle nh;
+  //ros::Publisher bullet_num_pub = nh.advertise<std_msgs::Int16>("bullet_num", 1);
+  //ros::Publisher remain_HP_pub = nh.advertise<std_msgs::Int16>("remain_HP", 1);
+
   std::shared_ptr<roborts_decision::Blackboard> blackboard_ptr_(blackboard);
  // behavior
   //roborts_decision::BackBootAreaBehavior back_boot_area_behavior(chassis_executor, blackboard, full_path);
   //roborts_decision::ChaseBehavior        chase_behavior(chassis_executor, blackboard, full_path);
   //roborts_decision::SearchBehavior       search_behavior(chassis_executor, blackboard, full_path);
 
-  
   roborts_decision::ShootBehavior shoot_behavior(shoot_executor, chassis_executor, blackboard, full_path);
  
  //action
@@ -122,10 +127,10 @@ int main(int argc, char **argv) {
 	
 	std::shared_ptr<roborts_decision::PreconditionNode> guard_condition_(new roborts_decision::PreconditionNode("guard condition", blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->IsEnemyDetected() && !blackboard_ptr_->IsBulletLeft()) {
-																																																	return true;
-																																																} else {
+																																																if (blackboard_ptr_->IsBulletLeft()) {
 																																																	return false;
+																																																} else {
+																																																	return true;
 																																																}
 																																															}, roborts_decision::AbortType::BOTH));
 	roborts_decision::RoundBehavior guard_behavior(chassis_executor, blackboard, 10);
@@ -135,30 +140,33 @@ int main(int argc, char **argv) {
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 //	root_node->AddChildren(supply_condition_);
 //	root_node->AddChildren(gain_buff_condition_);
-  root_node->AddChildren(shoot_selector_condition_);
 	root_node->AddChildren(patrol_condition_);
-	root_node->AddChildren(guard_condition_);
+  root_node->AddChildren(shoot_selector_condition_);
+
 	
-	supply_condition_->SetChild(supply_sequence);
+	/*supply_condition_->SetChild(supply_sequence);
 	supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
 	
 	gain_buff_condition_->SetChild(gain_buff_sequence);
 	gain_buff_sequence->AddChildren(gain_buff_goal_action_);
-	gain_buff_sequence->AddChildren(gain_buff_guard_action_);
+	gain_buff_sequence->AddChildren(gain_buff_guard_action_);*/
 	
   shoot_selector_condition_->SetChild(shoot_selector);
   //shoot_selector->AddChildren(escape_condition_);
   shoot_selector->AddChildren(shoot_condition_);
+  //shoot_selector->AddChildren(guard_condition_);
 	shoot_condition_->SetChild(shoot_action_);
+  guard_condition_->SetChild(guard_action_);
 
   //escape_condition_->SetChild(escape_action_);
 	patrol_condition_->SetChild(patrol_action_);
-	guard_condition_->SetChild(guard_action_);
 
-  while(ros::ok())
+  while(ros::ok()){
     behaviortree.Run();
-  
+    //bullet_num_pub.publish(blackboard->GetBulletNum());
+    //remain_HP_pub.publish(blackboard->GetRemainHP());
+  }  
   ros::waitForShutdown();
   return 0;
 }
