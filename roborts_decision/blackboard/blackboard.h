@@ -175,6 +175,25 @@ class Blackboard {
     PublishPartnerInformation();
   }
 
+
+  bool IsMasterCondition(){
+       return true;
+  }
+
+  bool IsMasterSupplyCondition(){
+      if(GetPartnerStatus()==PartnerStatus::SUPPLY)
+         return true;
+      else
+         return false;
+
+  }
+  bool IsMasterGainBuffCondition(){
+     if(GetPartnerStatus()==PartnerStatus::GAINBUFF)
+         return true;
+      else
+         return false;
+  }
+
   geometry_msgs::PoseStamped GetEnemy() const {
     return enemy_pose_;
   }
@@ -385,9 +404,18 @@ class Blackboard {
 		partner_patrol_count_ = partner_info->patrol_count;
 	}
 
-	bool PartnerDetectEnemy () {
+	bool IsPartnerDetectEnemy () {
 		return partner_detect_enemy_;
 	}
+
+  geometry_msgs::PoseStamped GetPartnerEnemyPose(){
+    return partner_enemy_pose_;
+  }
+
+  PartnerStatus GetPartnerStatus(){
+    return partner_status_;
+  }
+
 
   void PublishPartnerInformation() {
     partner_msg_pub_.enemy_detected = enemy_detected_;

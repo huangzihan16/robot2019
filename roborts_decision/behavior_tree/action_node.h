@@ -16,6 +16,8 @@
 #include "../example_behavior/shoot_behavior.h"
 #include "../example_behavior/supply_behavior.h"
 #include "../example_behavior/round_behavior.h"
+#include "../example_behavior/support_behavior.h"
+
 
 #include "../behavior_tree/behavior_tree.h"
 #include "../behavior_tree/behavior_node.h"
@@ -546,6 +548,46 @@ class GuardAction : public ActionNode {
   }
 
   RoundBehavior round_behavior_;
+};
+
+class SupportAction : public ActionNode {
+ public:
+  SupportAction(const Blackboard::Ptr &blackboard_ptr, SupportBehavior &support_behavior) :
+      ActionNode::ActionNode("support_behavior", blackboard_ptr), support_behavior_(support_behavior){
+
+      }
+
+  virtual ~SupportAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    std::cout << "SupportAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+			support_behavior_.Run();
+			return support_behavior_.Update();
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				support_behavior_.Cancel();
+        std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  SupportBehavior support_behavior_;
 };
 
 }//namespace roborts_decision

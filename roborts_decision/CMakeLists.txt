@@ -74,19 +74,19 @@ target_link_libraries(behavior_tree_test
 add_dependencies(behavior_tree_test
   roborts_msgs_generate_messages)
   
-add_executable(test_chassis_round
+add_executable(dual_behavior_tree_test
 	${DecisionProtoHds}
   ${DecisionProtoSrc}
-  test.cpp
+  dual_tree_test.cpp
   executor/chassis_executor.cpp
   executor/gimbal_executor.cpp
   executor/shoot_executor.cpp
 )
-target_link_libraries(test_chassis_round
+target_link_libraries(dual_behavior_tree_test
   PRIVATE
   roborts_costmap
   ${catkin_LIBRARIES}
   ${PROTOBUF_LIBRARIES}
 )
-add_dependencies(test_chassis_round
+add_dependencies(dual_behavior_tree_test
   roborts_msgs_generate_messages)
