@@ -43,7 +43,6 @@ float GimbalContrl::BulletModel(float x, float v, float angle) { //x:m,v:m/s,ang
 }
 
 //x:distance , y: height
-/*
 float GimbalContrl::GetPitch(float x, float y, float v) {
   float y_temp, y_actual, dy;
   float a;
@@ -52,8 +51,7 @@ float GimbalContrl::GetPitch(float x, float y, float v) {
   for (int i = 0; i < 20; i++) {
     a = (float) atan2(y_temp, x);
     y_actual = BulletModel(x, v, a);
-    dy = y - y_actual;process[master]: started with pid [2406]
-
+    dy = y - y_actual;
     y_temp = y_temp + dy;
     if (fabsf(dy) < 0.001) {
       break;
@@ -62,7 +60,7 @@ float GimbalContrl::GetPitch(float x, float y, float v) {
   }
   return a;
 
-}*/
+}
 
 /*
 void ShootCallBack(const roborts_msgs::Shootfk::ConstPtr& msg)
@@ -96,13 +94,13 @@ pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(
 
 if(postion.z > 2000 && postion.z <=3000)
 {
-offset_pitch_ = 2.5;
+offset_pitch_ = 2;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
 if(postion.z > 3000 && postion.z <=4000)
 {
-offset_pitch_ = 1.5;
+offset_pitch_ = 1;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
@@ -116,7 +114,7 @@ pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(
 
   //yaw positive direction :anticlockwise
   yaw = -(float) (atan2(postion.x + offset_.x, postion.z + offset_.z)) + (float)(offset_yaw_ * 3.1415926535 / 180);
-  yaw = yaw * 0.7;
+  yaw = yaw * 0.6;
 std::cout<<"pitch is: "<<pitch<<std::endl;
 std::cout<<"yaw is: "<<yaw<<std::endl;
 

@@ -132,39 +132,28 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, cv::Point3f &target_3d) {
 
   auto detection_begin = std::chrono::high_resolution_clock::now();
 
-    cv::Mat roi = cv::Mat::zeros(src_img_.size(),CV_8U);
-    std::vector< std::vector<cv::Point> > contour;
-    std::vector<cv::Point> pts;
-    pts.push_back(cv::Point(0,290));
-    pts.push_back(cv::Point(1280,290));
-    pts.push_back(cv::Point(1280,1024));
-    pts.push_back(cv::Point(0,1024));
-    contour.push_back(pts);
-    drawContours(roi,contour,0,cv::Scalar::all(255),-1);
-    cv::Mat src_roi;
-    src_img_.copyTo(src_roi,roi);
-    cv::cvtColor(src_roi, gray_img_, CV_BGR2GRAY);
+    cv::cvtColor(src_img_, gray_img_, CV_BGR2GRAY);
     if (enable_debug_) {
-      show_lights_before_filter_ = src_roi.clone();
-      show_lights_after_filter_ = src_roi.clone();
-      show_armors_befor_filter_ = src_roi.clone();
-      show_armors_after_filter_ = src_roi.clone();
+      show_lights_before_filter_ = src_img_.clone();
+      show_lights_after_filter_ = src_img_.clone();
+      show_armors_befor_filter_ = src_img_.clone();
+      show_armors_after_filter_ = src_img_.clone();
       cv::waitKey(1);
     }
 
-    DetectLights(src_roi, lights);
+    DetectLights(src_img_, lights);
     FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
     if(!armors.empty()) {
       detected = true;
       ArmorInfo final_armor = SlectFinalArmor(armors);
-      cv_toolbox_->DrawRotatedRect(src_roi, armors[0].rect, cv::Scalar(0, 255, 0), 2);
+      cv_toolbox_->DrawRotatedRect(src_img_, armors[0].rect, cv::Scalar(0, 255, 0), 2);
       CalcControlInfo(final_armor, target_3d);
     } else
       detected = false;
     if(enable_debug_) {
-      cv::imshow("relust_img_", src_roi);
+      cv::imshow("relust_img_", src_img_);
     }
 
   lights.clear();

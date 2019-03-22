@@ -27,6 +27,7 @@ add_message_files(
   ObstacleMsg.msg
   ShootInfo.msg
   ShootState.msg
+  PartnerInformation.msg
 )
 
 add_service_files(

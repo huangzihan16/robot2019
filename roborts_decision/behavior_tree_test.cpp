@@ -138,19 +138,19 @@ int main(int argc, char **argv) {
 	
 
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
-//	root_node->AddChildren(supply_condition_);
-//	root_node->AddChildren(gain_buff_condition_);
+	//root_node->AddChildren(supply_condition_);
+	//root_node->AddChildren(gain_buff_condition_);
 	root_node->AddChildren(patrol_condition_);
   root_node->AddChildren(shoot_selector_condition_);
 
 	
-	/*supply_condition_->SetChild(supply_sequence);
+	supply_condition_->SetChild(supply_sequence);
 	supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
 	
 	gain_buff_condition_->SetChild(gain_buff_sequence);
 	gain_buff_sequence->AddChildren(gain_buff_goal_action_);
-	gain_buff_sequence->AddChildren(gain_buff_guard_action_);*/
+	gain_buff_sequence->AddChildren(gain_buff_guard_action_);
 	
   shoot_selector_condition_->SetChild(shoot_selector);
   //shoot_selector->AddChildren(escape_condition_);

@@ -57,5 +57,7 @@ message DecisionConfig {
     optional float offset_x = 15;
     optional float half_robot_length = 16;
     optional int32 initial_bullet_num = 17;
+    optional string self_name = 18;
+    optional string partner_name = 19;
 }
 

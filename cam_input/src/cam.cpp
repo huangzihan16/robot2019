@@ -50,8 +50,8 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   image_transport::ImageTransport it(nh);
-  image_transport::Publisher pub = it.advertise("back_camera/image_raw", 100);
-  ros::Publisher pub2 = nh.advertise<sensor_msgs::CameraInfo>("back_camera/camera_info",100);
+  image_transport::Publisher pub = it.advertise("/back_camera/image_raw", 100);
+  ros::Publisher pub2 = nh.advertise<sensor_msgs::CameraInfo>("/back_camera/camera_info",100);
   
   //dhcam
     uid_t user = 0;
@@ -241,14 +241,12 @@ int main(int argc, char** argv)
     // Add the most common distortion model as sensor_msgs/CameraInfo says
     cam_info.distortion_model = "plumb_bob";
     // Don't let distorsion matrix be empty
-    cam_info.D.resize(5, 0.0); 
-    cam_info.D[0] = -0.1457;// = boost::assign::list_of (-0.1457) (0.3406) (0.0) (0.0) (-0.2874);
-    cam_info.D[1] = 0.3406;
-    cam_info.D[2] = 0;
-    cam_info.D[3] = 0;
-    cam_info.D[4] = -0.2874;
-
-
+    cam_info.D.resize(5, 0.0);
+    cam_info.D[0]=0.0;
+    cam_info.D[1]=0.0;
+    cam_info.D[2]=0.0;
+    cam_info.D[3]=0.0;
+    cam_info.D[4]=0.0;
     // Give a reasonable default intrinsic camera matrix
     cam_info.K = boost::assign::list_of(1070.05) (0.0) (660.4984)//(img->width/2.0)
             (0.0) (1069.202) (512.1221)

@@ -1,5 +1,5 @@
 <launch>
-<arg name="identity" value="robot1" />
+<arg name="identity" value="robot2" />
 <group ns="$(arg identity)">
   <master auto="start"/>
   <arg name="map" value="icra2019"/>

@@ -31,12 +31,22 @@
 #include "costmap/costmap_interface.h"
 #include "std_msgs/Int16.h"
 
+#include "roborts_msgs/PartnerInformation.h"
+
 namespace roborts_decision{
 
 enum class Identity {
 	MASTER = 0,
 	SERVANT,
 	SAME
+};
+
+enum class PartnerStatus {
+	SUPPLY = 0,
+	GAINBUFF,
+	BATTLE,
+	GUARD,
+	PATROL
 };
 
 class Blackboard {
@@ -49,7 +59,8 @@ class Blackboard {
       armor_detection_actionlib_client_("armor_detection_node_action", true),
 			remain_hp_(2000), shooter_heat_(0), shoot_vel_(25),
 			supply_number_(0),
-			gain_buff_number_(0){
+			gain_buff_number_(0),
+      partner_detect_enemy_(false) {
 
     start_time_ = ros::Time::now();
 
@@ -64,14 +75,14 @@ class Blackboard {
     costmap_2d_ = costmap_ptr_->GetLayeredCostmap()->GetCostMap();
 
     // Enemy fake pose
-    ros::NodeHandle rviz_nh("/move_base_simple");
+    ros::NodeHandle rviz_nh("move_base_simple");
     enemy_sub_ = rviz_nh.subscribe<geometry_msgs::PoseStamped>("goal", 1, &Blackboard::GoalCallback, this);
 
     ros::NodeHandle nh;
 		gimbal_angle_sub_= nh.subscribe<roborts_msgs::GimbalAngle>("cmd_gimbal_angle",100 , &Blackboard::GimbalCallback, this);
     
-    //robort2_bullet_num_sub_= nh.subscribe<std_msgs::Int16>("/robort2/bullet_num", 1, &Blackboard::Robort2BulletNumCallback, this);
-    //robort2_remain_HP_sub_= nh.subscribe<std_msgs::Int16>("/robort2/remain_HP", 1, &Blackboard::Robort2RemainHPCallback, this);
+    //partner_bullet_num_sub_= nh.subscribe<std_msgs::Int16>("/partner/bullet_num", 1, &Blackboard::PartnerBulletNumCallback, this);
+    //partner_remain_HP_sub_= nh.subscribe<std_msgs::Int16>("/partner/remain_HP", 1, &Blackboard::PartnerRemainHPCallback, this);
 		
     roborts_decision::DecisionConfig decision_config;
     roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config);
@@ -89,6 +100,13 @@ class Blackboard {
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
     }
 		bullet_num_ = decision_config.initial_bullet_num();
+
+    std::string partner_name = decision_config.partner_name();
+
+    std::string partner_topic_sub = "/" + partner_name + "/partner_msg";
+		
+		partner_sub_ = nh.subscribe<roborts_msgs::PartnerInformation>(partner_topic_sub, 1, &Blackboard::PartnerCallback, this);
+		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
   }
 
   ~Blackboard() = default;
@@ -142,6 +160,7 @@ class Blackboard {
         //tf_ptr_->transformPose("map", camera_pose_msg, global_pose_msg);
         if(GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.2){
           enemy_pose_ = global_pose_msg;
+          
         }
         // std::cout <<"enemy_pose:" << enemy_pose_ << std::endl;
       }
@@ -153,7 +172,7 @@ class Blackboard {
       ROS_INFO(" nnnnnnnnnnnnnnnnFind Enemy!");
 
     }
-  
+    PublishPartnerInformation();
   }
 
   geometry_msgs::PoseStamped GetEnemy() const {
@@ -200,12 +219,12 @@ class Blackboard {
     }
   }
 
-  void Robort2BulletNumCallback(const std_msgs::Int16::ConstPtr& robort2_bullet_num){
-    robort2_bullet_num_ = *robort2_bullet_num;
+  void PartnerBulletNumCallback(const std_msgs::Int16::ConstPtr& partner_bullet_num){
+    partner_bullet_num_ = *partner_bullet_num;
   }
 
-  void Robort2RemainHPCallback(const std_msgs::Int16::ConstPtr& robort2_remain_HP){
-    robort2_remain_HP_ = *robort2_remain_HP;
+  void PartnerRemainHPCallback(const std_msgs::Int16::ConstPtr& partner_remain_HP){
+    partner_remain_HP_ = *partner_remain_HP;
   }
 
   void GimbalCallback(const roborts_msgs::GimbalAngle gimbalangle){
@@ -331,7 +350,7 @@ class Blackboard {
 		bullet_num_ += 50;
 	}
 
-    void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
+  void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
     bullet_num_ -= shoot_cmd.request.number;
     ROS_INFO("%d can't open file", bullet_num_);
   }
@@ -357,6 +376,27 @@ class Blackboard {
 		else 
 			return false;
 	}
+
+  void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info) {
+		partner_status_ = (PartnerStatus)partner_info->status;
+		partner_detect_enemy_ = partner_info->enemy_detected;
+		partner_enemy_pose_ = partner_info->enemy_pose;
+		partner_pose_ = partner_info->partner_pose;
+		partner_patrol_count_ = partner_info->patrol_count;
+	}
+
+	bool PartnerDetectEnemy () {
+		return partner_detect_enemy_;
+	}
+
+  void PublishPartnerInformation() {
+    partner_msg_pub_.enemy_detected = enemy_detected_;
+    partner_msg_pub_.enemy_pose = enemy_pose_;
+    UpdateRobotPose();
+    partner_msg_pub_.partner_pose = robot_map_pose_;
+    partner_msg_pub_.header.stamp = ros::Time::now();
+    partner_pub_.publish(partner_msg_pub_);
+  }
  private:
   void UpdateRobotPose() {
     tf::Stamped<tf::Pose> robot_tf_pose;
@@ -430,15 +470,29 @@ class Blackboard {
 	//time and supply
 	ros::Time start_time_;
 
-    // robort2 information
-  std_msgs::Int16 robort2_bullet_num_;
-  std_msgs::Int16 robort2_remain_HP_;
-  ros::Subscriber robort2_bullet_num_sub_;
-  ros::Subscriber robort2_remain_HP_sub_;
+    // partner information
+  std_msgs::Int16 partner_bullet_num_;
+  std_msgs::Int16 partner_remain_HP_;
+  ros::Subscriber partner_bullet_num_sub_;
+  ros::Subscriber partner_remain_HP_sub_;
+
+  ros::Subscriber partner_sub_;
+	ros::Publisher partner_pub_;
+	
+	Identity self_identity_;
+	PartnerStatus partner_status_;
+	
+	bool partner_detect_enemy_;
+	geometry_msgs::PoseStamped partner_enemy_pose_;
+	geometry_msgs::PoseStamped partner_pose_;
+	int partner_patrol_count_;
+
 public:
 	int supply_number_;	
 	
 	int gain_buff_number_;
+
+  roborts_msgs::PartnerInformation partner_msg_pub_;
 };
 } //namespace roborts_decision
 #endif //ROBORTS_DECISION_BLACKBOARD_H

@@ -2,9 +2,12 @@ simulate: false
 master: true
 
 offset_x: 0.03
-half_robot_length: 350
+half_robot_length: 0.35
 
 initial_bullet_num: 40
+
+self_name: "robot2"
+partner_name: "robot1"
 
 wing_bot {
   start_position {

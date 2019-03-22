@@ -28,7 +28,7 @@ class ShootBehavior {
   void Run() {
 		float enemy_x_shooter = (float)blackboard_->GetEnemyInCamera().pose.position.x/1000 + offset_x_;
     std::cout << "enemy_x_shooter" << enemy_x_shooter << std::endl;
-		if (enemy_x_shooter < 0.35 && enemy_x_shooter > -0.35) {
+		if (enemy_x_shooter < half_robot_length_ && enemy_x_shooter > -half_robot_length_) {
 		
 			auto executor_state = Update();
 			std::cout << "state: " << (int)(executor_state) << std::endl;

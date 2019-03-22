@@ -3,14 +3,14 @@ selected_algorithm: "constraint_set"
 undetected_armor_delay: 10
 camera_name: "back_camera"
 camera_gimbal_transform {
-    offset_x :30
-    offset_y :90
-    offset_z :90 #9
+    offset_x :3
+    offset_y :9
+    offset_z :9 #9
     offset_pitch :1.5 #-2.5 正 云台往下调
-    offset_yaw : -1  #4.5
+    offset_yaw : 0  #4.5
 }
 
 projectile_model_info {
-    init_v: 25 # Launching projectile velocity
+    init_v: 15 # Launching projectile velocity
     init_k: 0.026
 }

@@ -23,7 +23,8 @@ include_directories($ENV{GENICAM_ROOT_V2_3}/../../sdk/include  $ENV{GENICAM_ROOT
 AUX_SOURCE_DIRECTORY(src DIR_SRCS)
 link_directories(${GENICAM_LIBRARY} ${GENICAM_LIBRARY}/../../../lib)
 
-
+link_directories(/usr/local/lib)
+include_directories(/usr/local/include/yaml-cpp)
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
@@ -115,6 +116,40 @@ target_link_libraries(cam
   MathParser_gcc40_v2_3
   GCBase_gcc40_v2_3
   pthread
+)
+add_executable(cam_roi
+  src/cam_roi.cpp
+)
+
+target_link_libraries(cam_roi
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  gxiapi 
+  GenApi_gcc40_v2_3
+  dximageproc
+  log4cpp_gcc40_v2_3
+  Log_gcc40_v2_3
+  MathParser_gcc40_v2_3
+  GCBase_gcc40_v2_3
+  pthread
+)
+
+add_executable(cam_test
+  src/cam_test.cpp
+)
+
+target_link_libraries(cam_test
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  gxiapi 
+  GenApi_gcc40_v2_3
+  dximageproc
+  log4cpp_gcc40_v2_3
+  Log_gcc40_v2_3
+  MathParser_gcc40_v2_3
+  GCBase_gcc40_v2_3
+  pthread
+  yaml-cpp
 )
 
 
