@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	master_supply_sequence->AddChildren(supply_goal_action_);
 	master_supply_sequence->AddChildren(supply_application_action_);
   //master gain buff
-  std::shared_ptr<roborts_decision::PreconditionNode> master_gain_buff_condition_(new roborts_decision::PreconditionNode("master_gain_buff_condition_",blackboard_ptr_,
+/*  std::shared_ptr<roborts_decision::PreconditionNode> master_gain_buff_condition_(new roborts_decision::PreconditionNode("master_gain_buff_condition_",blackboard_ptr_,
 																																							[&]() {
 																																								if (!blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsGainBuffCondition()) {
 																																									return true;
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 																																							} , roborts_decision::AbortType::BOTH));
 
 	master_node->AddChildren(master_gain_buff_condition_);
-  master_gain_buff_condition_->SetChild(patrol_action_);
+  master_gain_buff_condition_->SetChild(patrol_action_);*/
 
   //master robot patrol
   std::shared_ptr<roborts_decision::PreconditionNode> master_patrol_condition_(new roborts_decision::PreconditionNode("master_patrol condition",blackboard_ptr_,
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
   //master robot shoot and guard
   std::shared_ptr<roborts_decision::PreconditionNode> master_shoot_selector_condition_(new roborts_decision::PreconditionNode("master_shoot_selector_condition",blackboard_ptr_,
                                                                                               [&]() {
-                                                                                               if (blackboard_ptr_->IsEnemyDetected() || blackboard_ptr_->IsPartnerDetectEnemy ()) {
+                                                                                               if (blackboard_ptr_->IsEnemyDetected() || blackboard_ptr_->IsPartnerDetectEnemy()) {
                                                                                                  return true;
                                                                                                } else {
                                                                                                  return false;
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
 
   std::shared_ptr<roborts_decision::PreconditionNode> master_slave_enemy_detected_condition_(new roborts_decision::PreconditionNode("master_slave_enemy_detected_condition_",blackboard_ptr_,
                                                                                               [&]() {
-                                                                                               if (blackboard_ptr_->IsPartnerDetectEnemy()) {
+                                                                                               if (!blackboard_ptr_->IsEnemyDetected() && blackboard_ptr_->IsPartnerDetectEnemy()) {
                                                                                                  return true;
                                                                                                } else {
                                                                                                  return false;
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
 
   //slave robot
   //slave robot supply
-  std::shared_ptr<roborts_decision::PreconditionNode> slave_supply_condition_(new roborts_decision::PreconditionNode("slave_supply_condition",blackboard_ptr_,
+  /*std::shared_ptr<roborts_decision::PreconditionNode> slave_supply_condition_(new roborts_decision::PreconditionNode("slave_supply_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->IsMasterSupplyCondition()) {
 																																																	return true;
@@ -191,12 +191,12 @@ int main(int argc, char **argv) {
 																																																}
 																																															} , roborts_decision::AbortType::BOTH));
   slave_node->AddChildren(slave_supply_condition_);
-  slave_supply_condition_->SetChild(patrol_action_);
+  slave_supply_condition_->SetChild(patrol_action_);*/
 
   //slave robot gain buff
   std::shared_ptr<roborts_decision::PreconditionNode> slave_gain_buff_condition_(new roborts_decision::PreconditionNode("slave_gain_buff_condition_",blackboard_ptr_,
 																																							[&]() {
-																																								if (!blackboard_ptr_->IsMasterSupplyCondition() && blackboard_ptr_->IsMasterGainBuffCondition()) {
+																																								if (blackboard_ptr_->IsGainBuffCondition()) {
 																																									return true;
 																																								} else {
 																																									return false;
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
 
   std::shared_ptr<roborts_decision::PreconditionNode> slave_master_enemy_detected_condition_(new roborts_decision::PreconditionNode("slave_master_enemy_detected_condition_",blackboard_ptr_,
                                                                                               [&]() {
-                                                                                               if (blackboard_ptr_->IsPartnerDetectEnemy()) {
+                                                                                               if (!blackboard_ptr_->IsEnemyDetected() && blackboard_ptr_->IsPartnerDetectEnemy()) {
                                                                                                  return true;
                                                                                                } else {
                                                                                                  return false;
