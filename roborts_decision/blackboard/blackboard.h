@@ -177,7 +177,7 @@ class Blackboard {
 
 
   bool IsMasterCondition(){
-       return true;
+       return false;
   }
 
   bool IsMasterSupplyCondition(){
@@ -408,7 +408,11 @@ class Blackboard {
 		return partner_detect_enemy_;
 	}
 
-  geometry_msgs::PoseStamped GetPartnerEnemyPose(){
+  geometry_msgs::PoseStamped GetPartnerEnemyPose(){ 
+    float Yaw;
+    UpdateRobotPose();
+    Yaw= atan2(partner_enemy_pose_.pose.position.y - robot_map_pose_.pose.position.y , partner_enemy_pose_.pose.position.x - robot_map_pose_.pose.position.x);
+    partner_enemy_pose_.pose.orientation = tf::createQuaternionMsgFromYaw(Yaw);
     return partner_enemy_pose_;
   }
 

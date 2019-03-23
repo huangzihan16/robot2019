@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
 	roborts_decision::PatrolBehavior        patrol_behavior(chassis_executor, gimbal_executor, blackboard, full_path);
   roborts_decision::ShootBehavior         shoot_behavior(shoot_executor, chassis_executor, blackboard, full_path);
-  roborts_decision::SupportBehavior       support_behavior(chassis_executor, blackboard);
+  roborts_decision::SupportBehavior       support_behavior(chassis_executor, gimbal_executor, blackboard);
   
  //action
 	

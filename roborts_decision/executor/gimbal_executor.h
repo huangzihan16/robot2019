@@ -35,6 +35,10 @@ class GimbalExecutor{
    * @param gimbal_rate Given gimbal rate
    */
   void Execute(const roborts_msgs::GimbalRate &gimbal_rate);
+
+
+  void WhirlScan();
+
   /**
    * @brief Update the current gimbal executor state
    * @return Current gimbal executor state(same with behavior state)

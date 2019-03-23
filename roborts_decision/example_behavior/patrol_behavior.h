@@ -32,12 +32,15 @@ class PatrolBehavior {
 
     auto executor_state = Update();
 
-    std::cout << "state: " << (int)(executor_state) << have_time_<< std::endl;
+    // std::cout << "state: " << (int)(executor_state) << have_time_<< std::endl;
 
-     ros::Duration patrol_duration = ros::Time::now() - start_time_;
-		 int patrol_gimbal_goal = (int)(patrol_duration.toSec()) % 2;
+    //  ros::Duration patrol_duration = ros::Time::now() - start_time_;
+		//  int patrol_gimbal_goal = (int)(patrol_duration.toSec()) % 2;
 			
-		 gimbal_executor_->Execute(patrol_gimbal_goals_[patrol_count_][patrol_gimbal_goal]);
+		//  gimbal_executor_->Execute(patrol_gimbal_goals_[patrol_count_][patrol_gimbal_goal]);
+
+    gimbal_executor_->WhirlScan();
+
 
     chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
 

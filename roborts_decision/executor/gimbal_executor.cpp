@@ -18,6 +18,41 @@ void GimbalExecutor::Execute(const roborts_msgs::GimbalRate &gimbal_rate){
   cmd_gimbal_rate_pub_.publish(gimbal_rate);
 }
 
+#define MAX_MIN_WHIRL_ANGLE     60*3.1415926/180
+#define WHIRL_SCAN_DELTA_ANGLE  42*3.1415926/180
+void GimbalExecutor::WhirlScan()
+{
+  static float direction = 1;
+  static ros::Time last_time = ros::Time::now();
+  static roborts_msgs::GimbalAngle gimbal_goal;
+
+  ros::Duration duration = ros::Time::now() - last_time;
+  float delta_time = duration.toSec();
+
+  if(delta_time > 0.2)
+  {
+
+    gimbal_goal.yaw_mode = false;
+    gimbal_goal.pitch_mode = false;
+    // gimbal_goal.yaw_angle = 3.1415926/4;
+    gimbal_goal.pitch_angle = 0;
+
+    if(gimbal_goal.yaw_angle > MAX_MIN_WHIRL_ANGLE)
+    {
+      direction = -1.0;
+    }
+    if(gimbal_goal.yaw_angle < -MAX_MIN_WHIRL_ANGLE)
+    {
+      direction = 1.0;
+    }
+    gimbal_goal.yaw_angle = gimbal_goal.yaw_angle + direction*WHIRL_SCAN_DELTA_ANGLE;
+
+    Execute(gimbal_goal);
+
+    last_time = ros::Time::now();
+  }
+}
+
 BehaviorState GimbalExecutor::Update(){
   switch (excution_mode_){
     case ExcutionMode::IDLE_MODE:
