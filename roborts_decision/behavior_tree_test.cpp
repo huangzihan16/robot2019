@@ -39,13 +39,18 @@ int main(int argc, char **argv) {
   //roborts_decision::ChaseBehavior        chase_behavior(chassis_executor, blackboard, full_path);
   //roborts_decision::SearchBehavior       search_behavior(chassis_executor, blackboard, full_path);
 
-  roborts_decision::ShootBehavior shoot_behavior(shoot_executor, chassis_executor, blackboard, full_path);
- 
+	roborts_decision::PatrolBehavior        patrol_behavior(chassis_executor, gimbal_executor, blackboard, full_path);
+  roborts_decision::ShootBehavior         shoot_behavior(shoot_executor, chassis_executor, blackboard, full_path);
+  roborts_decision::SupportBehavior       support_behavior(chassis_executor, blackboard);
+  
  //action
 	
   //auto back_boot_area_action_ = std::make_shared<roborts_decision::BackBootAreaAction>(blackboard_ptr_, back_boot_area_behavior);
   //auto chase_action_ = std::make_shared<roborts_decision::ChaseAction>(blackboard_ptr_, chase_behavior);
   //auto search_action_ = std::make_shared<roborts_decision::SearchAction>(blackboard_ptr_, search_behavior);
+
+  auto support_action_ = std::make_shared<roborts_decision::SupportAction>(blackboard_ptr_, support_behavior);
+  auto patrol_action_ = std::make_shared<roborts_decision::PatrolAction>(blackboard_ptr_, patrol_behavior);
 
   auto shoot_action_ = std::make_shared<roborts_decision::ShootAction>(blackboard_ptr_, shoot_behavior);
 	
@@ -92,6 +97,15 @@ int main(int argc, char **argv) {
                                                                                                }
                                                                                              }, roborts_decision::AbortType::BOTH));
 	
+	std::shared_ptr<roborts_decision::PreconditionNode> auxiliary_condition_(new roborts_decision::PreconditionNode("auxiliary_condition",blackboard_ptr_,
+                                                                                              [&]() {
+                                                                                               if (blackboard_ptr_->IsPartnerDetectEnemy()) {
+                                                                                                 return true;
+                                                                                               } else {
+                                                                                                 return false;
+                                                                                               }
+                                                                                             }, roborts_decision::AbortType::BOTH));
+
 	std::shared_ptr<roborts_decision::SelectorNode> shoot_selector(new roborts_decision::SelectorNode("shoot_selector", blackboard_ptr_));
   /*std::shared_ptr<roborts_decision::PreconditionNode> escape_condition_(new roborts_decision::PreconditionNode("escape_condition",blackboard_ptr_,
                                                                                               [&]() {
@@ -122,8 +136,6 @@ int main(int argc, char **argv) {
                                                                                                  return true;
                                                                                                }
                                                                                              }, roborts_decision::AbortType::BOTH));
-	roborts_decision::PatrolBehavior patrol_behavior(chassis_executor, gimbal_executor, blackboard, full_path);
-  auto patrol_action_ = std::make_shared<roborts_decision::PatrolAction>(blackboard_ptr_, patrol_behavior);
 	
 	std::shared_ptr<roborts_decision::PreconditionNode> guard_condition_(new roborts_decision::PreconditionNode("guard condition", blackboard_ptr_,
 																																															[&]() {
@@ -140,10 +152,12 @@ int main(int argc, char **argv) {
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 	//root_node->AddChildren(supply_condition_);
 	//root_node->AddChildren(gain_buff_condition_);
-	root_node->AddChildren(patrol_condition_);
   root_node->AddChildren(shoot_selector_condition_);
+  root_node->AddChildren(auxiliary_condition_);
+	root_node->AddChildren(patrol_condition_);
 
 	
+
 	supply_condition_->SetChild(supply_sequence);
 	supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
@@ -158,6 +172,8 @@ int main(int argc, char **argv) {
   //shoot_selector->AddChildren(guard_condition_);
 	shoot_condition_->SetChild(shoot_action_);
   guard_condition_->SetChild(guard_action_);
+
+  auxiliary_condition_->SetChild(support_action_);
 
   //escape_condition_->SetChild(escape_action_);
 	patrol_condition_->SetChild(patrol_action_);
