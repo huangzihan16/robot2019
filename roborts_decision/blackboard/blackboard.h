@@ -37,7 +37,7 @@ namespace roborts_decision{
 
 enum class Identity {
 	MASTER = 0,
-	SERVANT,
+	SLAVE,
 	SAME
 };
 
@@ -59,8 +59,10 @@ class Blackboard {
       armor_detection_actionlib_client_("armor_detection_node_action", true),
 			remain_hp_(2000), shooter_heat_(0), shoot_vel_(25),
 			supply_number_(0),
-			gain_buff_number_(0),
-      partner_detect_enemy_(false) {
+ 			gain_buff_number_(0),
+      partner_detect_enemy_(false),
+      self_identity_(Identity::MASTER),
+      identity_number_(1) {
 
     start_time_ = ros::Time::now();
 
@@ -177,7 +179,20 @@ class Blackboard {
 
 
   bool IsMasterCondition(){
-       return false;
+    ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 60 * identity_number_){
+      if(self_identity_ == Identity::MASTER){
+        self_identity_ = Identity::SLAVE;
+      }
+      else{
+        self_identity_ == Identity::MASTER;
+      }
+      identity_number_++;
+    }
+    if(self_identity_ == Identity::MASTER)
+        return true;
+    else
+        return false;
   }
 
   bool IsMasterSupplyCondition(){
@@ -281,8 +296,8 @@ class Blackboard {
     geometry_msgs::PoseStamped fix_goal;
     ros::Time current_time = ros::Time::now();
     fix_goal.header.stamp = current_time;
-    fix_goal.pose.position.x = 4;
-    fix_goal.pose.position.y = 4.5;
+    fix_goal.pose.position.x = 4 + 0.13;
+    fix_goal.pose.position.y = 4.5 - 0.08;
     fix_goal.pose.position.z = 0.0;
     fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
 
@@ -521,6 +536,7 @@ class Blackboard {
 
 public:
 	int supply_number_;	
+  int identity_number_;
 	
 	int gain_buff_number_;
 

@@ -150,8 +150,8 @@ int main(int argc, char **argv) {
 	
 
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
-	//root_node->AddChildren(supply_condition_);
-	//root_node->AddChildren(gain_buff_condition_);
+	root_node->AddChildren(supply_condition_);
+	root_node->AddChildren(gain_buff_condition_);
   root_node->AddChildren(shoot_selector_condition_);
   root_node->AddChildren(auxiliary_condition_);
 	root_node->AddChildren(patrol_condition_);
