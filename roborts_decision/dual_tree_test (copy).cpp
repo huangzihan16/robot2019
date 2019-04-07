@@ -98,24 +98,20 @@ int main(int argc, char **argv) {
   //game_start_selector
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
-																																															[&]() {if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
-																																																	return true;
-																																																} else {
+																																															[&]() {
+																																																if (blackboard_ptr_->IsBulletLeft()) {
 																																																	return false;
+																																																} else {
+																																																	return true;
 																																																}
-																																																/*if (blackboard_ptr_->IsBulletLeft()) {
-																																																	return false;
-																																																} else {
-																																																	return true;
-																																																}*/
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
   game_start_selector->AddChildren(no_bullet_left_condition_);
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->IsSupplyCondition()/* && blackboard_ptr_->GetSupplierStatus()
-                                                                                                == roborts_decision::SupplierStatus::PREPARING*/) {
+																																																if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->GetSupplierStatus()
+                                                                                                == roborts_decision::SupplierStatus::PREPARING) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -138,12 +134,13 @@ int main(int argc, char **argv) {
   
   //obtain buff
   std::shared_ptr<roborts_decision::PreconditionNode> obtain_buff_condition_(new roborts_decision::PreconditionNode("obtain_buff_condition",blackboard_ptr_,
-																																															[&]() {if (blackboard_ptr_->GetBonusStatus()
+																																															[&]() {return true;
+																																																/*if (blackboard_ptr_->GetBonusStatus()
                                                                                                 == roborts_decision::BonusStatus::OCCUPIED) {
 																																																	return true;
 																																																} else {
 																																																	return false;
-																																																}
+																																																}*/
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> offensive_selector(new roborts_decision::SelectorNode("offensive_selector", blackboard_ptr_));          
   bullet_left_selector->AddChildren(obtain_buff_condition_);
@@ -194,16 +191,7 @@ int main(int argc, char **argv) {
 																																																	return false;
 																																																}
 																																															} , roborts_decision::AbortType::LOW_PRIORITY));
-  std::shared_ptr<roborts_decision::PreconditionNode> offensive_search_condition_(new roborts_decision::PreconditionNode("offensive_search_condition",blackboard_ptr_,
-																																															[&]() {
-																																																if (blackboard_ptr_->EnemyDetected()
-                                                                                                == roborts_decision::EnemyStatus::NONE && blackboard_ptr_->EnemyDisappear()) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                            
-  std::shared_ptr<roborts_decision::PreconditionNode> offensive_patrol_condition_(new roborts_decision::PreconditionNode("offensive_patrol_condition",blackboard_ptr_,
+    std::shared_ptr<roborts_decision::PreconditionNode> offensive_patrol_condition_(new roborts_decision::PreconditionNode("offensive_search_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->EnemyDetected()
                                                                                                 == roborts_decision::EnemyStatus::NONE) {
@@ -211,7 +199,7 @@ int main(int argc, char **argv) {
 																																																} else {
 																																																	return false;
 																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));  
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                            
   offensive_selector->AddChildren(offensive_dmp_condition_);
   offensive_selector->AddChildren(offensive_detect_enemy_condition_);
   offensive_selector->AddChildren(offensive_under_attack_condition_);
@@ -230,13 +218,13 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::SelectorNode> without_buff_selector(new roborts_decision::SelectorNode("without_buff_selector", blackboard_ptr_));          
   bullet_left_selector->AddChildren(without_buff_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
-																																															[&]() {return true;
-																																																/*if (blackboard_ptr_->GetBonusStatus()
+																																															[&]() {
+																																																if (blackboard_ptr_->GetBonusStatus()
                                                                                                 == roborts_decision::BonusStatus::UNOCCUPIED) {
 																																																	return true;
 																																																} else {
 																																																	return false;
-																																																}*/
+																																																}
 																																															} , roborts_decision::AbortType::BOTH));
  	std::shared_ptr<roborts_decision::SequenceNode> gain_buff_sequence(new roborts_decision::SequenceNode("gain_buff", blackboard_ptr_));
   without_buff_selector->AddChildren(buff_ready_condition_);

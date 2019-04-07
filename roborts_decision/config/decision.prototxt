@@ -4,7 +4,7 @@ master: true
 offset_x: 0.03
 half_robot_length: 0.35
 
-initial_bullet_num: 40
+initial_bullet_num: 0
 
 self_name: "robot1"
 partner_name: "robot2"
