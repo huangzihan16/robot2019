@@ -22,10 +22,7 @@
 #include "../behavior_tree/behavior_tree.h"
 #include "../behavior_tree/behavior_node.h"
 #include "../blackboard/blackboard.h"
-/**************************************************/
-#include "../example_behavior/turntohurt_behavior.h"
-#include "../example_behavior/buff_behavior.h"
-/**************************************************/
+
 
 namespace roborts_decision {
 class PatrolAction : public ActionNode {
@@ -377,48 +374,6 @@ class GainBuffGoalAction : public ActionNode {
   GainBuffGoalBehavior buff_goal_behavior_;
 };
 
-class GainBuffAction : public ActionNode {
- public:
-  GainBuffAction(const Blackboard::Ptr &blackboard_ptr, GainBuffBehavior &buff_behavior) :
-      ActionNode::ActionNode("gain_buff_behavior", blackboard_ptr), buff_behavior_(buff_behavior){
-  }
-
-  virtual ~GainBuffAction() = default;
-
- private:
-  virtual void OnInitialize() {
-    std::cout << "GainBuffAction OnInitialize" << std::endl;
-		buff_behavior_.have_execute_ = false;
-  };
-
-  virtual BehaviorState Update() {
-    buff_behavior_.Run();
-
-    return buff_behavior_.Update();
-
-  }
-
-  virtual void OnTerminate(BehaviorState state) {
-    switch (state){
-      case BehaviorState::IDLE:
-				buff_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
-        break;
-      case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
-        break;
-      case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
-        break;
-      default:
-        std::cout << "ERROR" << std::endl;
-        return;
-    }
-  }
-
-  GainBuffBehavior buff_behavior_;
-};
-
 class ShootAction : public ActionNode {
  public:
   ShootAction(const Blackboard::Ptr &blackboard_ptr, ShootBehavior &shoot_behavior) :
@@ -634,92 +589,6 @@ class SupportAction : public ActionNode {
 
   SupportBehavior support_behavior_;
 };
-
-/**********************************************************/
-class TurnToHurtAction : public ActionNode {
- public:
-  TurnToHurtAction(const Blackboard::Ptr &blackboard_ptr, TurnToHurtBehavior &turn_to_hurt_behavior) :
-      ActionNode::ActionNode("turn_to_hurt_behavior", blackboard_ptr), turn_to_hurt_behavior_(turn_to_hurt_behavior){
-
-      }
-
-  virtual ~TurnToHurtAction() = default;
-
- private:
-  virtual void OnInitialize() {
-    std::cout << "TurnToHurtAction OnInitialize" << std::endl;
-  };
-
-  virtual BehaviorState Update() {
-			turn_to_hurt_behavior_.Run();
-			return turn_to_hurt_behavior_.Update();
-  }
-
-  virtual void OnTerminate(BehaviorState state) {
-    switch (state){
-      case BehaviorState::IDLE:
-				turn_to_hurt_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
-        break;
-      case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
-        break;
-      case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
-        break;
-      default:
-        std::cout << "ERROR" << std::endl;
-        return;
-    }
-  }
-
-  TurnToHurtBehavior turn_to_hurt_behavior_;
-};
-
-class TurnBackAction : public ActionNode {
- public:
-  TurnBackAction(const Blackboard::Ptr &blackboard_ptr, TurnBackBehavior &turn_back_behavior) :
-      ActionNode::ActionNode("turn_back_behavior", blackboard_ptr), turn_back_behavior_(turn_back_behavior){
-
-      }
-
-  virtual ~TurnBackAction() = default;
-
- private:
-  virtual void OnInitialize() {
-    std::cout << "TurnBackAction OnInitialize" << std::endl;
-  };
-
-  virtual BehaviorState Update() {
-			turn_back_behavior_.Run();
-			return turn_back_behavior_.Update();
-  }
-
-  virtual void OnTerminate(BehaviorState state) {
-    switch (state){
-      case BehaviorState::IDLE:
-				turn_back_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
-        break;
-      case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
-        break;
-      case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
-        break;
-      default:
-        std::cout << "ERROR" << std::endl;
-        return;
-    }
-  }
-
-  TurnBackBehavior turn_back_behavior_;
-};
-
-/**********************************************************/
-
-
-
 
 }//namespace roborts_decision
 #endif //ROBORTS_DECISION_ACTION_BEHAVIOR_H

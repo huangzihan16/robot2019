@@ -40,6 +40,7 @@ class ChaseBehavior {
     auto executor_state = Update();
 
     auto robot_map_pose = blackboard_->GetRobotMapPose();
+    if (executor_state != BehaviorState::RUNNING) {
 
       chase_buffer_[chase_count_++ % 2] = blackboard_->GetEnemy();
 
@@ -49,30 +50,11 @@ class ChaseBehavior {
       auto dy = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.y - robot_map_pose.pose.position.y;
       auto yaw = std::atan2(dy, dx);
 
-    std::cout << std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) << std::endl;
-
-    if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.3 && std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
-
-      chassis_executor_->Cancel();
-      
-      chassis_executor_->Execute(blackboard_->GetGimbalYaw());
-
-      return;
-
-    }
-
-    chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
-
-    if (executor_state != BehaviorState::RUNNING) {
-
       if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.0 && std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
         if (cancel_goal_) {
           chassis_executor_->Cancel();
           cancel_goal_ = false;
         }
-
-        chassis_executor_->Execute(blackboard_->GetGimbalYaw());
-
         return;
 
       } else {
