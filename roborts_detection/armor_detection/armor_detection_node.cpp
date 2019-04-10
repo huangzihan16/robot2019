@@ -186,7 +186,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
         gimbal_angle_.yaw_angle = 0;
-        gimbal_angle_.pitch_angle = 0;
+        // gimbal_angle_.pitch_angle = 0;
 
         undetected_count_--;
         PublishMsgs();
