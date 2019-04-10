@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include "armor_detection_node.h"
 
+
 namespace roborts_detection {
 
 ArmorDetectionNode::ArmorDetectionNode():
@@ -37,6 +38,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     node_state_ = roborts_common::FAILURE;
   }
   as_.start();
+    
 }
 
 ErrorInfo ArmorDetectionNode::Init() {
@@ -172,6 +174,13 @@ void ArmorDetectionNode::ExecuteLoop() {
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
+        //TODO ff
+
+        float enemy_x_shooter = x_/1000.0 + 0.03;  //offset 0.03
+        // std::cout << "enemy_x_shooter" << enemy_x_shooter << std::endl;
+		    if (enemy_x_shooter < 0.16 && enemy_x_shooter > -0.16) {
+          shoot_executor_.Execute();
+        }
       } else if(undetected_count_ != 0) {
 
         gimbal_angle_.yaw_mode = true;
@@ -191,6 +200,7 @@ void ArmorDetectionNode::ExecuteLoop() {
 
 void ArmorDetectionNode::PublishMsgs() {
   enemy_info_pub_.publish(gimbal_angle_);
+  
 }
 
 void ArmorDetectionNode::StartThread() {
@@ -232,7 +242,9 @@ void SignalHandler(int signal){
 int main(int argc, char **argv) {
   signal(SIGINT, SignalHandler);
   signal(SIGTERM,SignalHandler);
+  
   ros::init(argc, argv, "armor_detection_node", ros::init_options::NoSigintHandler);
+  
   roborts_detection::ArmorDetectionNode armor_detection;
   ros::AsyncSpinner async_spinner(1);
   async_spinner.start();

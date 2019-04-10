@@ -32,12 +32,25 @@
 #include "std_msgs/Int16.h"
 
 #include "roborts_msgs/PartnerInformation.h"
+/*************/
+#include "roborts_msgs/BonusStatus.h"
+#include "roborts_msgs/GameResult.h"
+#include "roborts_msgs/GameStatus.h"
+#include "roborts_msgs/GameSurvivor.h"
+#include "roborts_msgs/RobotBonus.h"
+#include "roborts_msgs/RobotDamage.h"
+#include "roborts_msgs/RobotHeat.h"
+#include "roborts_msgs/RobotShoot.h"
+#include "roborts_msgs/RobotStatus.h"
+#include "roborts_msgs/SupplierStatus.h"
+#include "roborts_msgs/ProjectileSupply.h"
+/*******************/
 
 namespace roborts_decision{
 
 enum class Identity {
 	MASTER = 0,
-	SERVANT,
+	SLAVE,
 	SAME
 };
 
@@ -48,6 +61,55 @@ enum class PartnerStatus {
 	GUARD,
 	PATROL
 };
+/**********************************/
+enum class GameStatus{
+  PRE_MATCH = 0,
+  SETUP = 1,
+  INIT = 2,
+  FIVE_SEC_CD = 3,
+  ROUND = 4,
+  CALCULATION = 5
+};
+
+enum class DamageSource{
+  FORWARD = 0,
+  BACKWARD = 1,
+  LEFT = 2,
+  RIGHT = 3,
+  NONE = 4
+};
+enum class DamageType{
+  ARMOR = 0,
+  OFFLINE = 1,
+  EXCEED_HEAT = 2,
+  EXCEED_POWER = 3,
+};
+
+enum class BonusStatus{
+  UNOCCUPIED = 0,
+  BEING_OCCUPIED = 1,
+  OCCUPIED = 2
+};
+
+enum class SupplierStatus{
+  CLOSE = 0,
+  PREPARING = 1,
+  SUPPLYING = 2
+};
+
+enum class EnemyStatus{
+  NONE = 0,
+  FRONT = 1,
+  BACK = 2,
+  BOTH = 3
+};
+
+enum class GameResult{
+  DRAW = 0,
+  RED_WIN = 1,
+  BLUE_WIN = 2
+};
+/******************************/
 
 class Blackboard {
  public:
@@ -55,12 +117,27 @@ class Blackboard {
   typedef roborts_costmap::CostmapInterface CostMap;
   typedef roborts_costmap::Costmap2D CostMap2D;
   explicit Blackboard(const std::string &proto_file_path):
+      /***********************/
+      game_status_(GameStatus::ROUND),
+      red_bonus_status_(BonusStatus::OCCUPIED),
+      blue_bonus_status_(BonusStatus::UNOCCUPIED),
+      supplier_status_(SupplierStatus::PREPARING),
+      remain_hp_(2000),
+      shooter_heat_(0),
+      speed_(25),
+      last_hp_(2000),
+      dmp_(0),
+      back_enemy_detected_(false),
+      enemy_disappear_count_(0),
+      /*******************/
       enemy_detected_(false),
       armor_detection_actionlib_client_("armor_detection_node_action", true),
-			remain_hp_(2000), shooter_heat_(0), shoot_vel_(25),
+			self_identity_(Identity::SLAVE),
+      partner_detect_enemy_(false),
 			supply_number_(0),
-			gain_buff_number_(0),
-      partner_detect_enemy_(false) {
+      identity_number_(1),
+ 			gain_buff_number_(0),
+      search_count_(0) {
 
     start_time_ = ros::Time::now();
 
@@ -80,10 +157,23 @@ class Blackboard {
 
     ros::NodeHandle nh;
 		gimbal_angle_sub_= nh.subscribe<roborts_msgs::GimbalAngle>("cmd_gimbal_angle",100 , &Blackboard::GimbalCallback, this);
-    
-    //partner_bullet_num_sub_= nh.subscribe<std_msgs::Int16>("/partner/bullet_num", 1, &Blackboard::PartnerBulletNumCallback, this);
-    //partner_remain_HP_sub_= nh.subscribe<std_msgs::Int16>("/partner/remain_HP", 1, &Blackboard::PartnerRemainHPCallback, this);
-		
+
+    /****************/
+    last_get_hp_time_ = ros::Time::now();
+    game_status_sub_ = nh.subscribe<roborts_msgs::GameStatus>("game_status",30 , &Blackboard::GameStatusCallback, this);
+    game_result_sub_ = nh.subscribe<roborts_msgs::GameResult>("game_result",30 , &Blackboard::GameResultCallback, this);
+    game_survival_sub_ = nh.subscribe<roborts_msgs::GameSurvivor>("game_survivor",30 , &Blackboard::GameSurvivorCallback, this);
+    bonus_status_sub_ = nh.subscribe<roborts_msgs::BonusStatus>("field_bonus_status",30 , &Blackboard::BonusStatusCallback, this);
+    supplier_status_sub_ = nh.subscribe<roborts_msgs::SupplierStatus>("field_supplier_status",30 , &Blackboard::SupplierStatusCallback, this);
+    robot_status_sub_ = nh.subscribe<roborts_msgs::RobotStatus>("robot_status",30 , &Blackboard::RobotStatusCallback, this);
+    robot_heat_sub_ = nh.subscribe<roborts_msgs::RobotHeat>("robot_heat",30 , &Blackboard::RobotHeatCallback, this);
+    robot_bonus_sub_ = nh.subscribe<roborts_msgs::RobotBonus>("robot_bonus",30 , &Blackboard::RobotBonusCallback, this);
+    robot_damage_sub_ = nh.subscribe<roborts_msgs::RobotDamage>("robot_damage",30 , &Blackboard::RobotDamageCallback, this);
+    robot_shoot_sub_ = nh.subscribe<roborts_msgs::RobotShoot>("robot_shoot",30 , &Blackboard::RobotShootCallback, this);
+    projectile_supply_pub_ = nh.advertise<roborts_msgs::ProjectileSupply>("projectile_supply", 1);
+
+    /*******************/
+
     roborts_decision::DecisionConfig decision_config;
     roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config);
 
@@ -116,12 +206,13 @@ class Blackboard {
     if (feedback->detected){
       enemy_detected_ = true;
       ROS_INFO("Find Enemy!");
+      search_count_ = 5;
 
       tf::Stamped<tf::Pose> tf_pose, global_tf_pose;
       geometry_msgs::PoseStamped camera_pose_msg, global_pose_msg;
       camera_pose_msg = feedback->enemy_pos;
       //剔除无效值
-      if(camera_pose_msg.pose.position.z < 1.0)
+      if (camera_pose_msg.pose.position.z < 1.0)
         return;
 
 			enemy_pose_camera_ = camera_pose_msg;
@@ -158,7 +249,7 @@ class Blackboard {
         tf::poseStampedTFToMsg(global_tf_pose, global_pose_msg);
 
         //tf_ptr_->transformPose("map", camera_pose_msg, global_pose_msg);
-        if(GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.2){
+        if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.2){
           enemy_pose_ = global_pose_msg;
           
         }
@@ -172,23 +263,249 @@ class Blackboard {
       ROS_INFO(" nnnnnnnnnnnnnnnnFind Enemy!");
 
     }
+    enemy_disappear_[enemy_disappear_count_++ % 50] = enemy_detected_;
     PublishPartnerInformation();
   }
 
+/***********************************************/
+  // Game Status
+  void GameStatusCallback(const roborts_msgs::GameStatus::ConstPtr& game_status){
+    game_status_ = (GameStatus)game_status->game_status;
+    remaining_time_ = game_status->remaining_time;
+  }
+  // Game Result
+  void GameResultCallback(const roborts_msgs::GameResult::ConstPtr& game_result){
+    game_result_ = (GameResult)game_result->result;
+  } 
+  //Game Survior
+  void GameSurvivorCallback(const roborts_msgs::GameSurvivor::ConstPtr& game_survival){
+    red3_ = game_survival->red3;
+    red4_ = game_survival->red4;
+    blue3_ = game_survival->blue3;
+    blue3_ = game_survival->blue4;
+  } 
+  //Bonus Status
+  void BonusStatusCallback(const roborts_msgs::BonusStatus::ConstPtr& bonus_status){
+    red_bonus_status_ = (BonusStatus)bonus_status->red_bonus;
+    blue_bonus_status_ = (BonusStatus)bonus_status->blue_bonus;
+    
+  } 
+  //Supplier Status
+  void SupplierStatusCallback(const roborts_msgs::SupplierStatus::ConstPtr& supplier_status){
+    supplier_status_ = (SupplierStatus)supplier_status->status;
+  } 
+  //Robot Status
+  void RobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& robot_status){
+    id_ = robot_status->id;
+    level_ = robot_status->level;
+    remain_hp_ = robot_status->remain_hp;
+    max_hp_ = robot_status->max_hp;
+    heat_cooling_limit_ = robot_status->heat_cooling_limit;
+    heat_cooling_rate_ = robot_status->heat_cooling_rate;
+    gimbal_output_ = robot_status->gimbal_output;
+    chassis_output_ = robot_status->chassis_output;
+    shooter_output_ = robot_status->shooter_output;
+  } 
+  //Robot Heat
+  void RobotHeatCallback(const roborts_msgs::RobotHeat::ConstPtr& robot_heat){
+    chassis_volt_ = robot_heat->chassis_volt;
+    chassis_current_ = robot_heat->chassis_current;
+    chassis_power_ = robot_heat->chassis_power;
+    chassis_power_buffer_ = robot_heat->chassis_power_buffer;
+    last_shooter_heat_ = shooter_heat_;
+    shooter_heat_ = robot_heat->shooter_heat;
+    if (shooter_heat_ - last_shooter_heat_ > 0){
+      bullet_num_ -= 1;
+    }
+  } 
+  //Robot Bonus
+  void RobotBonusCallback(const roborts_msgs::RobotBonus::ConstPtr& robot_bonus){
+    bonus_ = robot_bonus->bonus;
+  } 
+  //Robot Damage
+  void RobotDamageCallback(const roborts_msgs::RobotDamage::ConstPtr& robot_damage){
+    last_armor_attacked__time_ = ros::Time::now();
+    
+    damage_type_ = (DamageType)robot_damage->damage_type;
+    armor_attacked_ = (DamageSource)robot_damage->damage_source;
+  } 
+  //Robot Shoot
+  void RobotShootCallback(const roborts_msgs::RobotShoot::ConstPtr& robot_shoot){
+    frequency_ = robot_shoot->frequency;
+    speed_ = robot_shoot->speed;
+  } 
+  
+  GameStatus GetGameStatus() const{
+    ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
+    return game_status_;
+  }
+  BonusStatus GetBonusStatus() const {// not right
+    ROS_INFO("%s: %d", __FUNCTION__, (int)red_bonus_status_);
+    return red_bonus_status_;
+  }
+  BonusStatus GetEnemyBonusStatus() const {// not right
+    ROS_INFO("%s: %d", __FUNCTION__, (int)blue_bonus_status_);
+    return blue_bonus_status_;
+  }
+
+  SupplierStatus GetSupplierStatus(){
+    ROS_INFO("%s: %d", __FUNCTION__, (int)supplier_status_);
+    return supplier_status_;
+  }
+
+
+  double HurtedPerSecond() {
+    if (ros::Time::now()-last_get_hp_time_ > ros::Duration(0.5)) {
+      auto reduce_hp = last_hp_ - remain_hp_;
+      dmp_ = reduce_hp / (ros::Time::now()-last_get_hp_time_).toSec();
+      last_hp_ = remain_hp_;
+      last_get_hp_time_ = ros::Time::now();
+      return dmp_;
+    } else {
+      return dmp_;
+    }
+  }
+
+  DamageSource GetDamageSource() const{
+    if (ros::Time::now()-last_armor_attacked__time_>ros::Duration(0.1)){
+      ROS_INFO("%s: %s", __FUNCTION__, ": NONE");
+      return DamageSource::NONE;
+    } else {
+      ROS_INFO("%s: %d", __FUNCTION__, (int)armor_attacked_);
+      return armor_attacked_;
+    }
+  }
+
+  EnemyStatus EnemyDetected() const{
+    ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);
+    ROS_INFO("%s: %d", __FUNCTION__, (int)back_enemy_detected_);
+    if (enemy_detected_ && back_enemy_detected_)
+      return EnemyStatus::BOTH;
+    else if (enemy_detected_)
+      return EnemyStatus::FRONT;
+    else if (back_enemy_detected_)
+      return EnemyStatus::BACK;
+    else
+      return EnemyStatus::NONE;   
+  }
+
+  bool EnemyDisappear(){
+    for (int i = 0; i < 50; i++) {
+      if(enemy_disappear_[i] == 1){
+        return true;
+      }
+    }
+    return false;
+
+  }
+
+  void SendSupplyCmd(){
+    projectilesupply_.supply = 1;
+    projectile_supply_pub_.publish(projectilesupply_);
+  }
+
+    ros::Subscriber game_status_sub_;
+    ros::Subscriber game_result_sub_;
+    ros::Subscriber game_survival_sub_;
+    ros::Subscriber bonus_status_sub_;
+    ros::Subscriber supplier_status_sub_;
+    ros::Subscriber robot_status_sub_;
+    ros::Subscriber robot_heat_sub_;
+    ros::Subscriber robot_bonus_sub_;
+    ros::Subscriber robot_damage_sub_;
+    ros::Subscriber robot_shoot_sub_;  
+    ros::Publisher projectile_supply_pub_; 
+    //! Referee system info
+    // Game Status
+    GameStatus game_status_;
+    unsigned int remaining_time_;
+    // Game Result
+    GameResult game_result_;
+    //Game Survior
+    bool red3_;
+    bool red4_;
+    bool blue3_;
+    bool blue4_;
+    //Bonus Status
+    BonusStatus red_bonus_status_;
+    BonusStatus blue_bonus_status_;
+    //Supplier Status
+    SupplierStatus supplier_status_;
+    //Robot Status
+    unsigned int id_;
+    unsigned int level_;
+    unsigned int remain_hp_;
+    unsigned int max_hp_;
+    unsigned int heat_cooling_limit_;
+    unsigned int heat_cooling_rate_;
+    bool gimbal_output_;
+    bool chassis_output_;
+    bool shooter_output_;
+    //Robot Heat
+    unsigned int chassis_volt_;
+    unsigned int chassis_current_;
+    float chassis_power_;
+    unsigned int chassis_power_buffer_;
+    unsigned int shooter_heat_;
+    unsigned int last_shooter_heat_;
+    //Robot Bonus
+    bool bonus_;
+    //Robot Damage
+    DamageSource armor_attacked_;
+    DamageType damage_type_; 
+    //Robot Shoot
+    unsigned int frequency_;
+    float speed_;
+    //projectile supply
+    roborts_msgs::ProjectileSupply projectilesupply_;
+
+
+    unsigned int last_hp_;
+    ros::Time last_get_hp_time_;
+    double dmp_;
+    ros::Time last_armor_attacked__time_;
+    bool back_enemy_detected_;
+    unsigned int enemy_disappear_[50];
+    unsigned int enemy_disappear_count_;
+
+
+
+
+/**********************************************/
+
+
 
   bool IsMasterCondition(){
-       return true;
+    ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 60 * identity_number_){
+      if (self_identity_ == Identity::MASTER){
+        self_identity_ = Identity::SLAVE;
+      }
+      else{
+        self_identity_ = Identity::MASTER;
+      }
+      identity_number_++;
+    }
+    if (self_identity_ == Identity::MASTER){
+      ROS_INFO(" MASTER MASTER!");
+        return true;
+    }        
+    else{
+      ROS_INFO(" SLAVE SLAVE!");
+      return false;
+    }
+        
   }
 
   bool IsMasterSupplyCondition(){
-      if(GetPartnerStatus()==PartnerStatus::SUPPLY)
+      if (GetPartnerStatus()==PartnerStatus::SUPPLY)
          return true;
       else
          return false;
 
   }
   bool IsMasterGainBuffCondition(){
-     if(GetPartnerStatus()==PartnerStatus::GAINBUFF)
+     if (GetPartnerStatus()==PartnerStatus::GAINBUFF)
          return true;
       else
          return false;
@@ -212,7 +529,7 @@ class Blackboard {
   bool IsBulletLeft() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
     //return true;
-    if(bullet_num_ > 5){
+    if (bullet_num_ > 5){
       return true;
     } else{
       return false;
@@ -230,7 +547,7 @@ class Blackboard {
   }
 
   bool IsNewGoal(){
-    if(new_goal_){
+    if (new_goal_){
       new_goal_ =  false;
       return true;
     } else{
@@ -238,13 +555,7 @@ class Blackboard {
     }
   }
 
-  void PartnerBulletNumCallback(const std_msgs::Int16::ConstPtr& partner_bullet_num){
-    partner_bullet_num_ = *partner_bullet_num;
-  }
 
-  void PartnerRemainHPCallback(const std_msgs::Int16::ConstPtr& partner_remain_HP){
-    partner_remain_HP_ = *partner_remain_HP;
-  }
 
   void GimbalCallback(const roborts_msgs::GimbalAngle gimbalangle){
     cmd_gimbal_angle_ = gimbalangle;
@@ -354,13 +665,15 @@ class Blackboard {
 		return shooter_heat_;
 	}
 	const int GetShootVel() {
-		return shoot_vel_;
+		return speed_;
 	}
 	
 	bool IsSupplyCondition() {
 		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * supply_number_)
-			return true;
+		if (time_past.toSec() >= 60 * supply_number_){
+      return true;
+      supplier_status_ = SupplierStatus::PREPARING;
+    }
 		else
 			return false;
 	}
@@ -389,7 +702,10 @@ class Blackboard {
 		UpdateRobotPose();
 		double delta_x = robot_map_pose_.pose.position.x - 6.3;
 		double delta_y = robot_map_pose_.pose.position.y - 1.75;
-		
+		// if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
+    //   return true;
+    // else 
+    //   return false;
 		if (delta_x * delta_x + delta_y * delta_y < 0.01) 
 			return true;
 		else 
@@ -430,6 +746,7 @@ class Blackboard {
     partner_pub_.publish(partner_msg_pub_);
   }
  private:
+
   void UpdateRobotPose() {
     tf::Stamped<tf::Pose> robot_tf_pose;
     robot_tf_pose.setIdentity();
@@ -492,21 +809,12 @@ class Blackboard {
 
   //! bullet info
   int bullet_num_;
-  int remain_hp_;
   int bullet_freq_;
-  int shooter_heat_;
-  int shoot_vel_;
 	
 	ros::Subscriber gimbal_angle_sub_;
 	roborts_msgs::GimbalAngle cmd_gimbal_angle_;
 	//time and supply
 	ros::Time start_time_;
-
-    // partner information
-  std_msgs::Int16 partner_bullet_num_;
-  std_msgs::Int16 partner_remain_HP_;
-  ros::Subscriber partner_bullet_num_sub_;
-  ros::Subscriber partner_remain_HP_sub_;
 
   ros::Subscriber partner_sub_;
 	ros::Publisher partner_pub_;
@@ -521,10 +829,14 @@ class Blackboard {
 
 public:
 	int supply_number_;	
+  int identity_number_;
 	
 	int gain_buff_number_;
 
+  unsigned int search_count_;
+
   roborts_msgs::PartnerInformation partner_msg_pub_;
 };
+
 } //namespace roborts_decision
 #endif //ROBORTS_DECISION_BLACKBOARD_H

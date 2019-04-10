@@ -15,4 +15,8 @@ message ParaObstacleLayer {
     required bool marking = 12;
     required bool footprint_clearing_enabled = 13;
     required bool is_debug = 14;
+
+    required string map_topic = 15;
+    required double enemy_inflation = 16;
+    required double max_occ_dist = 17;
 }

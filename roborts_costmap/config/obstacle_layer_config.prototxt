@@ -13,4 +13,8 @@ footprint_clearing_enabled: false
 marking: true
 is_debug: true
 
+map_topic: "map"
+enemy_inflation: 0.2
+max_occ_dist: 5.0
+
 

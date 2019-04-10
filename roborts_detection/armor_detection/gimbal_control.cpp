@@ -81,40 +81,46 @@ void GimbalContrl::Transform(cv::Point3f &postion, float &pitch, float &yaw) {
 
 if(postion.z <=1000 )
 {
-offset_pitch_ = 3.5;
+offset_pitch_ = 5.5;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
 if(postion.z > 1000 && postion.z <=2000)
 {
-offset_pitch_ = 3;
+offset_pitch_ = 4.5;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
 
 if(postion.z > 2000 && postion.z <=3000)
 {
-offset_pitch_ = 2;
+offset_pitch_ = 3.5                                               ;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
 if(postion.z > 3000 && postion.z <=4000)
+{
+offset_pitch_ = 3;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+if(postion.z > 4000 && postion.z <=5000)
+{
+offset_pitch_ = 2;
+pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
+}
+
+
+if(postion.z >5000 )
 {
 offset_pitch_ = 1;
 pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
 }
 
 
-if(postion.z >4000 )
-{
-offset_pitch_ = 0.5;
-pitch = (float) (atan2(postion.y + offset_.y, postion.z + offset_.z)) + (float)(offset_pitch_ * 3.1415926535 / 180);
-}
-
-
   //yaw positive direction :anticlockwise
   yaw = -(float) (atan2(postion.x + offset_.x, postion.z + offset_.z)) + (float)(offset_yaw_ * 3.1415926535 / 180);
-  yaw = yaw * 0.6;
+  yaw = yaw * 0.3;
 std::cout<<"pitch is: "<<pitch<<std::endl;
 std::cout<<"yaw is: "<<yaw<<std::endl;
 

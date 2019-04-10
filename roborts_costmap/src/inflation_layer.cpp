@@ -94,6 +94,11 @@ void InflationLayer::OnInitialize() {
   inflate_unknown_ = false;
   need_reinflation_ = true;
   MatchSize();
+
+  if (strstr(layered_costmap_->GetGlobalFrameID().c_str(), "map") == NULL)
+    map_is_global_ = false;
+  else
+    map_is_global_ = true;
 }
 
 void InflationLayer::MatchSize() {
@@ -176,6 +181,18 @@ void InflationLayer::UpdateCosts(Costmap2D &master_grid, int min_i, int min_j, i
   min_j = std::max(0, min_j);
   max_i = std::min(int(size_x), max_i);
   max_j = std::min(int(size_y), max_j);
+
+  if (map_is_global_) {
+    int m_min_x, m_max_x, m_min_y, m_max_y;
+	  master_grid.World2MapWithBoundary(3.575, 0.075, m_min_x, m_min_y);
+	  master_grid.World2MapWithBoundary(4.575 - inscribed_radius_/ 1.414, 1.075 - inscribed_radius_ / 1.414, m_max_x, m_max_y);
+  	for (int i = m_min_x; i <= m_max_x; i++) {
+  		for (int j = m_min_y; j <= m_max_y; j++) {
+	  		int index = master_grid.GetIndex(i, j);
+		  	master_array[index] = LETHAL_OBSTACLE;
+	  	}
+  	}//enemy_supply_test
+  }
 
   // Inflation list; we append cells to visit in a list associated with its distance to the nearest obstacle
   // We use a map<distance, list> to emulate the priority queue used before, with a notable performance boost

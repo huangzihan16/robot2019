@@ -10,8 +10,13 @@ public:
 	SupplyBehavior(Blackboard* &blackboard): blackboard_(blackboard), have_applicated_(false){}
 	
 	void Run() {
-		if (!have_applicated_)
+		if (!have_applicated_){
 			have_applicated_ = true;
+			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING){
+                blackboard_->SendSupplyCmd();//send command
+		    } 
+		}
+			
 		std::cout << "Supplying..." << std::endl;
   }
 
@@ -31,6 +36,15 @@ public:
 		}
 		else 
 			return BehaviorState::RUNNING;
+
+        // if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) {
+		// 	blackboard_->AddSupplyNum();
+		// 	std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
+		// 	return BehaviorState::SUCCESS;
+		// }
+		// else
+		// 	return BehaviorState::RUNNING;
+
 		
   }
 

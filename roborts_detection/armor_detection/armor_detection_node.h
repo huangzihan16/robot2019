@@ -39,6 +39,7 @@
 #include "proto/armor_detection.pb.h"
 #include "armor_detection_algorithms.h"
 #include "gimbal_control.h"
+#include "constraint_set/shoot_executor.h"
 
 namespace roborts_detection {
 
@@ -79,6 +80,9 @@ class ArmorDetectionNode {
    */
   void PublishMsgs();
   ~ArmorDetectionNode();
+
+  roborts_detection::ShootExecutor  shoot_executor_;
+  
  protected:
  private:
   std::shared_ptr<ArmorDetectionBase> armor_detector_;

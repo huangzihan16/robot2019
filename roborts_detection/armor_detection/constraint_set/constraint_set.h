@@ -7,8 +7,8 @@
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
@@ -33,6 +33,7 @@
 
 #include "proto/constraint_set.pb.h"
 #include "constraint_set.h"
+#include "filter.h"
 namespace roborts_detection {
 
 using roborts_common::ErrorCode;
@@ -195,6 +196,7 @@ class ConstraintSet : public ArmorDetectionBase {
    * @brief Destructor
    */
   ~ConstraintSet() final;
+  Filter filter;
  private:
   ErrorInfo error_info_;
   unsigned int filter_x_count_;

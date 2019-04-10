@@ -48,6 +48,8 @@ class SearchBehavior {
 
     if (executor_state != BehaviorState::RUNNING) {
       auto robot_map_pose = blackboard_->GetRobotMapPose();
+      SetLastPosition(blackboard_->GetEnemy());
+      search_count_ = blackboard_->search_count_;
       if (search_count_ == 5) {
         x_diff = last_position_.pose.position.x - robot_map_pose.pose.position.x;
         y_diff = last_position_.pose.position.y - robot_map_pose.pose.position.y;
@@ -99,6 +101,7 @@ class SearchBehavior {
         search_count_--;
 
       }
+      blackboard_->search_count_ = search_count_;
     }
   }
 
@@ -178,7 +181,7 @@ class SearchBehavior {
 
   void SetLastPosition(geometry_msgs::PoseStamped last_position) {
     last_position_ = last_position;
-    search_count_ = 5;
+    // search_count_ = 5;
   }
 
   ~SearchBehavior() = default;

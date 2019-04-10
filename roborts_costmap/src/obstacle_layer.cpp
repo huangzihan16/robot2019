@@ -53,6 +53,201 @@
 #include "obstacle_layer.h"
 
 namespace roborts_costmap {
+	
+CachedDistanceMap::CachedDistanceMap(double scale,
+									 double max_dist) {
+	scale_ = scale;
+	max_dist_ = max_dist;
+	cell_radius_ = static_cast<int>(max_dist / scale);
+	distances_mat_.resize(cell_radius_ + 2);
+	for (auto it = distances_mat_.begin(); it != distances_mat_.end(); ++it) {
+		it->resize(cell_radius_ + 2, max_dist_);
+	}
+
+	for (int i = 0; i < cell_radius_ + 2; i++) {
+		for (int j = 0; j < cell_radius_ + 2; j++) {
+			distances_mat_[i][j] = std::sqrt(i * i + j * j);
+		}
+	}
+}
+
+DistanceMap::DistanceMap(std::string map_topic, double max_occ_dist) {
+	ros::NodeHandle nh;
+	ParaObstacleLayer para_obstacle;
+	std::string obstacle_map = ros::package::getPath("roborts_costmap") + \
+      "/config/obstacle_layer_config.prototxt";
+  roborts_common::ReadProtoFromTextFile(obstacle_map.c_str(), &para_obstacle);
+	
+	map_topic_ = map_topic;
+	max_occ_dist_ = max_occ_dist;
+	
+	is_map_received_ = false;
+	map_sub_ = nh.subscribe(map_topic_.c_str(), 1, &DistanceMap::InComingMap, this);
+	ros::Rate temp_rate(10);
+	while (!is_map_received_) {
+		ros::spinOnce();
+    temp_rate.sleep();
+	}
+			
+	UpdateCSpace();
+}
+
+void DistanceMap::InComingMap(const nav_msgs::OccupancyGridConstPtr& new_map) {
+	size_x_ = new_map->info.width;
+	size_y_ = new_map->info.height;
+	scale_ = new_map->info.resolution;
+	origin_x_ = new_map->info.origin.position.x + (size_x_ / 2) * scale_;
+	origin_y_ = new_map->info.origin.position.y + (size_y_ / 2) * scale_;
+	cells_vec_.resize(size_x_ * size_y_);
+	max_x_distance_ = static_cast<double>(size_x_) * scale_;
+	max_y_distance_ = static_cast<double>(size_y_) * scale_;
+	diag_distance_ = sqrt(max_x_distance_ * max_x_distance_ + max_y_distance_ * max_y_distance_);
+	for (int i = 0; i < size_x_ * size_y_; i++) {
+		auto tmp_msg = static_cast<int>(new_map->data[i]);
+		if (tmp_msg == 0) {
+			cells_vec_[i].occ_state = -1;
+		} else if (tmp_msg == 100) {
+			cells_vec_[i].occ_state = +1;
+		} else {
+			cells_vec_[i].occ_state = 0;
+		}
+	}
+	
+	is_map_received_ = true;
+}
+
+int DistanceMap::GetSizeX() const {
+	return size_x_;
+}
+int DistanceMap::GetSizeY() const {
+	return size_y_;
+}
+
+const double DistanceMap::GetCellOccDistByIndex(int cell_index) {
+	return cells_vec_[cell_index].occ_distance;
+}
+
+int DistanceMap::ComputeCellIndexByMap(const int& i, const int& j) {
+	return i + j * size_x_;
+}
+
+double DistanceMap::GetCellOccDistByCoord(const int& i, const int& j) {
+	return GetCellOccDistByIndex(ComputeCellIndexByMap(i, j));
+}
+
+bool DistanceMap::CheckIndexFree(const int& i, const int& j) {
+	if (cells_vec_[ComputeCellIndexByMap(i, j)].occ_state == -1)
+		return true;
+	else
+		return false;
+}
+
+void DistanceMap::UpdateCSpace() {
+	mark_vec_ = std::make_unique<std::vector<unsigned char>>();
+	mark_vec_->resize(size_x_ * size_y_);
+	std::priority_queue<MapCellData, std::vector<MapCellData>, CompareByOccDist> Q;
+	BuildDistanceMap(scale_, max_occ_dist_);
+
+	// Enqueue all the obstacle cells
+	MapCellData cell(0,
+				  0,
+				  0,
+				  0,
+				  std::bind(&DistanceMap::GetCellOccDistByCoord, this, std::placeholders::_1, std::placeholders::_2));
+	for (int i = 0; i < size_x_; i++) {
+		cell.src_i_ = cell.i_ = i;
+		for (int j = 0; j < size_y_; j++) {
+			auto map_index_tmp = ComputeCellIndexByMap(i, j);
+			if (cells_vec_[map_index_tmp].occ_state == +1) {
+//				cell.occ_distance = this->cells_vec_[map_index_tmp].occ_distance = 0.0;
+				cells_vec_[map_index_tmp].occ_distance = 0.0;
+				cell.src_j_ = cell.j_ = j;
+				mark_vec_->at(map_index_tmp) = 1;
+				Q.push(cell);
+			} else {
+//				cell.occ_distance = this->cells_vec_[map_index_tmp].occ_distance = max_occ_dist_;
+				cells_vec_[map_index_tmp].occ_distance = max_occ_dist_;
+			}
+		}
+	}
+
+	while (!Q.empty()) {
+		MapCellData current_cell_data = Q.top();
+		if (current_cell_data.i_ > 0) {
+			Enqueue(current_cell_data.i_ - 1, current_cell_data.j_,
+					current_cell_data.src_i_, current_cell_data.src_j_,
+					Q);
+		}
+		if (current_cell_data.j_ > 0) {
+			Enqueue(current_cell_data.i_, current_cell_data.j_ - 1,
+					current_cell_data.src_i_, current_cell_data.src_j_,
+					Q);
+		}
+		if (current_cell_data.i_ < size_x_ - 1) {
+			Enqueue(current_cell_data.i_ + 1, current_cell_data.j_,
+					current_cell_data.src_i_, current_cell_data.src_j_,
+					Q);
+		}
+		if (current_cell_data.j_ < size_y_ - 1) {
+			Enqueue(current_cell_data.i_, current_cell_data.j_ + 1,
+					current_cell_data.src_i_, current_cell_data.src_j_,
+					Q);
+		}
+		Q.pop();
+	}
+
+	cached_distance_map_.reset();
+	mark_vec_.reset();
+}
+
+void DistanceMap::Enqueue(int i, int j, int src_i, int src_j,
+															 std::priority_queue<MapCellData, std::vector<MapCellData>, CompareByOccDist> &Q) {
+
+	auto index = ComputeCellIndexByMap(i, j);
+	if (mark_vec_->at(index)) {
+		return;
+	}
+
+	int di = std::abs(i - src_i);
+	int dj = std::abs(j - src_j);
+	double distance = cached_distance_map_->distances_mat_[di][dj];
+
+	if (distance > cached_distance_map_->cell_radius_) {
+		return;
+	}
+
+	cells_vec_[index].occ_distance = distance * scale_;
+
+	MapCellData cell_data(static_cast<unsigned int>(i),
+					   static_cast<unsigned int>(j),
+					   static_cast<unsigned int>(src_i),
+					   static_cast<unsigned int>(src_j),
+					   std::bind(&DistanceMap::GetCellOccDistByCoord, this, std::placeholders::_1, std::placeholders::_2));
+	Q.push(cell_data);
+	mark_vec_->at(index) = 1;
+}
+
+void DistanceMap::BuildDistanceMap(double scale, double max_dist) {
+	cached_distance_map_.reset();
+	if (cached_distance_map_ == nullptr || cached_distance_map_->scale_ != scale || cached_distance_map_->max_dist_) {
+		if (cached_distance_map_ != nullptr) {
+			cached_distance_map_.reset();
+		}
+		cached_distance_map_ = std::make_unique<CachedDistanceMap>(scale, max_dist);
+	}
+}
+
+void DistanceMap::ConvertWorldToMap(const double&x, const double& y, int& mx, int& my) {
+	mx = (std::floor((x - origin_x_) / scale_ + 0.5) + size_x_ / 2);
+	my = (std::floor((y - origin_y_) / scale_ + 0.5) + size_y_ / 2);
+}
+
+double DistanceMap::GetDistance(double wx, double wy) {
+	int mx, my;
+	ConvertWorldToMap(wx, wy, mx, my);
+	
+	return GetCellOccDistByCoord(mx, my);
+}
 
 void ObstacleLayer::OnInitialize() {
   ros::NodeHandle nh;
@@ -127,6 +322,18 @@ void ObstacleLayer::OnInitialize() {
   target_frames.push_back(sensor_frame);
   observation_notifiers_.back()->setTargetFrames(target_frames);
   is_enabled_ = true;
+
+  std::string map_topic = para_obstacle.map_topic();
+	double max_occ_dist = para_obstacle.max_occ_dist();
+	distance_map_ptr_ = std::shared_ptr<DistanceMap>(new DistanceMap(map_topic, max_occ_dist));
+	
+	enemy_inflation_ = para_obstacle.enemy_inflation();	
+
+  if (strstr(global_frame_.c_str(), "map") == NULL)
+    map_is_global_ = false;
+  else 
+    map_is_global_ = true;
+  
 }
 
 void ObstacleLayer::LaserScanCallback(const sensor_msgs::LaserScanConstPtr &message,
@@ -198,6 +405,9 @@ void ObstacleLayer::UpdateBounds(double robot_x,
     RaytraceFreespace(clearing_observations[i], min_x, min_y, max_x, max_y);
   }
 
+  double resolution = layered_costmap_->GetCostMap()->GetResolution();
+	enemy_inflation_grid_ = (int)std::ceil(enemy_inflation_ / resolution);
+
   for (std::vector<Observation>::const_iterator it = observations.begin(); it != observations.end(); it++) {
     const Observation obs = *it;
     const pcl::PointCloud<pcl::PointXYZ> &cloud = *(obs.cloud_);
@@ -224,8 +434,32 @@ void ObstacleLayer::UpdateBounds(double robot_x,
       if (!World2Map(px, py, mx, my)) {
         continue;
       }
-      unsigned int index = GetIndex(mx, my);
-      costmap_[index] = LETHAL_OBSTACLE;
+
+      double dist_to_wall = 0;
+      if (map_is_global_)
+        dist_to_wall = distance_map_ptr_->GetDistance(px, py);
+      if (map_is_global_ && (dist_to_wall > enemy_inflation_)) {
+        if (mx > enemy_inflation_grid_)
+  				mx = mx - enemy_inflation_grid_;
+				else
+  				mx = 0;
+				if (my > enemy_inflation_grid_)
+  				my = my - enemy_inflation_grid_;
+				else
+  				my = 0;
+  
+			  for (unsigned int row = 0; row <= 2 * enemy_inflation_grid_; row++) {
+				  for (unsigned int col = 0; col <= 2 * enemy_inflation_grid_; col++) {
+  					unsigned int index = GetIndex(mx + row, my + col);
+					  costmap_[index] = LETHAL_OBSTACLE;
+				  }
+				 }
+			} else {
+  			unsigned int index = GetIndex(mx, my);
+				costmap_[index] = LETHAL_OBSTACLE;
+			}
+      //unsigned int index = GetIndex(mx, my);
+				//costmap_[index] = LETHAL_OBSTACLE;
 
       Touch(px, py, min_x, min_y, max_x, max_y);
     }

@@ -7,8 +7,8 @@
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
@@ -21,6 +21,7 @@
 
 #include "timer/timer.h"
 #include "io/io.h"
+#include "filter.h"
 
 namespace roborts_detection {
 
@@ -142,7 +143,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, cv::Point3f &target_3d) {
     }
 
     DetectLights(src_img_, lights);
-    FilterLights(lights);
+    //FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
     if(!armors.empty()) {
@@ -150,8 +151,12 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, cv::Point3f &target_3d) {
       ArmorInfo final_armor = SlectFinalArmor(armors);
       cv_toolbox_->DrawRotatedRect(src_img_, armors[0].rect, cv::Scalar(0, 255, 0), 2);
       CalcControlInfo(final_armor, target_3d);
-    } else
+      //filter.Update(target_3d);
+    } else{
+      //target_3d = filter.UpdateNoMesurement();
       detected = false;
+    }
+      
     if(enable_debug_) {
       cv::imshow("relust_img_", src_img_);
     }
@@ -238,10 +243,11 @@ void ConstraintSet::FilterLights(std::vector<cv::RotatedRect> &lights) {
     auto light_aspect_ratio =
         std::max(light.size.width, light.size.height) / std::min(light.size.width, light.size.height);
     //https://stackoverflow.com/questions/15956124/minarearect-angles-unsure-about-the-angle-returned/21427814#21427814
+
     if(light.size.width < light.size.height) {
-      angle = light.angle; // -light.angle
+      angle = light.angle+180; // -light.angle
     } else
-      angle = light.angle; // light.angle + 90
+      angle = light.angle+90; // light.angle + 90
     //std::cout << "light angle: " << angle << std::endl;
     //std::cout << "light_aspect_ratio: " << light_aspect_ratio << std::endl;
     //std::cout << "light_area: " << light.size.area() << std::endl;
@@ -370,24 +376,28 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       float dis = std::sqrt(dx * dx + dy * dy);
       if (dis < armors[i].rect.size.width + armors[j].rect.size.width) {
         if (armors[i].rect.angle > armors[j].rect.angle) {
-          is_armor[i] = false;
+          is_armor[i] = false;//false
           //std::cout << "i: " << i << std::endl;
         } else {
-          is_armor[j] = false;
+          is_armor[j] = false;//false
           //std::cout << "j: " << j << std::endl;
         }
       }
     }
   }
   //std::cout << armors.size() << std::endl;
-  for (unsigned int i = 0; i < armors.size(); i++) {
+  for (unsigned int i = 0; i < armors.size(); ) {
     if (!is_armor[i]) {
       armors.erase(armors.begin() + i);
       is_armor.erase(is_armor.begin() + i);
       //std::cout << "index: " << i << std::endl;
-    } else if (enable_debug_) {
-      cv_toolbox_->DrawRotatedRect(show_armors_after_filter_, armors[i].rect, cv::Scalar(0, 255, 0), 2);
+    } else {
+	if (enable_debug_) {
+          cv_toolbox_->DrawRotatedRect(show_armors_after_filter_, armors[i].rect, cv::Scalar(0, 255, 0), 2);
+	}
+      	i++;
     }
+
   }
   if (enable_debug_)
     cv::imshow("armors_after_filter", show_armors_after_filter_);

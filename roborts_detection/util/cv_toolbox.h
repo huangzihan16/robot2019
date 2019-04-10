@@ -203,8 +203,8 @@ class CVToolbox {
       if (color == 0) {
         cv::Mat img_hsv_blue, img_threshold_blue;
         img_hsv_blue = img_hsv.clone();
-        cv::Mat blue_low(cv::Scalar(80, 0, 0));   //90 150 46
-        cv::Mat blue_higher(cv::Scalar(165, 255, 255));  //140 255 255
+        cv::Mat blue_low(cv::Scalar(84, 43, 46));   //90 150 46   暗 80 0 0  原来 84 43 46
+        cv::Mat blue_higher(cv::Scalar(124, 255, 255));  //140 255 255 暗 165 255 255  原来 124 255 255
         cv::inRange(img_hsv_blue, blue_low, blue_higher, img_threshold_blue);
         return img_threshold_blue;
       } else {

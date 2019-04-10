@@ -186,6 +186,7 @@ class InflationLayer : public Layer {
   double last_min_x_, last_min_y_, last_max_x_, last_max_y_;
 
   bool need_reinflation_;
+  bool map_is_global_;
 };
 
 } //namespace roborts_costmap
