@@ -56,12 +56,17 @@
 #include <list>
 #include <string>
 #include <mutex>
+#include <ros/ros.h>
 #include <ros/time.h>
+#include <ros/package.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <pcl/point_cloud.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <iostream>
+#include <string>
 #include "observation.h"
+#include "roborts_msgs/PartnerInformation.h"
 
 namespace roborts_costmap {
 /**
@@ -88,6 +93,8 @@ class ObservationBuffer {
                     double min_obstacle_height, double max_obstacle_height, double obstacle_range,
                     double raytrace_range, tf::TransformListener &tf, std::string global_frame,
                     std::string sensor_frame, double tf_tolerance);
+
+  void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
 
   /**
    * @brief  Destructor... cleans up
@@ -165,6 +172,8 @@ class ObservationBuffer {
   std::recursive_mutex lock_;
   double obstacle_range_, raytrace_range_;
   double tf_tolerance_;
+  ros::Subscriber partner_info_sub_;
+  geometry_msgs::PoseStamped partner_pose_;
 };
 
 }// namespace roborts_costmap

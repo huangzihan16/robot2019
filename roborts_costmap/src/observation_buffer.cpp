@@ -69,6 +69,39 @@ ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_
     min_obstacle_height_(min_obstacle_height), max_obstacle_height_(max_obstacle_height),
     obstacle_range_(obstacle_range), raytrace_range_(raytrace_range), tf_tolerance_(tf_tolerance)
 {
+  printf("Initializing ObservationBuffer...\n");
+  ros::NodeHandle nh;
+
+  // Get the name of the partner
+  ifstream infile;
+  string file = ros::package::getPath("roborts_decision") + "/config/decision.prototxt";
+  infile.open(file.data());
+  string s;
+  string partner_name;
+  while(getline(infile,s)) {
+      if (s == "partner_name: \"robot1\"") {
+        partner_name = "robot1";
+        printf("My partner is robot 1\n");
+        break;
+      } else if (s == "partner_name: \"robot2\"") {
+        partner_name = "robot2";
+        printf("My partner is robot 2\n");
+        break;
+      }
+  }
+  infile.close();
+
+  string partner_topic_sub = "/" + partner_name + "/partner_msg";
+  partner_info_sub_ = nh.subscribe(partner_topic_sub, 1, &ObservationBuffer::PartnerCallback, this);
+  printf("ObservationBuffer initilized\n");
+}
+
+void ObservationBuffer::PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info) {
+  partner_pose_ = partner_info->partner_pose;
+  double x = partner_pose_.pose.position.x;
+  double y = partner_pose_.pose.position.y;
+  double z = partner_pose_.pose.position.z;
+  printf("Partner pose: (%lf, %lf, %lf)\n", x, y, z);
 }
 
 ObservationBuffer::~ObservationBuffer()
@@ -129,6 +162,26 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     // Actually convert the PointCloud2 message into a type we can reason about
     pcl::PointCloud < pcl::PointXYZ > pcl_cloud;
     pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
+
+    // Add partner information into pcl_cloud
+    const double arc_length = 0.3;
+    const double r = 0.3;
+    const double angle_step = arc_length / r;
+    const double h = min_obstacle_height_;
+
+    // printf("Size before addition: %ud\n", pcl_cloud.points.size());
+
+    pcl::PointXYZ temp;
+    temp.z = h;
+    for(double angle = 0; angle < 2*3.14; angle += angle_step)
+    {
+      temp.x = partner_pose_.pose.position.x + r * cos(angle);
+      temp.y = partner_pose_.pose.position.y + r * sin(angle);
+      pcl_cloud.push_back(temp);
+    }
+
+    // printf("Size after addition: %ud\n", pcl_cloud.points.size());
+
     BufferCloud(pcl_cloud);
   }
   catch (pcl::PCLException& ex)
