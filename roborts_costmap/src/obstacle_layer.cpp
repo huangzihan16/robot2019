@@ -535,7 +535,7 @@ bool ObstacleLayer::GetClearingObservations(std::vector<Observation> &clearing_o
   // get the clearing observations
   for (unsigned int i = 0; i < clearing_buffers_.size(); ++i) {
     clearing_buffers_[i]->Lock();
-    clearing_buffers_[i]->GetObservations(clearing_observations);
+    clearing_buffers_[i]->GetObservations(clearing_observations, true);
     current = clearing_buffers_[i]->IsCurrent() && current;
     clearing_buffers_[i]->Unlock();
   }

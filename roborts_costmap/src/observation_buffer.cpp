@@ -98,10 +98,14 @@ ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_
 
 void ObservationBuffer::PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info) {
   partner_pose_ = partner_info->partner_pose;
-  double x = partner_pose_.pose.position.x;
-  double y = partner_pose_.pose.position.y;
-  double z = partner_pose_.pose.position.z;
-  printf("Partner pose: (%lf, %lf, %lf)\n", x, y, z);
+  is_enemy_detected = partner_info->enemy_detected;
+  if (is_enemy_detected) {
+    enemy_pose_from_partner_ = partner_info->enemy_pose;
+    double x = enemy_pose_from_partner_.pose.position.x;
+    double y = enemy_pose_from_partner_.pose.position.y;
+    double z = enemy_pose_from_partner_.pose.position.z;
+    printf("enemy pose from my partner: (%lf, %lf, %lf)\n", x, y, z);
+  }
 }
 
 ObservationBuffer::~ObservationBuffer()
@@ -167,9 +171,10 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     const double arc_length = 0.3;
     const double r = 0.3;
     const double angle_step = arc_length / r;
-    const double h = min_obstacle_height_;
+    const double h = 0.0;
 
-    // printf("Size before addition: %ud\n", pcl_cloud.points.size());
+    unsigned int old_size = pcl_cloud.points.size();
+    // printf("Size before addition: %u\n", old_size);
 
     pcl::PointXYZ temp;
     temp.z = h;
@@ -180,7 +185,19 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
       pcl_cloud.push_back(temp);
     }
 
-    // printf("Size after addition: %ud\n", pcl_cloud.points.size());
+    if (is_enemy_detected) {
+      for(double angle = 0; angle < 2*3.14; angle += angle_step)
+      {
+        temp.x = enemy_pose_from_partner_.pose.position.x + r * cos(angle);
+        temp.y = enemy_pose_from_partner_.pose.position.y + r * sin(angle);
+        pcl_cloud.push_back(temp);
+      }
+    }
+
+    unsigned int new_size = pcl_cloud.points.size();
+    // printf("Size after addition: %u\n", new_size);
+
+    pts_num_added = new_size - old_size;
 
     BufferCloud(pcl_cloud);
   }
@@ -197,6 +214,7 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
 
   // create a new observation on the list to be populated
   observation_list_.push_front(Observation());
+  clear_observation_list_.push_front(Observation());
 
   // check whether the origin frame has been set explicitly or whether we should get it from the cloud
   string origin_frame = sensor_frame_ == "" ? cloud.header.frame_id : sensor_frame_;
@@ -211,10 +229,15 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
     observation_list_.front().origin_.x = global_origin.getX();
     observation_list_.front().origin_.y = global_origin.getY();
     observation_list_.front().origin_.z = global_origin.getZ();
+    clear_observation_list_.front().origin_.x = global_origin.getX();
+    clear_observation_list_.front().origin_.y = global_origin.getY();
+    clear_observation_list_.front().origin_.z = global_origin.getZ();
 
     // make sure to pass on the raytrace/obstacle range of the observation buffer to the observations
     observation_list_.front().raytrace_range_ = raytrace_range_;
     observation_list_.front().obstacle_range_ = obstacle_range_;
+    clear_observation_list_.front().raytrace_range_ = raytrace_range_;
+    clear_observation_list_.front().obstacle_range_ = obstacle_range_;
 
     pcl::PointCloud < pcl::PointXYZ > global_frame_cloud;
 
@@ -224,9 +247,13 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
 
     // now we need to remove observations from the cloud that are below or above our height thresholds
     pcl::PointCloud < pcl::PointXYZ > &observation_cloud = *(observation_list_.front().cloud_);
+    pcl::PointCloud < pcl::PointXYZ > &clear_observation_cloud = *(clear_observation_list_.front().cloud_);
     unsigned int cloud_size = global_frame_cloud.points.size();
+    unsigned int clear_cloud_size = global_frame_cloud.points.size() - pts_num_added;
     observation_cloud.points.resize(cloud_size);
+    clear_observation_cloud.points.resize(clear_cloud_size);
     unsigned int point_count = 0;
+    unsigned int clear_point_count = 0;
 
     // copy over the points that are within our height bounds
     for (unsigned int i = 0; i < cloud_size; ++i)
@@ -235,6 +262,9 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
           && global_frame_cloud.points[i].z >= min_obstacle_height_)
       {
         observation_cloud.points[point_count++] = global_frame_cloud.points[i];
+        if (i < clear_cloud_size) { // this point comes from the laser
+          clear_observation_cloud.points[clear_point_count++] = global_frame_cloud.points[i];
+        }
       }
     }
 
@@ -242,11 +272,15 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
     observation_cloud.points.resize(point_count);
     observation_cloud.header.stamp = cloud.header.stamp;
     observation_cloud.header.frame_id = global_frame_cloud.header.frame_id;
+    clear_observation_cloud.points.resize(clear_point_count);
+    clear_observation_cloud.header.stamp = cloud.header.stamp;
+    clear_observation_cloud.header.frame_id = global_frame_cloud.header.frame_id;
   }
   catch (TransformException& ex)
   {
     // if an exception occurs, we need to remove the empty observation from the list
     observation_list_.pop_front();
+    clear_observation_list_.pop_front();
     ROS_ERROR("TF Exception that should never happen for sensor frame: %s, cloud frame: %s, %s", sensor_frame_.c_str(),
               cloud.header.frame_id.c_str(), ex.what());
     return;
@@ -257,18 +291,40 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
 
   // we'll also remove any stale observations from the list
   PurgeStaleObservations();
+  PurgeStaleClearObservations();
+
+  // develop a clearing observation list, which should not
+  // contains the partner and the enemy deteted by the partner.
+  // clear_observation_list_.reserve(observation_list_.capacity);
+  // std::copy(observation_list_.begin(), observation_list_.end(), clear_observation_list_.begin());
+  // for(unsigned int i = 0; i < pts_num_added; i++) {
+  //   clear_observation_list_.front().cloud_->points.pop();
+  // }
 }
 
 // returns a copy of the observations
-void ObservationBuffer::GetObservations(vector<Observation>& observations)
+void ObservationBuffer::GetObservations(vector<Observation>& observations, bool is_clear)
 {
   // first... let's make sure that we don't have any stale observations
-  PurgeStaleObservations();
+  if (!is_clear) {
+    PurgeStaleObservations();
+  } else {
+    PurgeStaleClearObservations();
+  }
+
   // now we'll just copy the observations for the caller
-  list<Observation>::iterator obs_it;
-  for (obs_it = observation_list_.begin(); obs_it != observation_list_.end(); ++obs_it)
-  {
-    observations.push_back(*obs_it);
+  if (!is_clear) {
+    list<Observation>::iterator obs_it;
+    for (obs_it = observation_list_.begin(); obs_it != observation_list_.end(); ++obs_it)
+    {
+      observations.push_back(*obs_it);
+    }
+  } else {
+    list<Observation>::iterator obs_it;
+    for (obs_it = clear_observation_list_.begin(); obs_it != clear_observation_list_.end(); ++obs_it)
+    {
+      observations.push_back(*obs_it);
+    }
   }
 }
 
@@ -293,6 +349,33 @@ void ObservationBuffer::PurgeStaleObservations()
       if ((last_updated_ - pcl_conversions::fromPCL(obs.cloud_->header).stamp) > observation_keep_time_)
       {
         observation_list_.erase(obs_it, observation_list_.end());
+        return;
+      }
+    }
+  }
+}
+
+void ObservationBuffer::PurgeStaleClearObservations()
+{
+  if (!clear_observation_list_.empty())
+  {
+    list<Observation>::iterator obs_it = clear_observation_list_.begin();
+    // if we're keeping observations for no time... then we'll only keep one observation
+    if (observation_keep_time_ == ros::Duration(0.0))
+    {
+      clear_observation_list_.erase(++obs_it, clear_observation_list_.end());
+      return;
+    }
+
+    // otherwise... we'll have to loop through the observations to see which ones are stale
+    for (obs_it = clear_observation_list_.begin(); obs_it != clear_observation_list_.end(); ++obs_it)
+    {
+      Observation& obs = *obs_it;
+      // check if the observation is out of date... and if it is, remove it and those that follow from the list
+      ros::Duration time_diff = last_updated_ - pcl_conversions::fromPCL(obs.cloud_->header).stamp;
+      if ((last_updated_ - pcl_conversions::fromPCL(obs.cloud_->header).stamp) > observation_keep_time_)
+      {
+        clear_observation_list_.erase(obs_it, clear_observation_list_.end());
         return;
       }
     }

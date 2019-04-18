@@ -127,7 +127,7 @@ class ObservationBuffer {
    * @brief  Pushes copies of all current observations onto the end of the vector passed in
    * @param  observations The vector to be filled
    */
-  void GetObservations(std::vector<Observation> &observations);
+  void GetObservations(std::vector<Observation> &observations, bool is_clear = false);
 
   /**
    * @brief  Check if the observation buffer is being update at its expected rate
@@ -159,6 +159,7 @@ class ObservationBuffer {
    * @brief  Removes any stale observations from the buffer list
    */
   void PurgeStaleObservations();
+  void PurgeStaleClearObservations();
 
   tf::TransformListener &tf_;
   const ros::Duration observation_keep_time_;
@@ -167,6 +168,8 @@ class ObservationBuffer {
   std::string global_frame_;
   std::string sensor_frame_;
   std::list<Observation> observation_list_;
+  std::list<Observation> clear_observation_list_;
+  unsigned int pts_num_added;
   std::string topic_name_;
   double min_obstacle_height_, max_obstacle_height_;
   std::recursive_mutex lock_;
@@ -174,6 +177,8 @@ class ObservationBuffer {
   double tf_tolerance_;
   ros::Subscriber partner_info_sub_;
   geometry_msgs::PoseStamped partner_pose_;
+  geometry_msgs::PoseStamped enemy_pose_from_partner_;
+  bool is_enemy_detected;
 };
 
 }// namespace roborts_costmap

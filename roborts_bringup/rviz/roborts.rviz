@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
+        - /Map2
       Splitter Ratio: 0.5
     Tree Height: 713
   - Class: rviz/Selection
@@ -27,7 +28,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
   - Class: rviz/Tool Properties
     Expanded: ~
     Name: Tool Properties
@@ -47,7 +48,7 @@ Visualization Manager:
       Color: 255; 255; 0
       Color Transformer: FlatColor
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 1
@@ -64,7 +65,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -98,19 +99,19 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /map
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /local_costmap/local_costmap/costmap
+      Topic: /global_costmap/global_costmap/costmap
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -185,15 +186,15 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 6.74234343
+      Distance: 7.5514245
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.58735061
-        Y: 0.8886621
+        X: 3.95971894
+        Y: 0.955482125
         Z: 9.53674316e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.00100000005
@@ -203,7 +204,7 @@ Visualization Manager:
       Pitch: 1.56979632
       Target Frame: map
       Value: ThirdPersonFollower (rviz)
-      Yaw: 6.09762669
+      Yaw: 4.72262335
     Saved: ~
 Window Geometry:
   Displays:
