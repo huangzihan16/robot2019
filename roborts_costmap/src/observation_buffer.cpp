@@ -101,10 +101,10 @@ void ObservationBuffer::PartnerCallback(const roborts_msgs::PartnerInformationCo
   is_enemy_detected = partner_info->enemy_detected;
   if (is_enemy_detected) {
     enemy_pose_from_partner_ = partner_info->enemy_pose;
-    double x = enemy_pose_from_partner_.pose.position.x;
-    double y = enemy_pose_from_partner_.pose.position.y;
-    double z = enemy_pose_from_partner_.pose.position.z;
-    printf("enemy pose from my partner: (%lf, %lf, %lf)\n", x, y, z);
+    // double x = enemy_pose_from_partner_.pose.position.x;
+    // double y = enemy_pose_from_partner_.pose.position.y;
+    // double z = enemy_pose_from_partner_.pose.position.z;
+    // printf("enemy pose from my partner: (%lf, %lf, %lf)\n", x, y, z);
   }
 }
 
@@ -167,35 +167,43 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     pcl::PointCloud < pcl::PointXYZ > pcl_cloud;
     pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
 
-    // Add partner information into pcl_cloud
+    // Constants
     const double arc_length = 0.3;
     const double r = 0.3;
     const double angle_step = arc_length / r;
     const double h = 0.0;
-
-    unsigned int old_size = pcl_cloud.points.size();
-    // printf("Size before addition: %u\n", old_size);
-
     pcl::PointXYZ temp;
     temp.z = h;
-    for(double angle = 0; angle < 2*3.14; angle += angle_step)
-    {
-      temp.x = partner_pose_.pose.position.x + r * cos(angle);
-      temp.y = partner_pose_.pose.position.y + r * sin(angle);
-      pcl_cloud.push_back(temp);
-    }
 
-    if (is_enemy_detected) {
-      for(double angle = 0; angle < 2*3.14; angle += angle_step)
-      {
-        temp.x = enemy_pose_from_partner_.pose.position.x + r * cos(angle);
-        temp.y = enemy_pose_from_partner_.pose.position.y + r * sin(angle);
+    unsigned int old_size = pcl_cloud.points.size();
+
+    if (!partner_pose_.header.frame_id.empty()) {
+      // Transform partner_pose_ to partner_pose_tmp_
+      geometry_msgs::PoseStamped partner_pose_tmp_;
+      tf_.transformPose(cloud.header.frame_id, partner_pose_, partner_pose_tmp_);
+      // Add partner information into pcl_cloud
+      for(double angle = 0; angle < 2*3.14; angle += angle_step) {
+        temp.x = partner_pose_tmp_.pose.position.x + r * cos(angle);
+        temp.y = partner_pose_tmp_.pose.position.y + r * sin(angle);
         pcl_cloud.push_back(temp);
       }
     }
 
+    if (is_enemy_detected) {
+      if (!enemy_pose_from_partner_.header.frame_id.empty()) {
+        // Transform enemy_pose_from_partner_ to enemy_pose_tmp_
+        geometry_msgs::PoseStamped enemy_pose_tmp_;
+        tf_.transformPose(cloud.header.frame_id, enemy_pose_from_partner_, enemy_pose_tmp_);
+        // Add partner information into pcl_cloud
+        for(double angle = 0; angle < 2*3.14; angle += angle_step) {
+          temp.x = enemy_pose_tmp_.pose.position.x + r * cos(angle);
+          temp.y = enemy_pose_tmp_.pose.position.y + r * sin(angle);
+          pcl_cloud.push_back(temp);
+        }
+      }
+    }
+
     unsigned int new_size = pcl_cloud.points.size();
-    // printf("Size after addition: %u\n", new_size);
 
     pts_num_added = new_size - old_size;
 
