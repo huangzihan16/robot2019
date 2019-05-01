@@ -12,6 +12,7 @@ add_library(constraint_set
   ${ConstraintSetProtoSrc}
   ${ConstraintSetProtoHds}
   constraint_set.cpp
+  svm.cpp
   )
 
 add_library(detection::constraint_set ALIAS constraint_set)

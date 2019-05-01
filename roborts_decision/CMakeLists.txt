@@ -46,6 +46,7 @@ add_executable(behavior_test_node
   executor/chassis_executor.cpp
    executor/gimbal_executor.cpp
    executor/shoot_executor.cpp
+  blackboard/blackboard.cpp
   )
 
 target_link_libraries(behavior_test_node
@@ -64,6 +65,7 @@ add_executable(behavior_tree_test
   executor/chassis_executor.cpp
   executor/gimbal_executor.cpp
   executor/shoot_executor.cpp
+  blackboard/blackboard.cpp
 )
 target_link_libraries(behavior_tree_test
   PRIVATE
@@ -81,6 +83,7 @@ add_executable(dual_behavior_tree_test
   executor/chassis_executor.cpp
   executor/gimbal_executor.cpp
   executor/shoot_executor.cpp
+  blackboard/blackboard.cpp
 )
 target_link_libraries(dual_behavior_tree_test
   PRIVATE

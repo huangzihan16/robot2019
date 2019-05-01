@@ -302,7 +302,7 @@ class PreconditionNode: public DecoratorNode{
    * @brief Initialize something before starting to tick the node
    */
   virtual void OnInitialize() {
-    ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
+    //  ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
   }
 
   virtual bool Precondition(){
@@ -338,20 +338,20 @@ class PreconditionNode: public DecoratorNode{
   virtual void OnTerminate(BehaviorState state) {
     switch (state){
       case BehaviorState::IDLE:
-        ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
         //TODO: the following recovery measure is called by parent node, and deliver to reset its running child node
         child_node_ptr_->Reset();
         break;
       case BehaviorState::SUCCESS:
-        ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
         break;
       case BehaviorState::FAILURE:
-        ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
         //TODO: the following recovery measure is in failure situation caused by precondition false.
         child_node_ptr_->Reset();
         break;
       default:
-        ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
         return;
     }
   }
@@ -508,7 +508,7 @@ class SelectorNode: public CompositeNode{
    */
   virtual void OnInitialize(){
     children_node_index_ = 0;
-    ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
+    //  ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
   }
 
   /**
@@ -523,11 +523,11 @@ class SelectorNode: public CompositeNode{
 
     //Reevaluation
     for(unsigned int index = 0; index < children_node_index_; index++){
-      ROS_INFO("Reevaluation");
+        ROS_INFO("Reevaluation");
       if (children_node_reevaluation_.at(index)){
         BehaviorState state = children_node_ptr_.at(index)->Run();
         if(index == children_node_index_){
-          ROS_INFO("%s abort goes on! ", name_.c_str());
+            ROS_INFO("%s abort goes on! ", name_.c_str());
           if (state != BehaviorState::FAILURE) {
             return state;
           }
@@ -559,18 +559,18 @@ class SelectorNode: public CompositeNode{
   virtual void OnTerminate(BehaviorState state){
     switch (state){
       case BehaviorState::IDLE:
-        ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
         //TODO: the following recovery measure is called by parent node, and deliver to reset its running child node
         children_node_ptr_.at(children_node_index_)->Reset();
         break;
       case BehaviorState::SUCCESS:
-        ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
         break;
       case BehaviorState::FAILURE:
-        ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
         break;
       default:
-        ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
         return;
     }
   }
@@ -598,7 +598,7 @@ class SequenceNode: public CompositeNode{
    */
   virtual void OnInitialize(){
     children_node_index_ = 0;
-    ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
+    //  ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
   }
   /**
    * @brief Tick the node and update the state of the behavior node
@@ -631,17 +631,17 @@ class SequenceNode: public CompositeNode{
   virtual void OnTerminate(BehaviorState state){
     switch (state){
       case BehaviorState::IDLE:
-        ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
         children_node_ptr_.at(children_node_index_)->Reset();
         break;
       case BehaviorState::SUCCESS:
-        ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
         break;
       case BehaviorState::FAILURE:
-        ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
         break;
       default:
-        ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
         return;
     }
   }
@@ -675,7 +675,7 @@ class ParallelNode: public CompositeNode{
     success_count_=0;
     children_node_done_.clear();
     children_node_done_.resize(children_node_ptr_.size(),false);
-    ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
+    //  ROS_INFO("%s %s", name_.c_str(), __FUNCTION__);
   }
   /**
    * @brief Tick the node and update the state of the behavior node
@@ -715,16 +715,16 @@ class ParallelNode: public CompositeNode{
   virtual void OnTerminate(BehaviorState state){
     switch (state){
       case BehaviorState::IDLE:
-        ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s IDLE!", name_.c_str(), __FUNCTION__);
         break;
       case BehaviorState::SUCCESS:
-        ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s SUCCESS!", name_.c_str(), __FUNCTION__);
         break;
       case BehaviorState::FAILURE:
-        ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s FAILURE!", name_.c_str(), __FUNCTION__);
         break;
       default:
-        ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
+        //  ROS_INFO("%s %s ERROR!", name_.c_str(), __FUNCTION__);
         return;
     }
     //TODO: no matter what state, the node would reset all running children to terminate.
@@ -760,7 +760,7 @@ bool PreconditionNode::Reevaluation(){
     if (index_in_parent < parent_selector_node_ptr->GetChildrenIndex()){
       if(Precondition()){
         //Abort Measures
-        ROS_INFO("Abort happens!");
+        //  ROS_INFO("Abort happens!");
         parent_children.at(parent_selector_node_ptr->GetChildrenIndex())->Reset();
         parent_selector_node_ptr->SetChildrenIndex(index_in_parent);
         return true;

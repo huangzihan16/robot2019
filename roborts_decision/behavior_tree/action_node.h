@@ -39,15 +39,15 @@ class PatrolAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "PatrolAction OnInitialize" << std::endl;
+    // //  std::cout << "PatrolAction OnInitialize" << std::endl;
 		// patrol_behavior_.have_time_ = true;
-		patrol_behavior_.start_time_ = ros::Time::now();
+		// patrol_behavior_.start_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {
     patrol_behavior_.Run();
-    std::cout << "PatrolAction up" << std::endl;
-	
+    ROS_INFO(" patrol_behavior_ patrol_behavior_ !");
+
     return patrol_behavior_.Update();
 
   }
@@ -56,16 +56,16 @@ class PatrolAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				patrol_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        // //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        // //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -85,11 +85,12 @@ class BackBootAreaAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "BackBootAreaAction OnInitialize" << std::endl;
+    //  std::cout << "BackBootAreaAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
     back_boot_area_behavior_.Run();
+    ROS_INFO(" back_boot_area_behavior_ back_boot_area_behavior_ !");
 
     return back_boot_area_behavior_.Update();
 
@@ -99,16 +100,16 @@ class BackBootAreaAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				back_boot_area_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -128,11 +129,12 @@ class ChaseAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "ChaseAction OnInitialize" << std::endl;
+    //  std::cout << "ChaseAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
     chase_behavior_.Run();
+    ROS_INFO(" chase_behavior_ chase_behavior_ !");
 
     return chase_behavior_.Update();
 
@@ -142,16 +144,16 @@ class ChaseAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				chase_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -172,12 +174,12 @@ class SearchAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "SearchAction OnInitialize" << std::endl;
+    //  std::cout << "SearchAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
     search_behavior_.Run();
-
+    ROS_INFO(" search_behavior_ search_behavior_ !");
     return search_behavior_.Update();
 
   }
@@ -186,16 +188,16 @@ class SearchAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				search_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -216,12 +218,12 @@ class EscapeAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "EscapeAction OnInitialize" << std::endl;
+    //  std::cout << "EscapeAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
     escape_behavior_.Run();
-
+    ROS_INFO(" escape_behavior_ escape_behavior_ !");
     return escape_behavior_.Update();
 
   }
@@ -230,16 +232,16 @@ class EscapeAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				escape_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -260,12 +262,12 @@ class GoalAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "GoalAction OnInitialize" << std::endl;
+    //  std::cout << "GoalAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
     goal_behavior_.Run();
-
+    ROS_INFO(" goal_behavior_ goal_behavior_ !");
     return goal_behavior_.Update();
 
   }
@@ -274,16 +276,16 @@ class GoalAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				goal_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -303,13 +305,13 @@ class SupplyGoalAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "SupplyGoalAction OnInitialize" << std::endl;
+    //  std::cout << "SupplyGoalAction OnInitialize" << std::endl;
 		supply_goal_behavior_.have_execute_ = false;
   };
 
   virtual BehaviorState Update() {
     supply_goal_behavior_.Run();
-
+    ROS_INFO(" supply_goal_behavior_ supply_goal_behavior_ !");
     return supply_goal_behavior_.Update();
 
   }
@@ -318,16 +320,16 @@ class SupplyGoalAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				supply_goal_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -345,13 +347,13 @@ class GainBuffGoalAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "GainBuffGoalAction OnInitialize" << std::endl;
+    //  std::cout << "GainBuffGoalAction OnInitialize" << std::endl;
 		buff_goal_behavior_.have_execute_ = false;
   };
 
   virtual BehaviorState Update() {
     buff_goal_behavior_.Run();
-
+    ROS_INFO(" buff_goal_behavior_ buff_goal_behavior_ !");
     return buff_goal_behavior_.Update();
 
   }
@@ -360,16 +362,16 @@ class GainBuffGoalAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				buff_goal_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -387,13 +389,13 @@ class GainBuffAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "GainBuffAction OnInitialize" << std::endl;
+    //  std::cout << "GainBuffAction OnInitialize" << std::endl;
 		buff_behavior_.have_execute_ = false;
   };
 
   virtual BehaviorState Update() {
     buff_behavior_.Run();
-
+    ROS_INFO(" buff_behavior_ buff_behavior_ !");
     return buff_behavior_.Update();
 
   }
@@ -402,16 +404,16 @@ class GainBuffAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				buff_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -430,7 +432,7 @@ class ShootAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "ShootAction OnInitialize" << std::endl;
+    //  std::cout << "ShootAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
@@ -444,16 +446,16 @@ class ShootAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				shoot_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -473,13 +475,13 @@ class SupplyApplicateNode : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "SupplyApplicateNode OnInitialize" << std::endl;
+    //  std::cout << "SupplyApplicateNode OnInitialize" << std::endl;
 		supply_application_behavior_.application_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {
     supply_application_behavior_.Run();
-	
+    ROS_INFO(" supply_application_behavior_ supply_application_behavior_ !");
     return supply_application_behavior_.Update();
 
   }
@@ -488,16 +490,16 @@ class SupplyApplicateNode : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				supply_application_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -516,14 +518,15 @@ class GainBuffGuardAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "GainBuffGuardAction OnInitialize" << std::endl;
+    //  std::cout << "GainBuffGuardAction OnInitialize" << std::endl;
 		start_time_ = ros::Time::now();
 
   };
 
   virtual BehaviorState Update() {
 		round_behavior_.Run();
-		std::cout << "Buff Gainning" << std::endl;
+    ROS_INFO(" round_behavior_ round_behavior_ !");
+		//  std::cout << "Buff Gainning" << std::endl;
 		ros::Duration time_past = ros::Time::now() - start_time_;
 		if (time_past.toSec() >= 2) {
 			blackboard_ptr_->AddGainBuffNum();
@@ -538,16 +541,16 @@ class GainBuffGuardAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				round_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -566,11 +569,12 @@ class GuardAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "GuardAction OnInitialize" << std::endl;
+    //  std::cout << "GuardAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
 			round_behavior_.Run();
+    ROS_INFO(" round_behavior_ round_behavior_ !");
 			return round_behavior_.Update();
   }
 
@@ -578,16 +582,16 @@ class GuardAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				round_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -606,11 +610,12 @@ class SupportAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "SupportAction OnInitialize" << std::endl;
+    //  std::cout << "SupportAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
 			support_behavior_.Run();
+         ROS_INFO(" support_behavior_ support_behavior_ !"); 
 			return support_behavior_.Update();
   }
 
@@ -618,16 +623,16 @@ class SupportAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				support_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -647,11 +652,12 @@ class TurnToHurtAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "TurnToHurtAction OnInitialize" << std::endl;
+    //  std::cout << "TurnToHurtAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
 			turn_to_hurt_behavior_.Run();
+      ROS_INFO(" turn_to_hurt_behavior_ turn_to_hurt_behavior_ !"); 
 			return turn_to_hurt_behavior_.Update();
   }
 
@@ -659,16 +665,16 @@ class TurnToHurtAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				turn_to_hurt_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }
@@ -687,11 +693,12 @@ class TurnBackAction : public ActionNode {
 
  private:
   virtual void OnInitialize() {
-    std::cout << "TurnBackAction OnInitialize" << std::endl;
+    //  std::cout << "TurnBackAction OnInitialize" << std::endl;
   };
 
   virtual BehaviorState Update() {
 			turn_back_behavior_.Run();
+      ROS_INFO(" turn_back_behavior_ turn_back_behavior_ !"); 
 			return turn_back_behavior_.Update();
   }
 
@@ -699,16 +706,16 @@ class TurnBackAction : public ActionNode {
     switch (state){
       case BehaviorState::IDLE:
 				turn_back_behavior_.Cancel();
-        std::cout << "IDLE" << std::endl;
+        //  std::cout << "IDLE" << std::endl;
         break;
       case BehaviorState::SUCCESS:
-        std::cout << "SUCCESS" << std::endl;
+        //  std::cout << "SUCCESS" << std::endl;
         break;
       case BehaviorState::FAILURE:
-        std::cout << "FAILURE" << std::endl;
+        //  std::cout << "FAILURE" << std::endl;
         break;
       default:
-        std::cout << "ERROR" << std::endl;
+        //  std::cout << "ERROR" << std::endl;
         return;
     }
   }

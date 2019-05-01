@@ -438,7 +438,7 @@ void ObstacleLayer::UpdateBounds(double robot_x,
       double dist_to_wall = 0;
       if (map_is_global_)
         dist_to_wall = distance_map_ptr_->GetDistance(px, py);
-      if (map_is_global_ && (dist_to_wall > enemy_inflation_)) {
+      if (map_is_global_ && (dist_to_wall > 1.5 * enemy_inflation_)) {
         if (mx > enemy_inflation_grid_)
   				mx = mx - enemy_inflation_grid_;
 				else

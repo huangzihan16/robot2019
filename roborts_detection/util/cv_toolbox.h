@@ -49,9 +49,12 @@ class CVToolbox {
     ros::NodeHandle nh(camera_name);
     image_transport::ImageTransport it(nh);
 
-    camera_sub_ = it.subscribeCamera("image_raw",
+    camera_sub_ = it.subscribeCamera("color/image_raw",
                                      20,
                                      boost::bind(&CVToolbox::ImageCallback, this, _1,_2));
+    depth_sub_= nh.subscribe("aligned_depth_to_color/image_raw",
+                                     1,
+                                     &CVToolbox::DepthCallback, this);
 
     image_buffer_.resize(buffer_size);
     buffer_state_.resize(buffer_size);
@@ -63,6 +66,15 @@ class CVToolbox {
     latest_index_ = -1;
 
   }
+  void DepthCallback(const sensor_msgs::ImageConstPtr &img_msg)
+  {
+    cv_bridge::CvImagePtr cv_ptr;
+    cv_ptr= cv_bridge::toCvCopy(img_msg,sensor_msgs::image_encodings::TYPE_16UC1);
+    depthImg= cv_ptr->image;
+    // cv::imshow("depth",depthImg);
+    // cv::waitKey(10);
+  }
+  cv::Mat depthImg;
 
   int GetCameraHeight() {
     if (!get_img_info_) {
@@ -200,14 +212,14 @@ class CVToolbox {
     if(using_hsv) {
       cv::Mat img_hsv;
       cv::cvtColor(src_img, img_hsv, CV_BGR2HSV);
-      if (color == 0) {
+      if (color == 0) {//蓝色
         cv::Mat img_hsv_blue, img_threshold_blue;
         img_hsv_blue = img_hsv.clone();
         cv::Mat blue_low(cv::Scalar(84, 43, 46));   //90 150 46   暗 80 0 0  原来 84 43 46
         cv::Mat blue_higher(cv::Scalar(124, 255, 255));  //140 255 255 暗 165 255 255  原来 124 255 255
         cv::inRange(img_hsv_blue, blue_low, blue_higher, img_threshold_blue);
         return img_threshold_blue;
-      } else {
+      } else {//红色
         cv::Mat img_hsv_red1, img_hsv_red2, img_threshold_red, img_threshold_red1, img_threshold_red2;
         img_hsv_red1 = img_hsv.clone();
         img_hsv_red2 = img_hsv.clone();
@@ -227,7 +239,7 @@ class CVToolbox {
       cv::split(src_img, bgr);
       if (color == 1) {
         cv::Mat result_img;
-        cv::subtract(bgr[2], bgr[1], result_img);
+        cv::subtract(bgr[2], bgr[0], result_img);
         return result_img;
       } else if (color == 0) {
         cv::Mat result_img;
@@ -272,6 +284,23 @@ class CVToolbox {
       cv::line(img, vertex[i], vertex[(i + 1) % 4], color, thickness);
   }
 
+    void DrawRotatedRectwithnum(const cv::Mat &img, const cv::RotatedRect &rect, const cv::Scalar &color, int thickness,int number) {
+    cv::Point2f vertex[4];
+
+    cv::Point2f center = rect.center;
+    //float angle = rect.angle;
+    std::ostringstream ss;
+    ss << number;
+    std::string text(ss.str());
+    int font_face = cv::FONT_HERSHEY_COMPLEX;
+    double font_scale = 0.5;
+    cv::putText(img, text, center, font_face, font_scale, cv::Scalar(0, 255, 255), thickness, 8, 0);
+
+    rect.points(vertex);
+    for (int i = 0; i < 4; i++)
+      cv::line(img, vertex[i], vertex[(i + 1) % 4], color, thickness);
+  }
+
   void DrawRotatedRect(const cv::Mat &img, const cv::RotatedRect &rect, const cv::Scalar &color, int thickness, float angle) {
     cv::Point2f vertex[4];
 
@@ -297,6 +326,7 @@ class CVToolbox {
   double capture_time_;
 
   image_transport::CameraSubscriber camera_sub_;
+  ros::Subscriber depth_sub_;
   bool get_img_info_;
   sensor_msgs::CameraInfo camera_info_;
 };

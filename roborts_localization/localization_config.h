@@ -44,6 +44,7 @@ struct LocalizationConfig {
       nh->param<bool>("use_sim_uwb", use_sim_uwb, false);
       nh->param<int>("uwb_correction_frequency", uwb_correction_frequency, 20);
       nh->param<bool>("publish_visualize", publish_visualize, true);
+			nh->param<bool>("is_red", is_red, true);
   }
   std::string odom_frame_id;
   std::string base_frame_id;
@@ -70,6 +71,7 @@ struct LocalizationConfig {
   bool use_sim_uwb;
   int uwb_correction_frequency;
 
+	bool is_red;
 };
 
 }// roborts_localization

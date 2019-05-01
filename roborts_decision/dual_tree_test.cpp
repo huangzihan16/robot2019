@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
 
  // behavior
-  roborts_decision::PatrolBehavior        patrol_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
+  roborts_decision::PatrolBehavior        patrol_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::SupportBehavior       support_behavior_(chassis_executor, gimbal_executor, blackboard);
   roborts_decision::ShootBehavior         shoot_behavior_(shoot_executor, chassis_executor, blackboard, full_path);
   roborts_decision::SupplyGoalBehavior    supply_goal_behavior_(chassis_executor, blackboard);
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 /***************************************************************/
   roborts_decision::ChaseBehavior         chase_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::EscapeBehavior         escape_behavior_(chassis_executor, blackboard, full_path);
-  roborts_decision::SearchBehavior         search_behavior_(chassis_executor, blackboard, full_path);
+  roborts_decision::SearchBehavior         search_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
   roborts_decision::GainBuffBehavior         gain_buff_behavior_(chassis_executor, blackboard);
   
   roborts_decision::BackBootAreaBehavior         back_boot_area_behavior_(chassis_executor, blackboard, full_path);
@@ -98,15 +98,15 @@ int main(int argc, char **argv) {
   //game_start_selector
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
-																																															[&]() {if (/*blackboard_ptr_->IsSupplyCondition() &&*/ blackboard_ptr_->IsMasterCondition()) {
+																																															[&]() {if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
-																																																/*if (blackboard_ptr_->IsBulletLeft()) {
-																																																	return false;
-																																																} else {
+                                                                                                /*if (!blackboard_ptr_->IsBulletLeft()) {
 																																																	return true;
+																																																} else {
+																																																	return false;
 																																																}*/
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->IsSupplyCondition()/* && blackboard_ptr_->GetSupplierStatus()
+																																																if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()/* && blackboard_ptr_->GetSupplierStatus()
                                                                                                 == roborts_decision::SupplierStatus::PREPARING*/) {
 																																																	return true;
 																																																} else {
@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
   supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
 
-  //no_bullet_left_selector->AddChildren(guard_action_);
+  // no_bullet_left_selector->AddChildren(guard_action_);
 
 
   //bullet left
@@ -138,8 +138,7 @@ int main(int argc, char **argv) {
   
   //obtain buff
   std::shared_ptr<roborts_decision::PreconditionNode> obtain_buff_condition_(new roborts_decision::PreconditionNode("obtain_buff_condition",blackboard_ptr_,
-																																															[&]() {return true;/*if (blackboard_ptr_->GetBonusStatus()
-                                                                                                == roborts_decision::BonusStatus::OCCUPIED) {
+																																															[&]() {return true;/*if (blackboard_ptr_->GetRobotBonus()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -211,19 +210,25 @@ int main(int argc, char **argv) {
 																																																} else {
 																																																	return false;
 																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));  
+                                                                                              } , roborts_decision::AbortType::LOW_PRIORITY));
+  // std::shared_ptr<roborts_decision::SequenceNode> offensive_detect_enemy_sequence(new roborts_decision::SequenceNode("offensive_detect_enemy_sequence", blackboard_ptr_));
+ 
   offensive_selector->AddChildren(offensive_dmp_condition_);
   offensive_selector->AddChildren(offensive_detect_enemy_condition_);
   offensive_selector->AddChildren(offensive_under_attack_condition_);
   offensive_selector->AddChildren(offensive_detected_condition_);
   offensive_selector->AddChildren(master_receive_condition_);
+  offensive_selector->AddChildren(offensive_search_condition_);
   offensive_selector->AddChildren(offensive_patrol_condition_);
-  //offensive_selector->AddChildren(search_action_);
+
   offensive_dmp_condition_->SetChild(escape_action_);
   offensive_detect_enemy_condition_->SetChild(chase_action_);
+  // offensive_detect_enemy_sequence->AddChildren(chase_action_);
+  // offensive_detect_enemy_sequence->AddChildren(shoot_action_);
   offensive_under_attack_condition_->SetChild(turn_to_hurt_action_);
   offensive_detected_condition_->SetChild(turn_back_action_);
   master_receive_condition_->SetChild(support_action_);
+  offensive_search_condition_->SetChild(search_action_);
   offensive_patrol_condition_->SetChild(patrol_action_);
 
   //  //without buff

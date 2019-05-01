@@ -6,13 +6,13 @@ threshold {
 
   armor_max_angle: 15.0
   armor_min_area: 100
-  armor_max_aspect_ratio: 3 ##4
+  armor_max_aspect_ratio: 2.5 ##4
   armor_max_pixel_val: 150.0
   armor_max_stddev: 90
   armor_max_mean: 90
 
   color_thread: 100
-  blue_thread: 90
+  blue_thread: 60
   red_thread: 50
 }
 

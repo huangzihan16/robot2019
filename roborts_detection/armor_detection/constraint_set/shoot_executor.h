@@ -136,7 +136,7 @@ void Execute(){
     // }
     
     //mode 0 stop 1 once 2 continuous 
-    if (shooter_heat_ > 300){
+    if (shooter_heat_ >30){
       shoot_cmd_.request.mode = 0;
       shoot_cmd_.request.number = 0;
     } else {

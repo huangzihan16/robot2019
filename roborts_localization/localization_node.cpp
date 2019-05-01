@@ -69,6 +69,11 @@ bool LocalizationNode::Init() {
 
   map_init_ = GetStaticMap();
   laser_init_ = GetLaserPose();
+	
+	is_red_ = localization_config.is_red;
+	enable_uwb_ = localization_config.enable_uwb;
+	if (enable_uwb_)
+		uwb_pose_sub_ = nh_.subscribe("uwb", 1, &LocalizationNode::UwbPoseCallback, this);
 
   return map_init_&&laser_init_;
 }
@@ -177,19 +182,33 @@ void LocalizationNode::LaserScanCallback(const sensor_msgs::LaserScan::ConstPtr 
   sensor_msgs::LaserScan laser_scan_msg = *laser_scan_msg_ptr;
   TransformLaserscanToBaseFrame(angle_min, angle_increment, laser_scan_msg);
 
+  if (enable_uwb_ && uwb_have_worked_)
+	  amcl_ptr_->UpdateUwb(last_uwb_pose_);
   amcl_ptr_->Update(pose_in_odom,
                     laser_scan_msg,
                     angle_min,
                     angle_increment,
                     particlecloud_msg_,
                     hyp_pose_);
-
   LOG_ERROR_IF(!PublishTf()) << "Publish Tf Error!";
 
   if(publish_visualize_){
     PublishVisualize();
   }
 
+}
+
+void LocalizationNode::UwbPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &uwb_pose_msg) {
+	if (is_red_) {
+		last_uwb_pose_(0) = uwb_pose_msg->pose.position.x + 0.075;
+		last_uwb_pose_(1) = uwb_pose_msg->pose.position.y + 0.075;
+		last_uwb_pose_(2) = 0;
+	} else {
+		last_uwb_pose_(0) = 8.075 - uwb_pose_msg->pose.position.x;
+		last_uwb_pose_(1) = 5.075 - uwb_pose_msg->pose.position.y;
+		last_uwb_pose_(2) = 0;
+	}
+  uwb_have_worked_ = true;
 }
 
 void LocalizationNode::PublishVisualize(){

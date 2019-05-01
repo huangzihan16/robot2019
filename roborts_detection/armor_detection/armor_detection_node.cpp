@@ -15,9 +15,10 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  ***************************************************************************/
 
+#include <cmath>
 #include <unistd.h>
 #include "armor_detection_node.h"
-
+#include "ros/ros.h"
 
 namespace roborts_detection {
 
@@ -27,7 +28,10 @@ ArmorDetectionNode::ArmorDetectionNode():
     initialized_(false),
     detected_enemy_(false),
     undetected_count_(0),
-    as_(nh_, "armor_detection_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false) {
+    as_(nh_, "armor_detection_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false){
+          tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
+
+
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
   if (Init().IsOK()) {
@@ -116,14 +120,25 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
         feedback.detected = true;
         feedback.error_code = error_info_.error_code();
         feedback.error_msg = error_info_.error_msg();
+        feedback.enemy_info.clear();
 
-        feedback.enemy_pos.header.frame_id = "camera0";
-        feedback.enemy_pos.header.stamp    = ros::Time::now();
+	for(int i=0;i<enemy_armor_.size();i++){
+	  std::cout<<"enemy_size="<<enemy_armor_.size()<<endl;
+    roborts_msgs::EnemyInfo enemyinfo;
+	  enemyinfo.enemy_pos.header.frame_id = "camera0";
+          enemyinfo.enemy_pos.header.stamp    = ros::Time::now();
 
-        feedback.enemy_pos.pose.position.x = x_;
-        feedback.enemy_pos.pose.position.y = y_;
-        feedback.enemy_pos.pose.position.z = z_;
-        feedback.enemy_pos.pose.orientation.w = 1;
+          enemyinfo.enemy_pos.pose.position.x = enemy_armor_[i].target_3d.x;
+          enemyinfo.enemy_pos.pose.position.y = enemy_armor_[i].target_3d.y;
+          enemyinfo.enemy_pos.pose.position.z = enemy_armor_[i].target_3d.z;
+          enemyinfo.enemy_pos.pose.orientation.w = 1;
+
+	  enemyinfo.num = enemy_armor_[i].num;
+	  feedback.enemy_info.push_back(enemyinfo);
+	}
+
+
+        
         as_.publishFeedback(feedback);
         undetected_msg_published = false;
       } else if(!undetected_msg_published) {
@@ -131,13 +146,7 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
         feedback.error_code = error_info_.error_code();
         feedback.error_msg = error_info_.error_msg();
 
-        feedback.enemy_pos.header.frame_id = "camera0";
-        feedback.enemy_pos.header.stamp    = ros::Time::now();
-
-        feedback.enemy_pos.pose.position.x = 0;
-        feedback.enemy_pos.pose.position.y = 0;
-        feedback.enemy_pos.pose.position.z = 0;
-        feedback.enemy_pos.pose.orientation.w = 1;
+        
         as_.publishFeedback(feedback);
         undetected_msg_published = true;
       }
@@ -146,50 +155,82 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
   }
 }
 
+#define MAX_MIN_WHIRL_ANGLE     60*3.1415926/180
+#define WHIRL_SCAN_DELTA_ANGLE  6*3.1415926/180
 void ArmorDetectionNode::ExecuteLoop() {
-  undetected_count_ = undetected_armor_delay_;
+  undetected_count_ = 0;
+                   static float direction = 1;
+        static ros::Time last_time = ros::Time::now();
+        ros::Duration duration;
+        float delta_time;
 
   while(running_) {
     usleep(1);
     if (node_state_ == NodeState::RUNNING) {
-      cv::Point3f target_3d;
-      ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, target_3d);
+      std::vector<ArmorInfo> armors;
+      ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, armors);
       {
         std::lock_guard<std::mutex> guard(mutex_);
-        x_ = target_3d.x;
-        y_ = target_3d.y;
-        z_ = target_3d.z;
-        error_info_ = error_info;
+        //std::vector<ArmorInfo> enemy_armor_;
+        enemy_armor_ = armors;
       }
 
       if(detected_enemy_) {
-        float pitch, yaw;
-        gimbal_control_.Transform(target_3d, pitch, yaw);
-
+        float pitch, yaw, speed, delta_yaw, all_yaw;
+        gimbal_control_.Transform(armors[0].target_3d, pitch, yaw);
+        
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
-        gimbal_angle_.yaw_angle = yaw * 0.7;
+        //gimbal_angle_.yaw_angle = yaw;//kalmanfilter_.Update(yaw) * 1;
         gimbal_angle_.pitch_angle = pitch;
-
+        // ROS_INFO(" yaw : %f",yaw);
+        double gimbal_yaw = GetGimbalYaw();
+        delta_yaw = yaw;
+        all_yaw = gimbal_yaw + delta_yaw;
+        // speed = yaw - last_yaw_;
+        speed = all_yaw - last_yaw_;
+        last_yaw_ = all_yaw;
+        speed = kalmanfilter_.Update(all_yaw, speed);
+        // gimbal_angle_.yaw_angle = last_yaw_ - gimbal_yaw;
+        gimbal_angle_.yaw_angle =0.3 * yaw + speed;
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
         //TODO ff
 
-        float enemy_x_shooter = x_/1000.0 + 0.03;  //offset 0.03
+        float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
         // std::cout << "enemy_x_shooter" << enemy_x_shooter << std::endl;
-		    if (enemy_x_shooter < 0.16 && enemy_x_shooter > -0.16) {
+		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 4000) {
           shoot_executor_.Execute();
         }
       } else if(undetected_count_ != 0) {
 
         gimbal_angle_.yaw_mode = true;
-        gimbal_angle_.pitch_mode = false;
-        gimbal_angle_.yaw_angle = 0;
-        // gimbal_angle_.pitch_angle = 0;
+        gimbal_angle_.pitch_mode = true;
+        gimbal_angle_.yaw_angle = 0;//kalmanfilter_.UpdateNoMesurement();
+        gimbal_angle_.pitch_angle = 0;
 
         undetected_count_--;
         PublishMsgs();
+      } else {
+        duration = ros::Time::now() - last_time;
+        delta_time = duration.toSec();
+        double yaw = GetGimbalYaw();
+        // if(delta_time > 0.2)  {
+          gimbal_angle_.yaw_mode = true;
+          gimbal_angle_.pitch_mode = true;
+          gimbal_angle_.pitch_angle = 0;
+
+          if(yaw > MAX_MIN_WHIRL_ANGLE){
+            direction = -1.0;
+          }
+          if(yaw < -MAX_MIN_WHIRL_ANGLE){
+            direction = 1.0;
+          }
+          gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
+          last_time = ros::Time::now();
+          PublishMsgs();
+        // }
       }
     } else if (node_state_ == NodeState::PAUSE) {
       std::unique_lock<std::mutex> lock(mutex_);
@@ -203,12 +244,40 @@ void ArmorDetectionNode::PublishMsgs() {
   
 }
 
+  double ArmorDetectionNode::GetGimbalYaw()
+  {
+    UpdateGimbalPose();
+    tf::Quaternion q;
+    tf::quaternionMsgToTF(gimbal_base_pose_.pose.orientation, q);
+    double roll,pitch,yaw;
+    tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+    return yaw;
+  }
+
+  void ArmorDetectionNode::UpdateGimbalPose() {
+    tf::Stamped<tf::Pose> gimbal_tf_pose;
+    gimbal_tf_pose.setIdentity();
+
+    gimbal_tf_pose.frame_id_ = "gimbal";
+    gimbal_tf_pose.stamp_ = ros::Time();
+    try {
+      geometry_msgs::PoseStamped gimbal_pose;
+      tf::poseStampedTFToMsg(gimbal_tf_pose, gimbal_pose);
+      tf_ptr_->transformPose("base_link", gimbal_pose, gimbal_base_pose_);
+    }
+    catch (tf::LookupException &ex) {
+      ROS_ERROR("Transform Error looking up robot pose: %s", ex.what());
+    }
+  }
+
+
+
+
 void ArmorDetectionNode::StartThread() {
   ROS_INFO("Armor detection node started!");
   running_ = true;
   armor_detector_->SetThreadState(true);
-  if(node_state_ == NodeState::IDLE) {
-    armor_detection_thread_ = std::thread(&ArmorDetectionNode::ExecuteLoop, this);
+  if(node_state_ == NodeState::IDLE) {    armor_detection_thread_ = std::thread(&ArmorDetectionNode::ExecuteLoop, this);
   }
   node_state_ = NodeState::RUNNING;
   condition_var_.notify_one();
@@ -244,7 +313,7 @@ int main(int argc, char **argv) {
   signal(SIGTERM,SignalHandler);
   
   ros::init(argc, argv, "armor_detection_node", ros::init_options::NoSigintHandler);
-  
+
   roborts_detection::ArmorDetectionNode armor_detection;
   ros::AsyncSpinner async_spinner(1);
   async_spinner.start();

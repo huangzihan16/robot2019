@@ -71,6 +71,7 @@ class LocalizationNode {
    */
   void InitialPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &init_pose_msg);
 
+	void UwbPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &uwb_pose_msg);
   /**
    * @brief Publish visualize messages
    */
@@ -135,9 +136,10 @@ class LocalizationNode {
   std::string laser_topic_;
   Vec3d init_pose_;
   Vec3d init_cov_;
-//  bool enable_uwb_;
+  bool enable_uwb_;
   ros::Duration transform_tolerance_;
   bool publish_visualize_;
+  Vec3d last_uwb_pose_;
 
   //Status
   bool initialized_ = false;
@@ -147,6 +149,9 @@ class LocalizationNode {
   bool latest_tf_valid_ = false;
   bool sent_first_transform_ = false;
   bool publish_first_distance_map_ = false;
+	
+	bool is_red_;
+	bool uwb_have_worked_ = false;
 
   //Data
   HypPose hyp_pose_;

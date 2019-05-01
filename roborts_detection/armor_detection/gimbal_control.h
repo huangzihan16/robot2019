@@ -23,6 +23,7 @@ namespace roborts_detection{
 
 const double PI = 3.1415926535;
 const float GRAVITY = 9.78;
+#define NUM 6
 
 
 /**
@@ -68,6 +69,8 @@ class GimbalContrl
    * @param yaw Input and output actual yaw angle
    */
   void Transform(cv::Point3f &postion,float &pitch,float &yaw);
+  float Membership[6];
+  void CalcMembership(float value,float *membership, float *bound);
 
  private:
   //! Transformation matrix between camera coordinate system and gimbal coordinate system.

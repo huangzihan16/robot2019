@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="master_sync_fkie" type="master_sync" name="master_sync" respawn="true" output="screen">
+        <rosparam param="ignore_topics">
+            ['/tf','/tf_static','/clock','/clicked_point','/robot1/amcl_pose','/robot1/armor_detection_node_action/cancel','/robot1/armor_detection_node_action/feedback','/robot1/armor_detection_node_action/goal','/robot1/armor_detection_node_action/result','/robot1/armor_detection_node_action/status','/robot1/clicked_point','/robot1/cmd_gimbal_angle','/robot1/cmd_gimbal_rate','/robot1/cmd_vel','/robot1/cmd_vel_acc','/robot1/decision_costmap/decision_costmap/costmap','/robot1/distance_map','/robot1/global_costmap/global_costmap/costmap','/robot1/global_planner_node_action/cancel','/robot1/global_planner_node_action/feedback','/robot1/global_planner_node_action/goal','/robot1/global_planner_node_action/result','/robot1/global_planner_node_action/status','/robot1/initialpose','/robot1/local_costmap/local_costmap/costmap','/robot1/local_costmap/local_costmap/costmap_updates','/robot1/local_planner_node_action/cancel','/robot1/local_planner_node_action/feedback','/robot1/local_planner_node_action/goal','/robot1/local_planner_node_action/result','/robot1/local_planner_node_action/status','/robot1/scan','/robot1/uwb']
+        </rosparam>
+    </node>
+</launch>

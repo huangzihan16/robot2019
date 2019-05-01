@@ -28,6 +28,7 @@ add_message_files(
     ShootInfo.msg
     ShootState.msg
     PartnerInformation.msg
+    EnemyInfo.msg
 )
 
 add_message_files(

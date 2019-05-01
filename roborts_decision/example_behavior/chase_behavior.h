@@ -38,9 +38,11 @@ class ChaseBehavior {
   void Run() {
 
     auto executor_state = Update();
-
+    
     auto robot_map_pose = blackboard_->GetRobotMapPose();
-
+        // chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
+    if (executor_state != BehaviorState::RUNNING) {
+        std::cout <<"-------------------------"  << std::endl;
       chase_buffer_[chase_count_++ % 2] = blackboard_->GetEnemy();
 
       chase_count_ = chase_count_ % 2;
@@ -49,34 +51,21 @@ class ChaseBehavior {
       auto dy = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.y - robot_map_pose.pose.position.y;
       auto yaw = std::atan2(dy, dx);
 
-    std::cout << std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) << std::endl;
-
-    if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.3 && std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
-
-      chassis_executor_->Cancel();
-      
-      chassis_executor_->Execute(blackboard_->GetGimbalYaw());
-
-      return;
-
-    }
-
-    chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
-
-    if (executor_state != BehaviorState::RUNNING) {
-
-      if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.0 && std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
+      if (/*std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.0 && */std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
+        // std::cout <<"-------------------------"  << std::endl;
+        ROS_INFO("+++++++++++++++++++++++++++++");
         if (cancel_goal_) {
+        std::cout <<"*******************************" << std::endl;
           chassis_executor_->Cancel();
+          ROS_INFO("?????????????????????????????????????????????");
           cancel_goal_ = false;
         }
-
         chassis_executor_->Execute(blackboard_->GetGimbalYaw());
-
+        ROS_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return;
 
       } else {
-
+        ROS_INFO("XXXXXXXXXXXXXXXXXXXXXXXXXXXX+++");
         auto orientation = tf::createQuaternionMsgFromYaw(yaw);
         geometry_msgs::PoseStamped reduce_goal;
         reduce_goal.pose.orientation = robot_map_pose.pose.orientation;

@@ -1,7 +1,0 @@
-<launch>
-    <node pkg="master_sync_fkie" type="master_sync" name="master_sync" respawn="true" output="screen">
-        <rosparam param="ignore_topics">
-            ['/tf','/tf_static','/clock','/clicked_point']
-        </rosparam>
-    </node>
-</launch>

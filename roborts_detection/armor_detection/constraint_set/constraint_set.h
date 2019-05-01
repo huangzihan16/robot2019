@@ -34,6 +34,8 @@
 #include "proto/constraint_set.pb.h"
 #include "constraint_set.h"
 #include "filter.h"
+
+#include "svm.h"
 namespace roborts_detection {
 
 using roborts_common::ErrorCode;
@@ -44,6 +46,12 @@ enum State {
   RUNNING = 1,
   FAILED = 2,
   STOPED = 3
+};
+
+struct sortLinkList{
+    Rect rect;
+    double probablity;
+    sortLinkList *next;
 };
 
 struct LightInfo {
@@ -104,27 +112,23 @@ struct LightInfo {
   std::vector<cv::Point2f> vertices_;
 };
 
-/**
- *  This class describes the armor information, including maximum bounding box, vertex, standard deviation.
- */
-class ArmorInfo {
- public:
-  ArmorInfo(cv::RotatedRect armor_rect, std::vector<cv::Point2f> armor_vertex, float armor_stddev = 0.0) {
-    rect = armor_rect;
-    vertex = armor_vertex;
-    stddev = armor_stddev;
-  }
- public:
-  cv::RotatedRect rect;
-  std::vector<cv::Point2f> vertex;
-  float stddev;
-};
+
 
 /**
  * @brief This class achieved functions that can help to detect armors of RoboMaster vehicle.
  */
 class ConstraintSet : public ArmorDetectionBase {
  public:
+  svm_model* model;
+  #define HogLength 24
+  #define HogHeight 32
+  int featureDim_ =  (HogLength/8-1)*(HogHeight/8-1)*36;
+
+  #define num_iternum_max 50
+  #define num_cell_max 50
+  std::vector<Point2f> historical_nums_position;//按照迭代数升序排列
+  std::vector<int> historical_nums_iternum,historical_nums;
+
   ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox);
   /**
    * @brief Loading parameters from .prototxt file.
@@ -135,7 +139,7 @@ class ConstraintSet : public ArmorDetectionBase {
    * @param translation Translation information of the armor relative to the camera.
    * @param rotation Rotation information of the armor relative to the camera.
    */
-  ErrorInfo DetectArmor(bool &detected, cv::Point3f &target_3d) override;
+  ErrorInfo DetectArmor(bool &detected, std::vector<ArmorInfo> &armors) ;
   /**
    * @brief Detecting lights on the armors.
    * @param src Input image
@@ -162,7 +166,14 @@ class ConstraintSet : public ArmorDetectionBase {
    * @brief Slecting final armor as the target armor which we will be shot.
    * @param Input armors
    */
-  ArmorInfo SlectFinalArmor(std::vector<ArmorInfo> &armors);
+
+
+  void Add12Label(std::vector<ArmorInfo> &armors,std::vector<Point2f> ones, std::vector<Point2f> twos);
+  void detect12FromImage(cv::Mat colorImg,std::vector<Point2f> &ones,std::vector<Point2f> &twos);//svm
+  svm_node* getHogFeatures(cv::Mat grayImg);
+  void NonMaximumSuppression(sortLinkList *possib_sort);
+
+  std::vector<ArmorInfo> SlectFinalArmor(std::vector<ArmorInfo> &armors);
   /**
    *
    * @param armor
@@ -171,7 +182,7 @@ class ConstraintSet : public ArmorDetectionBase {
    * @param yaw
    * @param bullet_speed
    */
-  void CalcControlInfo(const ArmorInfo & armor, cv::Point3f &target_3d);
+  void CalcControlInfo(ArmorInfo & armor);
 
   /**
    * @brief Using two lights(left light and right light) to calculate four points of armor.
@@ -208,6 +219,7 @@ class ConstraintSet : public ArmorDetectionBase {
 
   cv::Mat src_img_;
   cv::Mat gray_img_;
+  cv::Mat depth_img_ = cv::Mat::zeros(480,640,CV_16UC1);
   //!  Camera intrinsic matrix
   cv::Mat intrinsic_matrix_;
   //! Camera distortion Coefficient

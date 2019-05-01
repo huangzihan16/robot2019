@@ -28,6 +28,9 @@
 #include "roborts_msgs/GimbalAngle.h"
 #include "roborts_msgs/GimbalRate.h"
 #include "roborts_msgs/ArmorDetectionAction.h"
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+#include <geometry_msgs/PoseStamped.h>
 
 #include "alg_factory/algorithm_factory.h"
 #include "io/io.h"
@@ -40,6 +43,8 @@
 #include "armor_detection_algorithms.h"
 #include "gimbal_control.h"
 #include "constraint_set/shoot_executor.h"
+#include "constraint_set/filter.h"
+
 
 namespace roborts_detection {
 
@@ -79,11 +84,14 @@ class ArmorDetectionNode {
    * @brief Publishing enemy pose information that been calculated by the armor detection algorithm.
    */
   void PublishMsgs();
+  double GetGimbalYaw();
+  void UpdateGimbalPose();
   ~ArmorDetectionNode();
 
   roborts_detection::ShootExecutor  shoot_executor_;
-  
- protected:
+  Filter kalmanfilter_;
+  float last_yaw_;
+protected:
  private:
   std::shared_ptr<ArmorDetectionBase> armor_detector_;
   std::thread armor_detection_thread_;
@@ -101,11 +109,10 @@ class ArmorDetectionNode {
   unsigned int undetected_count_;
 
   //! enemy information
-  double x_;
-  double y_;
-  double z_;
+  std::vector<ArmorInfo> enemy_armor_;
   bool detected_enemy_;
   unsigned long demensions_;
+ 
 
   //ROS
   ros::NodeHandle nh_;
@@ -114,6 +121,10 @@ class ArmorDetectionNode {
   std::shared_ptr<CVToolbox> cv_toolbox_;
   actionlib::SimpleActionServer<roborts_msgs::ArmorDetectionAction> as_;
   roborts_msgs::GimbalAngle gimbal_angle_;
+    //! tf
+  std::shared_ptr<tf::TransformListener> tf_ptr_;
+  //云台相对底盘位姿  
+  geometry_msgs::PoseStamped  gimbal_base_pose_;
 
   //! control model
   GimbalContrl gimbal_control_;

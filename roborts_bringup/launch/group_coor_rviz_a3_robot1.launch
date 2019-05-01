@@ -7,6 +7,7 @@
   <!--Load parameters for localization node  -->
   <rosparam command="load" file="$(find roborts_localization)/config/localization.yaml" />
   <rosparam command="load" file="$(find roborts_localization)/amcl/config/amcl.yaml" />
+  <rosparam command="load" file="$(find initial_pose)/config/initialpose.yaml" />
 
   <!-- Run the robot sdk interface -->
   <include file="$(find roborts_bringup)/launch/base.launch" />
@@ -27,6 +28,8 @@
       <param name="scan_mode"           type="string" value="Sensitivity"/>
   </node>
 
+  <!-- Run the initial pose node -->
+  <node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/>
   <!-- Run the localization node -->
   <node pkg="roborts_localization" type="localization_node" name="localization_node" respawn="false" />
 

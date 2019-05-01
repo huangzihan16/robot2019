@@ -62,7 +62,8 @@ void ChassisExecutor::Execute(const double yaw){
 
 BehaviorState ChassisExecutor::Update(){
   actionlib::SimpleClientGoalState state = actionlib::SimpleClientGoalState::LOST;
-  std::cout << "mode" << (int)execution_mode_ << std::endl;
+  ROS_INFO("execution_mode:  %d",(int)execution_mode_);
+  // std::cout << "mode" << (int)execution_mode_ << std::endl;
   switch (execution_mode_){
     case ExcutionMode::IDLE_MODE:
       execution_state_ = BehaviorState::IDLE;

@@ -62,7 +62,6 @@ void Amcl::Init(const Vec3d &init_pose, const Vec3d &init_cov) {
   cloud_pub_interval_.fromSec(1.0);
 
   LOG_INFO << "Amcl Init!";
-
 }
 
 Amcl::~Amcl() {
@@ -284,16 +283,21 @@ void Amcl::UpdateUwb(const Vec3d &uwb_pose) {
     if (distance[i] > (map_ptr_->GetDiagDistance() / resample_uwb_factor_)) {
       set_ptr->samples_vec[i].pose[0] = uwb_pose[0] + math::RandomGaussianNumByStdDev(uwb_cov_x_);
       set_ptr->samples_vec[i].pose[1] = uwb_pose[1] + math::RandomGaussianNumByStdDev(uwb_cov_y_);
-      set_ptr->samples_vec[i].pose[2] = uwb_pose[2] + math::RandomGaussianNumByStdDev((M_PI / 3.0) * (M_PI / 3.0));
+      set_ptr->samples_vec[i].pose[2] = drand48() * 2 * M_PI - M_PI;
+      //set_ptr->samples_vec[i].pose[2] = uwb_pose[2] + math::RandomGaussianNumByStdDev((M_PI / 3.0) * (M_PI / 3.0));
       distance[i] = math::EuclideanDistance(uwb_pose[0],
                                             uwb_pose[1],
                                             set_ptr->samples_vec[i].pose[0],
                                             set_ptr->samples_vec[i].pose[1]);
-    }
+    } else
+			distance[i] = 0;
     total += distance[i];
   }
 
-  CHECK_GT(total, 0);
+  //CHECK_GT(total, 0);
+  if (total < 1e-6)
+    return;
+
   for (int j = 0; j < set_ptr->sample_count; j++) {
     set_ptr->samples_vec[j].weight *= (total - distance[j]) / total;
   }
@@ -311,8 +315,9 @@ void Amcl::UpdateUwb(const Vec3d &uwb_pose) {
   for (int i = 0; i < least_weight_particle_num; i++) {
     set_ptr->samples_vec[i].pose[0] = uwb_pose[0] + math::RandomGaussianNumByStdDev(uwb_cov_x_);
     set_ptr->samples_vec[i].pose[1] = uwb_pose[1] + math::RandomGaussianNumByStdDev(uwb_cov_y_);
-    set_ptr->samples_vec[i].pose[2] =
-        set_ptr->samples_vec[i].pose[2] + math::RandomGaussianNumByStdDev((M_PI / 12.0) * (M_PI / 12.0));
+    set_ptr->samples_vec[i].pose[2] = drand48() * 2 * M_PI - M_PI;
+    //set_ptr->samples_vec[i].pose[2] =
+        //set_ptr->samples_vec[i].pose[2] + math::RandomGaussianNumByStdDev((M_PI / 12.0) * (M_PI / 12.0));
   }
 
 }
