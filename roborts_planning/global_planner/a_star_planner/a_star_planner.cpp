@@ -157,7 +157,6 @@ ErrorInfo AStarPlanner::SearchPath(const int &start_index,
     state_.at(current_index) = SearchState::CLOSED;
 
     if (current_index == goal_index) {
-      ROS_INFO("Search takes %d cycle counts", count);
       break;
     }
 
@@ -192,6 +191,8 @@ ErrorInfo AStarPlanner::SearchPath(const int &start_index,
     }
     count++;
   }
+
+  ROS_INFO("Search takes %d cycle counts", count);
 
   if (current_index != goal_index) {
     ROS_WARN("Global planner can't search the valid path!");

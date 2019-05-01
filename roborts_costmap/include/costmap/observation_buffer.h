@@ -56,12 +56,17 @@
 #include <list>
 #include <string>
 #include <mutex>
+#include <ros/ros.h>
 #include <ros/time.h>
+#include <ros/package.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <pcl/point_cloud.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <iostream>
+#include <string>
 #include "observation.h"
+#include "roborts_msgs/PartnerInformation.h"
 
 namespace roborts_costmap {
 /**
@@ -88,6 +93,8 @@ class ObservationBuffer {
                     double min_obstacle_height, double max_obstacle_height, double obstacle_range,
                     double raytrace_range, tf::TransformListener &tf, std::string global_frame,
                     std::string sensor_frame, double tf_tolerance);
+
+  void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
 
   /**
    * @brief  Destructor... cleans up
@@ -120,7 +127,7 @@ class ObservationBuffer {
    * @brief  Pushes copies of all current observations onto the end of the vector passed in
    * @param  observations The vector to be filled
    */
-  void GetObservations(std::vector<Observation> &observations);
+  void GetObservations(std::vector<Observation> &observations, bool is_clear = false);
 
   /**
    * @brief  Check if the observation buffer is being update at its expected rate
@@ -152,6 +159,7 @@ class ObservationBuffer {
    * @brief  Removes any stale observations from the buffer list
    */
   void PurgeStaleObservations();
+  void PurgeStaleClearObservations();
 
   tf::TransformListener &tf_;
   const ros::Duration observation_keep_time_;
@@ -160,11 +168,17 @@ class ObservationBuffer {
   std::string global_frame_;
   std::string sensor_frame_;
   std::list<Observation> observation_list_;
+  std::list<Observation> clear_observation_list_;
+  unsigned int pts_num_added;
   std::string topic_name_;
   double min_obstacle_height_, max_obstacle_height_;
   std::recursive_mutex lock_;
   double obstacle_range_, raytrace_range_;
   double tf_tolerance_;
+  ros::Subscriber partner_info_sub_;
+  geometry_msgs::PoseStamped partner_pose_;
+  geometry_msgs::PoseStamped enemy_pose_from_partner_;
+  bool is_enemy_detected;
 };
 
 }// namespace roborts_costmap
