@@ -120,13 +120,12 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
         feedback.detected = true;
         feedback.error_code = error_info_.error_code();
         feedback.error_msg = error_info_.error_msg();
-        feedback.enemy_info.clear();
 
 	for(int i=0;i<enemy_armor_.size();i++){
-	  std::cout<<"enemy_size="<<enemy_armor_.size()<<endl;
-    roborts_msgs::EnemyInfo enemyinfo;
+	  roborts_msgs::EnemyInfo enemyinfo;
 	  enemyinfo.enemy_pos.header.frame_id = "camera0";
           enemyinfo.enemy_pos.header.stamp    = ros::Time::now();
+          
 
           enemyinfo.enemy_pos.pose.position.x = enemy_armor_[i].target_3d.x;
           enemyinfo.enemy_pos.pose.position.y = enemy_armor_[i].target_3d.y;
@@ -171,7 +170,6 @@ void ArmorDetectionNode::ExecuteLoop() {
       ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, armors);
       {
         std::lock_guard<std::mutex> guard(mutex_);
-        //std::vector<ArmorInfo> enemy_armor_;
         enemy_armor_ = armors;
       }
 
