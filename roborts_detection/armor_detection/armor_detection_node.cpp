@@ -120,6 +120,8 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
         feedback.detected = true;
         feedback.error_code = error_info_.error_code();
         feedback.error_msg = error_info_.error_msg();
+        feedback.enemy_info.clear();
+
 
 	for(int i=0;i<enemy_armor_.size();i++){
 	  roborts_msgs::EnemyInfo enemyinfo;
