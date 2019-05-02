@@ -1,0 +1,10 @@
+<launch>
+
+  <!-- Run the node -->
+  <node pkg="roborts_decision" type="behavior_test_node" name="behavior_test_node" output="screen" />
+
+  <!-- Run the rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts_bringup)/rviz/roborts.rviz" />
+
+</launch>
+

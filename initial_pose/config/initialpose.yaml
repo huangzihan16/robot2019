@@ -1,0 +1,5 @@
+boundary_distance       : 2.1
+prob_threshold          : 0.88
+corner_type             : 0
+
+use_in_game             : true
