@@ -7,6 +7,7 @@
   <!--Load parameters for localization node  -->
   <rosparam command="load" file="$(find roborts_localization)/config/localization.yaml" />
   <rosparam command="load" file="$(find roborts_localization)/amcl/config/amcl.yaml" />
+  <rosparam command="load" file="$(find initial_pose)/config/initialpose.yaml" />
 
   <!-- Run the multimaster_discovery -->
   <include file="$(find roborts_bringup)/launch/multimaster_discovery.launch" />
@@ -33,6 +34,9 @@
       <param name="scan_mode"           type="string" value="Sensitivity"/>
   </node>
 
+  <!-- Run the initial pose node -->
+  <node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/>
+
   <!-- Run the localization node -->
   <node pkg="roborts_localization" type="localization_node" name="localization_node" respawn="false" />
 
@@ -44,6 +48,9 @@
 
   <!-- Run the detection node -->
   <node pkg="roborts_detection" type="armor_detection_node" name="detection_node" />
+
+  <!-- Run the back_camera node -->
+  <node pkg="back_camera" type="backcamera_node" name="backcamera_node" />
 
   <!-- Run the behavior tree node -->
   <node pkg="roborts_decision" type="dual_behavior_tree_test" name="decision_node" output="screen" />
