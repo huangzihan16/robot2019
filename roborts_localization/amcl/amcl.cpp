@@ -294,27 +294,32 @@ void Amcl::UpdateUwb(const Vec3d &uwb_pose) {
     total += distance[i];
   }
 
+  //CHECK_GT(total, 0);
+  if (total < 1e-6)
+    return;
+
   for (int j = 0; j < set_ptr->sample_count; j++) {
     set_ptr->samples_vec[j].weight *= (total - distance[j]) / total;
+  }
 
-    std::sort(set_ptr->samples_vec.begin(),
+  std::sort(set_ptr->samples_vec.begin(),
             set_ptr->samples_vec.begin() + set_ptr->sample_count,
             [](const ParticleFilterSample &sample1, const ParticleFilterSample &sample2) {
               return sample1.weight < sample2.weight;
             });
 
-    auto least_weight_particle_num = static_cast<int>(max_uwb_particles_);
-    if (least_weight_particle_num <= 0) {
-      least_weight_particle_num = 1;
-    }
-    for (int i = 0; i < least_weight_particle_num; i++) {
-      set_ptr->samples_vec[i].pose[0] = uwb_pose[0] + math::RandomGaussianNumByStdDev(uwb_cov_x_);
-      set_ptr->samples_vec[i].pose[1] = uwb_pose[1] + math::RandomGaussianNumByStdDev(uwb_cov_y_);
-      set_ptr->samples_vec[i].pose[2] = drand48() * 2 * M_PI - M_PI;
-      //set_ptr->samples_vec[i].pose[2] =
-        //set_ptr->samples_vec[i].pose[2] + math::RandomGaussianNumByStdDev((M_PI / 12.0) * (M_PI / 12.0));
-    }
+  auto least_weight_particle_num = static_cast<int>(max_uwb_particles_);
+  if (least_weight_particle_num <= 0) {
+    least_weight_particle_num = 1;
   }
+  for (int i = 0; i < least_weight_particle_num; i++) {
+    set_ptr->samples_vec[i].pose[0] = uwb_pose[0] + math::RandomGaussianNumByStdDev(uwb_cov_x_);
+    set_ptr->samples_vec[i].pose[1] = uwb_pose[1] + math::RandomGaussianNumByStdDev(uwb_cov_y_);
+    set_ptr->samples_vec[i].pose[2] = drand48() * 2 * M_PI - M_PI;
+    //set_ptr->samples_vec[i].pose[2] =
+        //set_ptr->samples_vec[i].pose[2] + math::RandomGaussianNumByStdDev((M_PI / 12.0) * (M_PI / 12.0));
+  }
+
 }
 
 int Amcl::Update(const Vec3d &pose,

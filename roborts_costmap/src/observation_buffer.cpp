@@ -192,7 +192,7 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     }
 
     if (is_enemy_detected) {
-      if (enemy_poses_from_partner_.size() != 0) {
+      if (!enemy_poses_from_partner_.empty()) {
         for (int i = 0; i < enemy_poses_from_partner_.size(); i++) {
           // Transform enemy_pose_from_partner_ to enemy_pose_tmp_
 					if (!enemy_poses_from_partner_[i].header.frame_id.empty()) {

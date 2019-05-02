@@ -47,6 +47,7 @@
 #include "roborts_msgs/RobotStatus.h"
 #include "roborts_msgs/SupplierStatus.h"
 #include "roborts_msgs/ProjectileSupply.h"
+#include "roborts_msgs/EnemyInfo.h"
 
 #include "roborts_msgs/ShootCmd.h"
 
