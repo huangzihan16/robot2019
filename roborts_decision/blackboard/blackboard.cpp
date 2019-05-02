@@ -300,22 +300,34 @@ namespace roborts_decision {
     }
     tag_id_ = feedback->tag_id;
     
+    if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.3){
+      SetBackCameraDetect();
+    }else{
+      SetBackCameraLocalization();
+    }
+
   }
 
   void Blackboard::SetBackCameraDetect(){
-    back_camera_goal_.command = 1;
-    back_camera_client_.sendGoal(back_camera_goal_,
-                                  actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
-                                  actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
-                                  boost::bind(&Blackboard::BackCameraCallback, this, _1));
+    if(back_camera_mode_ != 1){
+      back_camera_mode_ = 1;
+      back_camera_goal_.command = 1;
+      back_camera_client_.sendGoal(back_camera_goal_,
+                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
+                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
+                                    boost::bind(&Blackboard::BackCameraCallback, this, _1));
+    }
   }
 
   void Blackboard::SetBackCameraLocalization(){
-    back_camera_goal_.command = 5;
-    back_camera_client_.sendGoal(back_camera_goal_,
-                                  actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
-                                  actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
-                                  boost::bind(&Blackboard::BackCameraCallback, this, _1));
+    if(back_camera_mode_ != 5){
+      back_camera_mode_ = 5;
+      back_camera_goal_.command = 5;
+      back_camera_client_.sendGoal(back_camera_goal_,
+                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
+                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
+                                    boost::bind(&Blackboard::BackCameraCallback, this, _1));
+    }
   }  
 
   /*******************Referee System Interaction(Callback and Send Cmd)*******************/
