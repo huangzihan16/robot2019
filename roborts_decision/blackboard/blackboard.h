@@ -25,12 +25,14 @@
 #include <roborts_msgs/GimbalAngle.h>
 
 #include "roborts_msgs/ArmorDetectionAction.h"
+#include "roborts_msgs/BackCameraAction.h"
 
 #include "io/io.h"
 #include "../proto/decision.pb.h"
 #include "costmap/costmap_interface.h"
 #include "std_msgs/Int16.h"
 #include "./blackboard_enum.h"
+#include "../example_behavior/line_iterator.h"
 
 #include "roborts_msgs/PartnerInformation.h"
 //下面这些是裁判系统信息相关的头文件
@@ -51,6 +53,73 @@
 
 namespace roborts_decision{
 
+class CachedMapCell {
+public:
+	typedef std::shared_ptr<CachedMapCell> Ptr;
+	CachedMapCell(unsigned char freespace_threshold, double around_area_radius, double max_lost_radius,
+								double best_distance_goal_enemy, roborts_costmap::Costmap2D* costmap2d) :
+		freespace_threshold_(freespace_threshold), around_area_radius_(around_area_radius),
+		max_lost_radius_(max_lost_radius), best_distance_goal_enemy_(best_distance_goal_enemy), costmap2d_(costmap2d) {
+		resolution_ = costmap2d->GetResolution();
+		map_x_size_ = costmap2d->GetSizeXCell();
+		map_y_size_ = costmap2d->GetSizeYCell();
+			
+		int bias = around_area_radius / resolution_;
+		cached_number_ = 0;
+		for (int row = -bias; row <= bias; row++) {
+			double dy = row * resolution_;
+			for (int col = -bias; col <= bias; col++) {
+				if (GetDistanceSquareBetweenCells(row, col, 0, 0) < around_area_radius * around_area_radius && (row != 0 || col != 0)) {
+					cached_map_x_bias_.push_back(col);
+					cached_map_y_bias_.push_back(row);
+					double dx = col * resolution_;
+					double distance_square = dx * dx + dy * dy;
+					double distance = sqrt(distance_square);
+					cached_distance_square_.push_back(distance_square);
+					cached_distance_.push_back(distance);
+					cached_x_normal_.push_back(dx / distance);
+					cached_y_normal_.push_back(dy / distance);
+					cached_yaw_.push_back(atan2(-dy, -dx));
+					cached_number_++;
+				}
+			}
+		}
+	}//the round area around enemy without center
+	
+	~CachedMapCell() = default;
+	
+	bool FindChaseGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped self_pose, geometry_msgs::PoseStamped& goal_pose);
+	bool FindSupportGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped partner_pose, geometry_msgs::PoseStamped& goal_pose);
+	
+	bool IsGoalStillAvailable(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped last_goal);
+private:
+	double GetDistanceSquareBetweenCells(int x1, int y1, int x2, int y2);
+	double GetAngleBetweenNonZeroVectorandCachedVector(double x, double y, int num);
+	double GetDistanceBetweenPointandLine(double x, double y, double x1, double y1, double x2, double y2);
+	double GetDistanceBetweenPointandLineWithBottomLength(double x, double y, double x1, double y1, double x2, double y2, double bottom_length);
+public:
+	std::vector<int> cached_map_x_bias_;//from enemy to cell
+	std::vector<int> cached_map_y_bias_;//from enemy to cell
+	std::vector<double> cached_distance_square_;//distance square from enemy to cell
+	std::vector<double> cached_distance_;//distance from enemy to cell
+	std::vector<double> cached_x_normal_;//from enemy to cell
+	std::vector<double> cached_y_normal_;//from enemy to cell
+	std::vector<double> cached_yaw_;//the required yaw if this cell is goal
+	int cached_number_;
+	//Origin of these vectors is enemy and content is goal.
+private:
+	unsigned char freespace_threshold_;
+	double around_area_radius_;
+	double best_distance_goal_enemy_;
+	double max_lost_radius_;
+		
+	double resolution_;
+	unsigned int map_x_size_;
+	unsigned int map_y_size_;
+	int enemy_inflation_;
+	roborts_costmap::Costmap2D* costmap2d_;
+};
+
 class Blackboard {
 public:
   typedef std::shared_ptr<Blackboard> Ptr;
@@ -68,9 +137,11 @@ public:
       last_hp_(2000),
       dmp_(0),
       back_enemy_detected_(false),
+      tag_id_(0),
       /*******************/
       enemy_detected_(false),
       armor_detection_actionlib_client_("armor_detection_node_action", true),
+      back_camera_client_("backcamera_node_action", true),
 			self_identity_(Identity::SLAVE),
       partner_detect_enemy_(false),
 			supply_number_(0),
@@ -121,27 +192,27 @@ public:
       armor_detection_actionlib_client_.waitForServer();
 
       ROS_INFO("Armor detection module has been connected!");
-ROS_INFO("1111111111111111111111111111111111111111111111111111");
       armor_detection_goal_.command = 1;
       armor_detection_actionlib_client_.sendGoal(armor_detection_goal_,
                                                  actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleDoneCallback(),
                                                  actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleActiveCallback(),
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
-                                                 ROS_INFO("2222222222222222222222222222222222222222222222222");
+
+      back_camera_client_.waitForServer();
+
+      back_camera_goal_.command = 1;
+      back_camera_client_.sendGoal(back_camera_goal_,
+                                   actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
+                                   actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
+                                   boost::bind(&Blackboard::BackCameraCallback, this, _1));
     }
 		bullet_num_ = decision_config.initial_bullet_num();
-
-                                                 ROS_INFO("333333333333333333333333333333333333333333333333333333");
     std::string partner_name = decision_config.partner_name();
-
-                                                 ROS_INFO("333333333333333333333333333333333333333333333333333333");
     std::string partner_topic_sub = "/" + partner_name + "/partner_msg";
-		
-                                                 ROS_INFO("333333333333333333333333333333333333333333333333333333");
 		partner_sub_ = nh.subscribe<roborts_msgs::PartnerInformation>(partner_topic_sub, 1, &Blackboard::PartnerCallback, this);
 		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
-
-                                                 ROS_INFO("333333333333333333333333333333333333333333333333333333");
+    cachedmapforchaseandsupport_ptr_ =
+			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 3.0, 1.0, costmap_2d_));
   }
 
   ~Blackboard() = default;
@@ -149,6 +220,9 @@ ROS_INFO("1111111111111111111111111111111111111111111111111111");
   /*******************Enemy Information from roborts_detection*******************/
   void ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback);
 
+  void BackCameraCallback(const roborts_msgs::BackCameraFeedbackConstPtr& feedback);
+  void SetBackCameraDetect();
+  void SetBackCameraLocalization();
   /*******************Referee System Interaction(Callback and Send Cmd) and Read related Member Variables*******************/
   // Game Status
   void GameStatusCallback(const roborts_msgs::GameStatus::ConstPtr& game_status);
@@ -362,6 +436,11 @@ public:
 	int supply_number_;       //补给次数
   int gain_buff_number_;    //占buff次数
 
+  /****************补弹tag id******************/
+  int tag_id_;
+  /*******************Variable for Chase and Support*******************/
+	CachedMapCell::Ptr cachedmapforchaseandsupport_ptr_;
+
   /*******************Referee System Information*******************/
   //Useless
   unsigned int id_;                 //机器人ID，是机器人的所属与种类（无用）
@@ -410,6 +489,7 @@ public:
 private:
   /*******************Enemy Detection Cmd and Result*******************/
   roborts_msgs::ArmorDetectionGoal armor_detection_goal_;
+  roborts_msgs::BackCameraGoal back_camera_goal_;
 	geometry_msgs::PoseStamped enemy_pose_camera_;
   geometry_msgs::PoseStamped enemy_pose_;
 		
@@ -457,6 +537,7 @@ private:
 
   /*******************Other Subscriber and Publisher*******************/
   actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction> armor_detection_actionlib_client_; //和detection模块配合的Actionlib接口
+  actionlib::SimpleActionClient<roborts_msgs::BackCameraAction> back_camera_client_; //和back camera模块配合的Actionlib接口
   
   ros::Subscriber partner_sub_;  //接收友方信息的订阅器
 	ros::Publisher partner_pub_;   //发送给友方信息的发布器

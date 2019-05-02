@@ -77,14 +77,12 @@ bool initialpose_node::setTransform(std::string laser_topic_name) {
 	alpha_lb_ = -yaw;
 	cos_alpha_lb_ = cos(alpha_lb_);
 	sin_alpha_lb_ = sin(alpha_lb_);
-
+	
 	double x_bl = pose_stamp.getOrigin().x();
 	double y_bl = pose_stamp.getOrigin().y();
 	x_lb_ = -x_bl * cos_alpha_lb_ + y_bl * sin_alpha_lb_;
-	y_lb_ = -x_bl * sin_alpha_lb_ + y_bl * cos_alpha_lb_;
-	
+	y_lb_ = -x_bl * sin_alpha_lb_ - y_bl * cos_alpha_lb_;
 	return true;
-
 }
 
 bool initialpose_node::GetStaticMap() {

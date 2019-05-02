@@ -1,7 +1,7 @@
 camera: {
   camera_name: "back_camera"
   camera_type: "uvc"
-  camera_path: "/dev/video0"
+  camera_path: "/dev/video3"
 
   camera_matrix {
     data: 839.923052
@@ -31,7 +31,7 @@ camera: {
     height_offset: 0
   }
 
-  fps: 100
+  fps: 60
   auto_exposure: 1
   exposure_value: 70
   exposure_time: 10

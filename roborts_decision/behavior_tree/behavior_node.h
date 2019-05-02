@@ -523,11 +523,11 @@ class SelectorNode: public CompositeNode{
 
     //Reevaluation
     for(unsigned int index = 0; index < children_node_index_; index++){
-        ROS_INFO("Reevaluation");
+      //ROS_INFO("Reevaluation");
       if (children_node_reevaluation_.at(index)){
         BehaviorState state = children_node_ptr_.at(index)->Run();
         if(index == children_node_index_){
-            ROS_INFO("%s abort goes on! ", name_.c_str());
+          //ROS_INFO("%s abort goes on! ", name_.c_str());
           if (state != BehaviorState::FAILURE) {
             return state;
           }

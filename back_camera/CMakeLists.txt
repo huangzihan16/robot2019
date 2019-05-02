@@ -1,4 +1,4 @@
-project(roborts_detection)
+project(back_camera)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake_module)
@@ -26,6 +26,6 @@ catkin_package()
 include_directories(${EIGEN3_INCLUDE_DIR} util)
 
 add_subdirectory(util)
-add_subdirectory(armor_detection)
+#add_subdirectory(armor_detection)
 #add_subdirectory(color_detection)
-
+add_subdirectory(backcamera)    

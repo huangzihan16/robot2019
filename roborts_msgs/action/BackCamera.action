@@ -1,0 +1,14 @@
+#Send a flag to server to control the thread start, pause, restart and stop
+#command == 1 start armor_detection
+#command == 2 pause
+#command == 3 stop
+#command == 5 start tag_detection
+int32 command
+---
+float32 result
+---
+#feedback
+bool detected
+int32  tag_id  #-1,0,1 无，红，蓝
+
+

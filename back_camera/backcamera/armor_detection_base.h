@@ -20,33 +20,11 @@
 
 #include <vector>
 #include "state/error_code.h"
-#include "cv_toolbox.h"
+#include "../util/cv_toolbox.h"
 
 namespace roborts_detection {
 
 using roborts_common::ErrorInfo;
-
-/**
- *  This class describes the armor information, including maximum bounding box, vertex, standard deviation.
- */
-class ArmorInfo {
- public:
-  ArmorInfo(cv::RotatedRect armor_rect, std::vector<cv::Point2f> armor_vertex, float armor_stddev = 0.0, int armor_num = 0, cv::Point3f target_pos = cv::Point3f(0,0,0)) {
-    rect = armor_rect;
-    vertex = armor_vertex;
-    stddev = armor_stddev;
-    num = armor_num;
-    target_3d = target_pos;
-    
-  }
- public:
-  cv::RotatedRect rect;
-  std::vector<cv::Point2f> vertex;
-  float stddev;
-  int num;
-  cv::Point3f target_3d;
-
-};
 
 class ArmorDetectionBase {
  public:
@@ -54,7 +32,7 @@ class ArmorDetectionBase {
       : cv_toolbox_(cv_toolbox)
   {  };
   virtual void LoadParam() = 0;
-  virtual ErrorInfo DetectArmor(bool &detected, std::vector<ArmorInfo> &armors) = 0;
+  virtual ErrorInfo DetectArmor(bool &detected, cv::Point3f &target_3d) = 0;
   virtual void SetThreadState(bool thread_state) = 0;
   virtual ~ArmorDetectionBase() = default;
  protected:
