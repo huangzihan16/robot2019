@@ -74,7 +74,7 @@ class CVToolbox {
     // cv::imshow("depth",depthImg);
     // cv::waitKey(10);
   }
-  cv::Mat depthImg;
+  cv::Mat depthImg= cv::Mat::zeros(480,640,CV_16UC1);
 
   int GetCameraHeight() {
     if (!get_img_info_) {

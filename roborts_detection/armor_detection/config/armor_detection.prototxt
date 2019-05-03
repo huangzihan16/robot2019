@@ -7,7 +7,7 @@ camera_gimbal_transform {
     offset_y :9
     offset_z :8 #9
     offset_pitch :1.5 #-2.5 正 云台往下调
-    offset_yaw : 4  #4.5
+    offset_yaw : 5.5  #4.5
 }
 
 projectile_model_info {

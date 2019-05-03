@@ -27,5 +27,6 @@ include_directories(${EIGEN3_INCLUDE_DIR} util)
 
 add_subdirectory(util)
 add_subdirectory(armor_detection)
+#add_subdirectory(backcamera)
 #add_subdirectory(color_detection)
 
