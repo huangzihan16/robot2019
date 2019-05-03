@@ -164,6 +164,11 @@ void ArmorDetectionNode::ExecuteLoop() {
         static ros::Time last_time = ros::Time::now();
         ros::Duration duration;
         float delta_time;
+        float BoundKy[6] = {-0.5,-0.05,0,0.05,0.2,0.75};
+        float BoundKs[6] = {-0.5,-0.1,0,0.1,0.2,0.75};
+        float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
+        float Ks_[6] = {1,20,5000,20,10,1};
+        float Ky, Ks;
 
   while(running_) {
     usleep(1);
@@ -181,18 +186,25 @@ void ArmorDetectionNode::ExecuteLoop() {
         
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
-        //gimbal_angle_.yaw_angle = yaw;//kalmanfilter_.Update(yaw) * 1;
         gimbal_angle_.pitch_angle = pitch;
-        // ROS_INFO(" yaw : %f",yaw);
         double gimbal_yaw = GetGimbalYaw();
         delta_yaw = yaw;
         all_yaw = gimbal_yaw + delta_yaw;
-        // speed = yaw - last_yaw_;
         speed = all_yaw - last_yaw_;
         last_yaw_ = all_yaw;
         speed = kalmanfilter_.Update(all_yaw, speed);
-        // gimbal_angle_.yaw_angle = last_yaw_ - gimbal_yaw;
-        gimbal_angle_.yaw_angle =0.3 * yaw + speed;
+        ROS_INFO("yaw:%f" , yaw);
+        CalcMembership(yaw, MembershipKy, BoundKy);
+        CalcMembership(yaw, MembershipKs, BoundKs);
+        Ky = 0;
+        Ks = 0;
+        for (int i = 0; i < 6; i++){
+  		      if (MembershipKy[i] != 0){
+              Ky += Ky_[i] * MembershipKy[i] / 100;
+              Ks += Ks_[i] * MembershipKs[i] / 100;
+  		      }
+        }
+        gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
@@ -237,6 +249,29 @@ void ArmorDetectionNode::ExecuteLoop() {
       condition_var_.wait(lock);
     }
   }
+}
+
+void ArmorDetectionNode::CalcMembership(float value, float *membership, float *bound)
+{
+	int i;
+	for (i = 0; i <= 6 - 1; i++){
+		membership[i] = 0;
+	}
+
+	if (value < bound[0]){
+		membership[0] = 100;
+	} else if(value >= bound[6 - 1]){
+		membership[6 - 1] = 100;
+	} else{
+		for (i = 1; i <= 6 - 1; i++){
+			if (value < bound[i]){
+				membership[i-1] = (bound[i] - value) * 100 / (bound[i] - bound[i - 1]);
+				membership[i]   = 100 - membership[i-1];
+        break;
+			}
+		}
+	}
+	
 }
 
 void ArmorDetectionNode::PublishMsgs() {

@@ -86,11 +86,16 @@ class ArmorDetectionNode {
   void PublishMsgs();
   double GetGimbalYaw();
   void UpdateGimbalPose();
+  void CalcMembership(float value, float *membership, float *bound);
+
   ~ArmorDetectionNode();
 
   roborts_detection::ShootExecutor  shoot_executor_;
   Filter kalmanfilter_;
   float last_yaw_;
+  float MembershipKy[6];
+  float MembershipKs[6];
+
 protected:
  private:
   std::shared_ptr<ArmorDetectionBase> armor_detector_;

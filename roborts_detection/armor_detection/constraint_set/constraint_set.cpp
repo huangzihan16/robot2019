@@ -44,7 +44,7 @@ ConstraintSet::ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox):
 
 void ConstraintSet::LoadParam() {
   //read parameters
-  model = svm_load_model("/home/ubuntu3/roborts_ws/src/icra/roborts_detection/armor_detection/constraint_set/contourHOG_SVM");
+  model = svm_load_model("/home/ubuntu4/roborts_ws/src/icra/roborts_detection/armor_detection/constraint_set/contourHOG_SVM");
   ConstraintSetConfig constraint_set_config_;
   std::string file_name = ros::package::getPath("roborts_detection") + \
       "/armor_detection/constraint_set/config/constraint_set.prototxt";
@@ -102,6 +102,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       return error_info;
     }
     read_index_ = cv_toolbox_->NextImage(src_img_);
+    depth_img_=cv_toolbox_->depthImg;
     if (read_index_ < 0) {
       // Reducing lock and unlock when accessing function 'NextImage'
       if (detection_time_ == 0) {
@@ -159,9 +160,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     detected = false;
     if(!armors.empty()) {
       final_armor = SlectFinalArmor(armors);
-      if(final_armor.size()>0) {
-        detected = true;
-        std::cout<<"detected!!!!!!"<<std::endl;}
+      if(final_armor.size()>0) detected = true;
       
       for(int i=0;i<final_armor.size();i++){
 	      if(final_armor[i].num == 1) {
@@ -188,8 +187,6 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
   lights.clear();
   armors.clear();
   armors = final_armor;
-  int size = armors.size();
-  std::cout<<"armor.size = "<<size<<std::endl;
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
@@ -475,6 +472,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       armor_iter++;
     }
   }
+  
 
   // nms
   std::vector<bool> is_armor(armors.size(), true);
@@ -494,6 +492,51 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       }
     }
   }
+  //========depth filter============
+  for (int i = 0; i < armors.size() ; i++) {
+    cv::Point2f corners[4];
+    armors[i].rect.points(corners);
+    float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y ,corners[0].x);
+    float depth0y=(corners[0].y-240)*depth0z/387.4;
+    float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y ,corners[1].x);
+    float depth1y=(corners[1].y-240)*depth1z/387.4;
+    float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y ,corners[2].x);
+    float depth2y=(corners[2].y-240)*depth2z/387.4;
+    float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y ,corners[3].x);
+    float depth3y=(corners[3].y-240)*depth3z/387.4;
+
+    int yd=armors[i].rect.center.y;
+    int xd=armors[i].rect.center.x;
+    float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
+    float depthy=(armors[i].rect.center.y-240)*depthz/387.4;
+    int thresh=10;
+    if(depth0z!=0){
+      if(depth0y<thresh){
+        is_armor[i] = false;
+      }
+    }
+    if(depth1z!=0){
+      if(depth1y<thresh){
+        is_armor[i] = false;
+      }
+    }
+    if(depth2z!=0){
+      if(depth2y<thresh){
+        is_armor[i] = false;
+      }
+    }
+    if(depth3z!=0){
+      if(depth3y<thresh){
+        is_armor[i] = false;
+      }
+    }
+    if(depthz!=0){
+      if(depthy<thresh){
+        is_armor[i] = false;
+      }
+    }
+  }
+
   //std::cout << armors.size() << std::endl;
   for (unsigned int i = 0; i < armors.size(); ) {
     if (!is_armor[i]) {
@@ -545,12 +588,13 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   cv::Mat tvec;
   
   //=================================================depth================
-  depth_img_=cv_toolbox_->depthImg;
+  
+  
   int yd=armor.rect.center.y;
-  if(yd!=0){
   int xd=armor.rect.center.x;
   float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
   float depthy=(armor.rect.center.y-240)*depthz/387.4;
+  if(depthy!=0){
   float depthx=(armor.rect.center.x-320)*depthz/387.4;
   cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
   cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
@@ -559,9 +603,9 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   armor.target_3d.y=depthy;
   armor.target_3d.x=depthx;
   std::cout<<"==========from depth map=========="<<std::endl;
-  std::cout<<"x-"<<armor.target_3d.x<<std::endl;
-  std::cout<<"y-"<<armor.target_3d.y<<std::endl;
-  std::cout<<"z-"<<armor.target_3d.z<<std::endl;
+  // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
+  // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
+  // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }else{
   cv::solvePnP(armor_points_,
                armor.vertex,
@@ -571,9 +615,9 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
                tvec);
   armor.target_3d = cv::Point3f(tvec);
   std::cout<<"==========from PnP=========="<<std::endl;
-  std::cout<<"x-"<<armor.target_3d.x<<std::endl;
-  std::cout<<"y-"<<armor.target_3d.y<<std::endl;
-  std::cout<<"z-"<<armor.target_3d.z<<std::endl;
+  // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
+  // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
+  // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }
   
 
@@ -640,7 +684,7 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
     Mat gray;
     cv::cvtColor(colorImg, gray, CV_BGR2GRAY);
     double mean = cv::mean(gray)[0];
-    std::cout <<"mean:" <<mean <<endl;
+    // std::cout <<"mean:" <<mean <<endl;
 
     //获得canny边缘检测结果
     Mat canny;
@@ -711,21 +755,21 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
             //这段程序有风险，尤其是在当1/2在右侧和下侧边缘的时候！！需要测试！！！
             //将框的x放大到三倍，从而获取颜色信息,这里三倍宽的数字1矩形仍然框不住灯柱，可考虑改成数字2三倍，数字1五倍
 	    Rect tempBoundRect = boundRect;
-            if(tempBoundRect.x < tempBoundRect.width)
-            {
-                tempBoundRect.width += tempBoundRect.x + tempBoundRect.width*2;
-                tempBoundRect.x = 0;
-            }
-            else if(tempBoundRect.x + tempBoundRect.width*2 > colorImg.cols)
-            {
-                tempBoundRect.width = colorImg.cols - tempBoundRect.x + tempBoundRect.width;
-                tempBoundRect.x -= tempBoundRect.width;
-            }
-            else
-            {
-                tempBoundRect.x -= tempBoundRect.width;
-                tempBoundRect.width = tempBoundRect.width*3;
-            }
+            // if(tempBoundRect.x < tempBoundRect.width)
+            // {
+            //     tempBoundRect.width += tempBoundRect.x + tempBoundRect.width*2;
+            //     tempBoundRect.x = 0;
+            // }
+            // else if(tempBoundRect.x + tempBoundRect.width*2 > colorImg.cols)
+            // {
+            //     tempBoundRect.width = colorImg.cols - tempBoundRect.x + tempBoundRect.width;
+            //     tempBoundRect.x -= tempBoundRect.width;
+            // }
+            // else
+            // {
+            //     tempBoundRect.x -= tempBoundRect.width;
+            //     tempBoundRect.width = tempBoundRect.width*3;
+            // }
 
             if(pred2!=0)//如果检测到了数字则进行颜色筛选
             {
@@ -819,10 +863,12 @@ void ConstraintSet::NonMaximumSuppression(sortLinkList *possib_sort)
             else q = q->next;
         }
     }
+
 }
 
 svm_node* ConstraintSet::getHogFeatures(Mat grayImg)
-{
+{  
+
 //  HOGDescriptor hog(Size win_size=Size(96, 160),          //win_size：检测窗口大小。
 // 　　　　　　　　　　　　　　　　　　　　　　Size block_size=Size(16, 16),      //block_size：块大小，目前只支持Size(16, 16)。
 // 　　　　　　　　　　　　　　　　　　　　　　Size block_stride=Size(8, 8),          //block_stride：块的滑动步长，大小只支持是单元格cell_size大小的倍数。
@@ -852,6 +898,6 @@ svm_node* ConstraintSet::getHogFeatures(Mat grayImg)
 
 
 ConstraintSet::~ConstraintSet() {
-
+  
 }
 } //namespace roborts_detection
