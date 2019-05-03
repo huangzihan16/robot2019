@@ -299,12 +299,15 @@ namespace roborts_decision {
       back_enemy_detected_ = false;
     }
     tag_id_ = feedback->tag_id;
-    
-    /*if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.3){
+
+    geometry_msgs::PoseStamped supply_goal, robot_pose;
+    supply_goal = GetSupplyGoal();
+    robot_pose = GetRobotMapPose();
+    if (GetDistance(robot_pose, supply_goal)>0.2 || GetAngle(robot_pose, supply_goal) > 0.3){
       SetBackCameraDetect();
     }else{
       SetBackCameraLocalization();
-    }*/
+    }
   }
 
   void Blackboard::SetBackCameraDetect(){
