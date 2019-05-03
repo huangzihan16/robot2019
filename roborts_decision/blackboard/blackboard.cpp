@@ -300,12 +300,11 @@ namespace roborts_decision {
     }
     tag_id_ = feedback->tag_id;
     
-    if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.3){
+    /*if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.3){
       SetBackCameraDetect();
     }else{
       SetBackCameraLocalization();
-    }
-
+    }*/
   }
 
   void Blackboard::SetBackCameraDetect(){

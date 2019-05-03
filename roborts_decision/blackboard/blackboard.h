@@ -193,7 +193,7 @@ public:
       armor_detection_actionlib_client_.waitForServer();
 
       ROS_INFO("Armor detection module has been connected!");
-      back_camera_mode_ = 1
+      back_camera_mode_ = 1;
       armor_detection_goal_.command = 1;
       armor_detection_actionlib_client_.sendGoal(armor_detection_goal_,
                                                  actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleDoneCallback(),
@@ -444,8 +444,6 @@ public:
   /****************补弹tag id******************/
   int tag_id_;
   int back_camera_mode_;
-  /*******************Variable for Chase and Support*******************/
-	CachedMapCell::Ptr cachedmapforchaseandsupport_ptr_;
 
   /*******************Referee System Information*******************/
   //Useless
