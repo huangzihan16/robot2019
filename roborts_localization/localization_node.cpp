@@ -182,8 +182,10 @@ void LocalizationNode::LaserScanCallback(const sensor_msgs::LaserScan::ConstPtr 
   sensor_msgs::LaserScan laser_scan_msg = *laser_scan_msg_ptr;
   TransformLaserscanToBaseFrame(angle_min, angle_increment, laser_scan_msg);
 
-  if (enable_uwb_ && uwb_have_worked_)
+  if (enable_uwb_ && uwb_have_worked_) {
 	  amcl_ptr_->UpdateUwb(last_uwb_pose_);
+    uwb_have_worked_ = false;
+  }
   amcl_ptr_->Update(pose_in_odom,
                     laser_scan_msg,
                     angle_min,

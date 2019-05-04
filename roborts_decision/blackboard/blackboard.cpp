@@ -104,11 +104,13 @@ namespace roborts_decision {
 	}
 	
 	bool CachedMapCell::FindSupportGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped partner_pose,
-																			geometry_msgs::PoseStamped& goal_pose) {
+																			geometry_msgs::PoseStamped self_pose, geometry_msgs::PoseStamped& goal_pose) {
 		double x_enemy = enemy_pose.pose.position.x;
 		double y_enemy = enemy_pose.pose.position.y;
 		double x_partner = partner_pose.pose.position.x;
 		double y_partner = partner_pose.pose.position.y;
+    double x_self = self_pose.pose.position.x;
+    double y_self = self_pose.pose.position.y;
 		double distance_enemy_partner = sqrt((x_enemy - x_partner) * (x_enemy - x_partner) + (y_enemy - y_partner) * (y_enemy - y_partner));
 		
 		int map_x_enemy, map_y_enemy, map_x_partner, map_y_partner;
@@ -164,12 +166,15 @@ namespace roborts_decision {
 		int goal_cached = -1;
 		for (int i = 0; i < cached_number_; i++) {
 			if (cached_cost[i] < freespace_threshold_) {
-				double error_best_distance = fabs(cached_distance_[i] - best_distance_goal_enemy_);
-				if (error_best_distance < min_loss) {
-					min_loss = error_best_distance;
-					int cached_map_x_cell = cached_map_x_bias_[i] + map_x_enemy, cached_map_y_cell = cached_map_y_bias_[i] + map_y_enemy;
-					double x_candidate, y_candidate;
-					costmap2d_->Map2World(cached_map_x_cell, cached_map_y_cell, x_candidate, y_candidate);
+        int cached_map_x_cell = cached_map_x_bias_[i] + map_x_enemy, cached_map_y_cell = cached_map_y_bias_[i] + map_y_enemy;
+				double x_candidate, y_candidate;
+				costmap2d_->Map2World(cached_map_x_cell, cached_map_y_cell, x_candidate, y_candidate);
+
+        double dx_self_candidate = x_self - x_candidate, dy_self_candidate = y_self - y_candidate;
+        double loss = fabs(cached_distance_[i] - best_distance_goal_enemy_) / best_distance_goal_enemy_
+                    + sqrt(dx_self_candidate * dx_self_candidate + dy_self_candidate * dy_self_candidate) / around_area_radius_;
+				if (loss < min_loss) {
+					min_loss = loss;
 					x_goal = x_candidate;
 					y_goal = y_candidate;
 					goal_cached = i;
@@ -299,12 +304,15 @@ namespace roborts_decision {
       back_enemy_detected_ = false;
     }
     tag_id_ = feedback->tag_id;
-    
-    /*if (GetDistance(global_pose_msg, enemy_pose_)>0.2 || GetAngle(global_pose_msg, enemy_pose_) > 0.3){
+
+    geometry_msgs::PoseStamped supply_goal, robot_pose;
+    supply_goal = GetSupplyGoal();
+    robot_pose = GetRobotMapPose();
+    if (GetDistance(robot_pose, supply_goal)>0.2 || GetAngle(robot_pose, supply_goal) > 0.3){
       SetBackCameraDetect();
     }else{
       SetBackCameraLocalization();
-    }*/
+    }
   }
 
   void Blackboard::SetBackCameraDetect(){
@@ -513,8 +521,13 @@ namespace roborts_decision {
 		partner_detect_enemy_ = partner_info->enemy_detected;
 		partner_enemy_info_ = partner_info->enemy_info;
     if (!partner_enemy_info_.empty()) {
-      partner_enemy_pose_.pose.position.x = partner_enemy_info_[0].enemy_pos.pose.position.x;
-      partner_enemy_pose_.pose.position.y = partner_enemy_info_[0].enemy_pos.pose.position.y;
+      UpdateRobotPose();
+      geometry_msgs::PoseStamped goal_pose;
+      partner_enemy_pose_ = partner_enemy_info_[0].enemy_pos;
+      test_enemy_publisher_.publish(partner_enemy_pose_);
+      bool success = cachedmapforchaseandsupport_ptr_->FindSupportGoal(partner_enemy_pose_, partner_info->partner_pose, robot_map_pose_, goal_pose);
+      if (success)
+        test_support_publisher_.publish(goal_pose);
     }
 		partner_pose_ = partner_info->partner_pose;
 		partner_patrol_count_ = partner_info->patrol_count;
@@ -533,7 +546,7 @@ namespace roborts_decision {
     float Yaw;
     UpdateRobotPose();
     if (!partner_enemy_info_.empty())
-      Yaw= atan2(partner_enemy_info_[0].enemy_pos.pose.position.y - robot_map_pose_.pose.position.y , partner_enemy_info_[0].enemy_pos.pose.position.x - robot_map_pose_.pose.position.x);
+      Yaw= atan2(partner_enemy_info_[0].enemy_pos.pose.position.y - robot_map_pose_.pose.position.y, partner_enemy_info_[0].enemy_pos.pose.position.x - robot_map_pose_.pose.position.x);
     else
       Yaw = 0;
     partner_enemy_pose_.pose.orientation = tf::createQuaternionMsgFromYaw(Yaw);

@@ -179,7 +179,7 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
 
     unsigned int old_size = pcl_cloud.points.size();
 
-    if (!partner_pose_.header.frame_id.empty()) {
+    /*if (!partner_pose_.header.frame_id.empty()) {
       // Transform partner_pose_ to partner_pose_tmp_
       geometry_msgs::PoseStamped partner_pose_tmp_;
       tf_.transformPose(cloud.header.frame_id, partner_pose_, partner_pose_tmp_);
@@ -207,7 +207,7 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
 					}
 				}
       }
-    }
+    }*/
 
     unsigned int new_size = pcl_cloud.points.size();
 
