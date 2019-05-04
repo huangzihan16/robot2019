@@ -48,6 +48,8 @@ void CameraNode::StartThread() {
 void CameraNode::Update(const unsigned int index) {
   cv::Mat img;
   bool camera_info_send = false;
+  ros::Rate loop_rate(30);
+
   while(running_) {
     camera_driver_[index]->StartReadCamera(img);
     if(!img.empty()) {
@@ -57,6 +59,7 @@ void CameraNode::Update(const unsigned int index) {
 
       camera_param_.GetCameraParam()[index].ros_camera_info->header.stamp = img_msg->header.stamp;
       img_pubs_[index].publish(img_msg, camera_param_.GetCameraParam()[index].ros_camera_info);
+      loop_rate.sleep();
     }
   }
 }
