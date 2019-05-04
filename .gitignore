@@ -1,3 +1,6 @@
 *.pb.cc
 *.pb.h
 .vscode/
+*.prototxt
+*.yaml
+gimbal_control.cpp

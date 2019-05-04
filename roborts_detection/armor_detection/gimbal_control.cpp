@@ -73,7 +73,7 @@ roborts_msgs::ShootCmd srv;
 */
 
   float Bound[6]  = {0 , 1000 , 2000 , 3000 , 4000 , 5000};
-  // float OffsetPitch[6]  = {0, -1, -1.5, -2.5, -3.5, -4.5};
+  // test float OffsetPitch[6]  = {0, -1, -1.5, -2.5, -3.5, -4.5};
   float OffsetPitch[6]  = {3, 2, 1, 0, -0.5, -1.5};
 
 void GimbalContrl::CalcMembership(float value, float *membership, float *bound)
