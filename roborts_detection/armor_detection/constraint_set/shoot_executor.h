@@ -136,13 +136,14 @@ void Execute(){
     // }
     
     //mode 0 stop 1 once 2 continuous 
-    if (shooter_heat_ >30){
+    if (shooter_heat_ >120){
       shoot_cmd_.request.mode = 0;
       shoot_cmd_.request.number = 0;
     } else {
       shoot_cmd_.request.mode = 1;
       shoot_cmd_.request.number = 1;
     }
+    ROS_INFO("shoot_cmd_.request.mode:%d,shoot_cmd_.request.number:%d",(int)shoot_cmd_.request.mode,(int)shoot_cmd_.request.number);
 
 	}
   const int GetBulletNum() {

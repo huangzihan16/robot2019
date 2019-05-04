@@ -201,13 +201,13 @@ public:
                                                  actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleActiveCallback(),
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
 
-      back_camera_client_.waitForServer();
+      // back_camera_client_.waitForServer();
 
-      back_camera_goal_.command = 1;
-      back_camera_client_.sendGoal(back_camera_goal_,
-                                   actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
-                                   actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
-                                   boost::bind(&Blackboard::BackCameraCallback, this, _1));
+      // back_camera_goal_.command = 1;
+      // back_camera_client_.sendGoal(back_camera_goal_,
+      //                              actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
+      //                              actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
+      //                              boost::bind(&Blackboard::BackCameraCallback, this, _1));
     }
 		bullet_num_ = decision_config.initial_bullet_num();
     std::string partner_name = decision_config.partner_name();
