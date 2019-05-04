@@ -89,7 +89,8 @@ public:
 	~CachedMapCell() = default;
 	
 	bool FindChaseGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped self_pose, geometry_msgs::PoseStamped& goal_pose);
-	bool FindSupportGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped partner_pose, geometry_msgs::PoseStamped& goal_pose);
+	bool FindSupportGoal(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped partner_pose,
+                       geometry_msgs::PoseStamped self_pose, geometry_msgs::PoseStamped& goal_pose);
 	
 	bool IsGoalStillAvailable(geometry_msgs::PoseStamped enemy_pose, geometry_msgs::PoseStamped last_goal);
 private:
@@ -213,6 +214,8 @@ public:
     std::string partner_topic_sub = "/" + partner_name + "/partner_msg";
 		partner_sub_ = nh.subscribe<roborts_msgs::PartnerInformation>(partner_topic_sub, 1, &Blackboard::PartnerCallback, this);
 		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
+    test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
+    test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
     cachedmapforchaseandsupport_ptr_ =
 			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 3.0, 1.0, costmap_2d_));
   }
@@ -524,6 +527,8 @@ private:
 	/*******************Variables Used in Test Interface*******************/
   geometry_msgs::PoseStamped goal_;
   bool new_goal_;                     //这两个变量是rviz测试目标模式使用的变量
+  ros::Publisher test_support_publisher_;
+  ros::Publisher test_enemy_publisher_;
 
 	roborts_msgs::GimbalAngle cmd_gimbal_angle_;  //测试云台旋转的topic
 

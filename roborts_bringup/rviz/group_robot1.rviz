@@ -12,6 +12,8 @@ Panels:
         - /Map2
         - /Path1
         - /Path2
+        - /Pose1
+        - /Pose2
       Splitter Ratio: 0.5
     Tree Height: 713
   - Class: rviz/Selection
@@ -81,6 +83,8 @@ Visualization Manager:
           Value: true
         camera:
           Value: true
+        gimbal:
+          Value: true
         map:
           Value: true
         odom:
@@ -97,6 +101,8 @@ Visualization Manager:
               base_laser_link:
                 {}
               camera:
+                {}
+              gimbal:
                 {}
       Update Interval: 0
       Value: true
@@ -166,6 +172,36 @@ Visualization Manager:
       Topic: /robot1/local_planner_node/trajectory
       Unreliable: false
       Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /robot1/support_pose
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 0; 255
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /robot1/enemy_pose
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -206,10 +242,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.56979632
+      Pitch: 1.03979599
       Target Frame: map
       Value: ThirdPersonFollower (rviz)
-      Yaw: 1.80761385
+      Yaw: 1.55761313
     Saved: ~
 Window Geometry:
   Displays:
