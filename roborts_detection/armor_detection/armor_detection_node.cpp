@@ -157,18 +157,20 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
 }
 
 #define MAX_MIN_WHIRL_ANGLE     60*3.1415926/180
-#define WHIRL_SCAN_DELTA_ANGLE  6*3.1415926/180
+#define WHIRL_SCAN_DELTA_ANGLE  3*3.1415926/180
 void ArmorDetectionNode::ExecuteLoop() {
   undetected_count_ = 0;
                    static float direction = 1;
         static ros::Time last_time = ros::Time::now();
-        ros::Duration duration;
+        ros::Duration duration, enemy_duration;
         float delta_time;
         float BoundKy[6] = {-0.5,-0.05,0,0.05,0.2,0.75};
         float BoundKs[6] = {-0.5,-0.1,0,0.1,0.2,0.75};
         float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
         float Ks_[6] = {1,20,5000,20,10,1};
         float Ky, Ks;
+        float enemy_duration_time;
+        static ros::Time last_enemy_time = ros::Time::now();
 
   while(running_) {
     usleep(1);
@@ -182,36 +184,45 @@ void ArmorDetectionNode::ExecuteLoop() {
 
       if(detected_enemy_) {
         float pitch, yaw, speed, delta_yaw, all_yaw;
+        enemy_duration = ros::Time::now() - last_enemy_time;
+        enemy_duration_time = enemy_duration.toSec();
+        ROS_INFO("enemy_duration_time:%f",enemy_duration_time);
         gimbal_control_.Transform(armors[0].target_3d, pitch, yaw);
         
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
         gimbal_angle_.pitch_angle = pitch;
-        double gimbal_yaw = GetGimbalYaw();
-        delta_yaw = yaw;
-        all_yaw = gimbal_yaw + delta_yaw;
-        speed = all_yaw - last_yaw_;
-        last_yaw_ = all_yaw;
-        speed = kalmanfilter_.Update(all_yaw, speed);
-        ROS_INFO("yaw:%f" , yaw);
-        CalcMembership(yaw, MembershipKy, BoundKy);
-        CalcMembership(yaw, MembershipKs, BoundKs);
-        Ky = 0;
-        Ks = 0;
-        for (int i = 0; i < 6; i++){
-  		      if (MembershipKy[i] != 0){
-              Ky += Ky_[i] * MembershipKy[i] / 100;
-              Ks += Ks_[i] * MembershipKs[i] / 100;
-  		      }
+          double gimbal_yaw = GetGimbalYaw();
+          delta_yaw = yaw;
+          all_yaw = gimbal_yaw + delta_yaw;
+          speed = (all_yaw - last_yaw_) / 1;
+          ROS_INFO("all_yaw:%f, last_yaw_:%f, speed:%f",all_yaw,last_yaw_,speed);
+          last_yaw_ = all_yaw;
+
+        if (enemy_duration_time > 2 && yaw < 0.1){
+          //speed = kalmanfilter_.Update(all_yaw, speed);
+          CalcMembership(yaw, MembershipKy, BoundKy);
+          CalcMembership(yaw, MembershipKs, BoundKs);
+          Ky = 0;
+          Ks = 0;
+          for (int i = 0; i < 6; i++){
+  		        if (MembershipKy[i] != 0){
+                Ky += Ky_[i] * MembershipKy[i] / 100;
+                Ks += Ks_[i] * MembershipKs[i] / 100;
+  		        }
+          }
+        } else{
+          speed = 0;
         }
-        gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;
+        ROS_INFO("yaw:%f, speed:%f",yaw,speed);
+        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.8 * speed;
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
         //TODO ff
 
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
-        // std::cout << "enemy_x_shooter" << enemy_x_shooter << std::endl;
+        ROS_INFO("enemy_x_shooter:%f",enemy_x_shooter);
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 4000) {
           shoot_executor_.Execute();
         }
@@ -225,6 +236,8 @@ void ArmorDetectionNode::ExecuteLoop() {
         undetected_count_--;
         PublishMsgs();
       } else {
+        last_enemy_time = ros::Time::now();
+        last_yaw_ = GetGimbalYaw();
         duration = ros::Time::now() - last_time;
         delta_time = duration.toSec();
         double yaw = GetGimbalYaw();

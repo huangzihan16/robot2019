@@ -101,8 +101,21 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       ErrorInfo error_info(ErrorCode::STOP_DETECTION);
       return error_info;
     }
+    cv::Mat srcImg;
     read_index_ = cv_toolbox_->NextImage(src_img_);
     depth_img_=cv_toolbox_->depthImg;
+    // cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
+    //     std::vector< vector<Point> > contour;
+    //     std::vector<Point> pts;
+    //     pts.push_back(Point(0,180));
+    //     pts.push_back(Point(640,180));
+    //     pts.push_back(Point(640,480));
+    //     pts.push_back(Point(0,640));
+    //     contour.push_back(pts);
+    //     cv::drawContours(roi,contour,0,Scalar::all(255),-1);
+    //     srcImg.copyTo(src_img_,roi);
+
+
     if (read_index_ < 0) {
       // Reducing lock and unlock when accessing function 'NextImage'
       if (detection_time_ == 0) {
@@ -143,12 +156,11 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       show_armors_after_filter_ = src_img_.clone();
       cv::waitKey(1);
     }
-
+    armors.clear();
     DetectLights(src_img_, lights);
     //FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
-
 	//svm load
     vector<Point2f> ones, twos;           
     detect12FromImage(src_img_, ones, twos);//svm
@@ -160,6 +172,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     detected = false;
     if(!armors.empty()) {
       final_armor = SlectFinalArmor(armors);
+      if(!final_armor.empty()){
       if(final_armor.size()>0) detected = true;
       
       for(int i=0;i<final_armor.size();i++){
@@ -172,21 +185,22 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
         else if(final_armor[i].num == 0) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(255, 0, 0), 2,0);
         }
-	      CalcControlInfo(final_armor[i]);
+        CalcControlInfo(final_armor[i]);
+      }
       }
       
     }
     else{
         detected = false;
-        std::cout<<"undetected!!!!!!"<<std::endl;
     }     
     if(enable_debug_) {
       cv::imshow("relust_img_", src_img_);
     }
 
   lights.clear();
-  armors.clear();
+  //armors.clear();
   armors = final_armor;
+  final_armor.clear();
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
@@ -468,31 +482,15 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
     if (stddev > armor_max_stddev_ || mean > armor_max_mean_) {
       armor_iter = armors.erase(armor_iter);
+      std::cout<<"filter fot stddev or mean"<<std::endl;
     } else {
       armor_iter++;
     }
   }
-  
 
-  // nms
   std::vector<bool> is_armor(armors.size(), true);
-  for (int i = 0; i < armors.size() && is_armor[i] == true; i++) {
-    for (int j = i + 1; j < armors.size() && is_armor[j]; j++) {
-      float dx = armors[i].rect.center.x - armors[j].rect.center.x;
-      float dy = armors[i].rect.center.y - armors[j].rect.center.y;
-      float dis = std::sqrt(dx * dx + dy * dy);
-      if (dis < armors[i].rect.size.width + armors[j].rect.size.width) {
-        if (armors[i].rect.angle > armors[j].rect.angle) {
-          is_armor[i] = false;
-          //std::cout << "i: " << i << std::endl;
-        } else {
-          is_armor[j] = false;
-          //std::cout << "j: " << j << std::endl;
-        }
-      }
-    }
-  }
-  //========depth filter============
+
+    //========depth filter============
   for (int i = 0; i < armors.size() ; i++) {
     cv::Point2f corners[4];
     armors[i].rect.points(corners);
@@ -522,7 +520,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     }
     if(depth2z!=0){
       if(depth2y<thresh){
-        is_armor[i] = false;
+        is_armor[i] = false; 
       }
     }
     if(depth3z!=0){
@@ -533,6 +531,26 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     if(depthz!=0){
       if(depthy<thresh){
         is_armor[i] = false;
+      }
+    }
+  }
+  // nms
+  
+  for (int i = 0; i < armors.size() && is_armor[i] == true; i++) {
+    for (int j = i + 1; j < armors.size() && is_armor[j]; j++) {
+      float dx = armors[i].rect.center.x - armors[j].rect.center.x;
+      float dy = armors[i].rect.center.y - armors[j].rect.center.y;
+      float dis = std::sqrt(dx * dx + dy * dy);
+      if (dis < armors[i].rect.size.width + armors[j].rect.size.width) {
+        if (armors[i].rect.angle > armors[j].rect.angle) {
+          
+          is_armor[i] = false;
+         
+          //std::cout << "i: " << i << std::endl;
+        } else {
+          is_armor[j] = false;
+          //std::cout << "j: " << j << std::endl;
+        }
       }
     }
   }
@@ -596,16 +614,16 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   float depthy=(armor.rect.center.y-240)*depthz/387.4;
   if(depthy!=0){
   float depthx=(armor.rect.center.x-320)*depthz/387.4;
-  cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
-  cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
-  cv::imshow("depth",depth_img_*20);
+  //cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
+  //cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
+  //cv::imshow("depth",depth_img_*20);
   armor.target_3d.z=depthz;
   armor.target_3d.y=depthy;
   armor.target_3d.x=depthx;
   std::cout<<"==========from depth map=========="<<std::endl;
-  // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
-  // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
-  // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
+  std::cout<<"x-"<<armor.target_3d.x<<std::endl;
+  std::cout<<"y-"<<armor.target_3d.y<<std::endl;
+  std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }else{
   cv::solvePnP(armor_points_,
                armor.vertex,
@@ -614,7 +632,7 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
                rvec,
                tvec);
   armor.target_3d = cv::Point3f(tvec);
-  std::cout<<"==========from PnP=========="<<std::endl;
+  //std::cout<<"==========from PnP=========="<<std::endl;
   // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
   // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
   // std::cout<<"z-"<<armor.target_3d.z<<std::endl;

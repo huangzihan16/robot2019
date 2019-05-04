@@ -6,8 +6,8 @@ half_robot_length: 0.35
 
 initial_bullet_num: 20
 
-self_name: "robot1"
-partner_name: "robot2"
+self_name: "robot2"
+partner_name: "robot1"
 
 wing_bot {
   start_position {

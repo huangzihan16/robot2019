@@ -333,7 +333,7 @@ int main(int argc, char **argv) {
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 
   while(1)
-    behaviortree.Run();
+    //behaviortree.Run();
   
   ros::waitForShutdown();
   return 0;

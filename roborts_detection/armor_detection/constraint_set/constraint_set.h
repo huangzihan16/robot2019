@@ -232,6 +232,7 @@ class ConstraintSet : public ArmorDetectionBase {
   bool enable_debug_;
   bool using_hsv_;
   unsigned int enemy_color_;
+  int roiy_=80;
 
   //! Use for debug
   cv::Mat show_lights_before_filter_;
