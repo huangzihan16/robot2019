@@ -133,6 +133,12 @@ protected:
 
   //! control model
   GimbalContrl gimbal_control_;
+
+  //information of ky and ks
+  float BoundKy_[6];
+  float BoundKs_[6];
+  float Ky_[6];
+  float Ks_[6];
 };
 } //namespace roborts_detection
 

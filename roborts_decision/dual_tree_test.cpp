@@ -149,11 +149,12 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->HurtedPerSecond() > 400) {
+                                                                                                  ROS_INFO("DMP: %f",blackboard_ptr_->dmp_);
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::PreconditionNode> offensive_detect_enemy_condition_(new roborts_decision::PreconditionNode("offensive_detect_enemy_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->EnemyDetected()
@@ -332,7 +333,7 @@ int main(int argc, char **argv) {
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 
   while(1)
-    //behaviortree.Run();
+    behaviortree.Run();
   
   ros::waitForShutdown();
   return 0;

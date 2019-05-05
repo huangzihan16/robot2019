@@ -19,7 +19,7 @@ class TurnToHurtBehavior {
 
   void Run() {
     auto executor_state = Update();
-
+    // ROS_INFO("Executor_state: %d", (int)executor_state);
     if (executor_state != BehaviorState::RUNNING){
       double yaw;
       switch (blackboard_->GetDamageSource()){
