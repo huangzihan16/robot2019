@@ -141,6 +141,10 @@ void ChassisExecutor::SetMode(ExcutionMode mode)
   execution_mode_ = mode;
 }
 
+ChassisExecutor::ExcutionMode ChassisExecutor::GetMode(){
+  return execution_mode_;
+}
+
 
 void ChassisExecutor::GlobalPlannerFeedbackCallback(const roborts_msgs::GlobalPlannerFeedbackConstPtr& global_planner_feedback){
   if (!global_planner_feedback->path.poses.empty()) {

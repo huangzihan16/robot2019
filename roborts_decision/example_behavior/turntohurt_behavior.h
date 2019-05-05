@@ -74,15 +74,18 @@ class TurnBackBehavior {
 
   void Run() {
     auto executor_state = Update();
-
     if (executor_state != BehaviorState::RUNNING){
-      double yaw = M_PI;
-      geometry_msgs::PoseStamped back_pose;
-      auto quaternion = tf::createQuaternionMsgFromYaw(yaw);
-      back_pose.header.frame_id="base_link";
-      back_pose.header.stamp=ros::Time::now();
-      back_pose.pose.orientation=quaternion;
-      chassis_executor_->Execute(back_pose);
+      if(blackboard_->back_enemy_detected_){
+        double yaw = M_PI;
+        geometry_msgs::PoseStamped back_pose;
+        auto quaternion = tf::createQuaternionMsgFromYaw(yaw);
+        back_pose.header.frame_id="base_link";
+        back_pose.header.stamp=ros::Time::now();
+        back_pose.pose.orientation=quaternion;
+        chassis_executor_->Execute(back_pose);
+      }else{
+        return;
+      }
     }
   }
 

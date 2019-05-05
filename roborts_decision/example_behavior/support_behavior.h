@@ -19,7 +19,7 @@ class SupportBehavior {
       blackboard_(blackboard) { }
 
   void Run() {
-    gimbal_executor_->WhirlScan();
+    //gimbal_executor_->WhirlScan();
 
     chassis_executor_->Execute(blackboard_->GetPartnerEnemyPose());
   }
