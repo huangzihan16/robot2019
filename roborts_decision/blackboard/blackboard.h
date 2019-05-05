@@ -201,7 +201,6 @@ public:
                                                  boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
 
       back_camera_client_.waitForServer();
-
       back_camera_goal_.command = 1;
       back_camera_client_.sendGoal(back_camera_goal_,
                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleDoneCallback(),
