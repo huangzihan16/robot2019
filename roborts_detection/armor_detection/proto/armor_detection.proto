@@ -14,6 +14,51 @@ message ProjectileModelInfo {
     optional float init_k = 2;
 }
 
+message OffsetPitch {
+    required float offset0 = 1;
+    required float offset1 = 2;
+    required float offset2 = 3;
+    required float offset3 = 4;
+    required float offset4 = 5;
+    required float offset5 = 6;
+}
+
+message BoundKy {
+    required float boundky0 = 1;
+    required float boundky1 = 2;
+    required float boundky2 = 3;
+    required float boundky3 = 4;
+    required float boundky4 = 5;
+    required float boundky5 = 6;
+}
+
+message BoundKs {
+    required float boundks0 = 1;
+    required float boundks1 = 2;
+    required float boundks2 = 3;
+    required float boundks3 = 4;
+    required float boundks4 = 5;
+    required float boundks5 = 6;
+}
+
+message Ky {
+    required float ky0 = 1;
+    required float ky1 = 2;
+    required float ky2 = 3;
+    required float ky3 = 4;
+    required float ky4 = 5;
+    required float ky5 = 6;
+}
+
+message Ks {
+    required float ks0 = 1;
+    required float ks1 = 2;
+    required float ks2 = 3;
+    required float ks3 = 4;
+    required float ks4 = 5;
+    required float ks5 = 6;
+}
+
 message ArmorDetectionAlgorithms {
     repeated string name = 1;
     optional string selected_algorithm = 2;
@@ -21,4 +66,9 @@ message ArmorDetectionAlgorithms {
     optional string camera_name = 4;
     required CameraGimbalTransform camera_gimbal_transform= 5;
     optional ProjectileModelInfo projectile_model_info = 6;
+    required OffsetPitch offset_pitch_fuzzy = 7;
+    required BoundKy boundky = 8;
+    required BoundKs boundks = 9;
+    required Ky ky = 10;
+    required Ks ks = 11;
 }

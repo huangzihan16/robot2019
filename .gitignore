@@ -3,4 +3,3 @@
 .vscode/
 *.prototxt
 *.yaml
-gimbal_control.cpp

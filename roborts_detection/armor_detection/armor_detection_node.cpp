@@ -61,7 +61,39 @@ ErrorInfo ArmorDetectionNode::Init() {
                        armor_detection_param.camera_gimbal_transform().offset_pitch(),
                        armor_detection_param.camera_gimbal_transform().offset_yaw(), 
                        armor_detection_param.projectile_model_info().init_v(),
-                       armor_detection_param.projectile_model_info().init_k());
+                       armor_detection_param.projectile_model_info().init_k(),
+                       armor_detection_param.offset_pitch_fuzzy().offset0(),
+                       armor_detection_param.offset_pitch_fuzzy().offset1(),
+                       armor_detection_param.offset_pitch_fuzzy().offset2(),
+                       armor_detection_param.offset_pitch_fuzzy().offset3(),
+                       armor_detection_param.offset_pitch_fuzzy().offset4(),
+                       armor_detection_param.offset_pitch_fuzzy().offset5());
+
+  //Set information of ky and ks
+  BoundKy_[0] = armor_detection_param.boundky().boundky0();
+  BoundKy_[1] = armor_detection_param.boundky().boundky1();
+  BoundKy_[2] = armor_detection_param.boundky().boundky2();
+  BoundKy_[3] = armor_detection_param.boundky().boundky3();
+  BoundKy_[4] = armor_detection_param.boundky().boundky4();
+  BoundKy_[5] = armor_detection_param.boundky().boundky5();
+  BoundKs_[0] = armor_detection_param.boundks().boundks0();
+  BoundKs_[1] = armor_detection_param.boundks().boundks1();
+  BoundKs_[2] = armor_detection_param.boundks().boundks2();
+  BoundKs_[3] = armor_detection_param.boundks().boundks3();
+  BoundKs_[4] = armor_detection_param.boundks().boundks4();
+  BoundKs_[5] = armor_detection_param.boundks().boundks5();
+  Ky_[0] = armor_detection_param.ky().ky0();
+  Ky_[1] = armor_detection_param.ky().ky1();
+  Ky_[2] = armor_detection_param.ky().ky2();
+  Ky_[3] = armor_detection_param.ky().ky3();
+  Ky_[4] = armor_detection_param.ky().ky4();
+  Ky_[5] = armor_detection_param.ky().ky5();
+  Ks_[0] = armor_detection_param.ks().ks0();
+  Ks_[1] = armor_detection_param.ks().ks1();
+  Ks_[2] = armor_detection_param.ks().ks2();
+  Ks_[3] = armor_detection_param.ks().ks3();
+  Ks_[4] = armor_detection_param.ks().ks4();
+  Ks_[5] = armor_detection_param.ks().ks5();
 
   //create the selected algorithms
   std::string selected_algorithm = armor_detection_param.selected_algorithm();
@@ -164,10 +196,10 @@ void ArmorDetectionNode::ExecuteLoop() {
         static ros::Time last_time = ros::Time::now();
         ros::Duration duration, enemy_duration;
         float delta_time;
-        float BoundKy[6] = {-0.5,-0.05,0,0.05,0.2,0.75};
-        float BoundKs[6] = {-0.5,-0.1,0,0.1,0.2,0.75};
-        float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
-        float Ks_[6] = {1,20,5000,20,10,1};
+        // float BoundKy[6] = {-0.5,-0.05,0,0.05,0.2,0.75};
+        // float BoundKs[6] = {-0.5,-0.1,0,0.1,0.2,0.75};
+        // float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
+        // float Ks_[6] = {1,20,5000,20,10,1};
         float Ky, Ks;
         float enemy_duration_time;
         static ros::Time last_enemy_time = ros::Time::now();
@@ -201,8 +233,8 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         if (enemy_duration_time > 2 && yaw < 0.1){
           //speed = kalmanfilter_.Update(all_yaw, speed);
-          CalcMembership(yaw, MembershipKy, BoundKy);
-          CalcMembership(yaw, MembershipKs, BoundKs);
+          CalcMembership(yaw, MembershipKy, BoundKy_);
+          CalcMembership(yaw, MembershipKs, BoundKs_);
           Ky = 0;
           Ks = 0;
           for (int i = 0; i < 6; i++){
@@ -215,7 +247,7 @@ void ArmorDetectionNode::ExecuteLoop() {
           speed = 0;
         }
         ROS_INFO("yaw:%f, speed:%f",yaw,speed);
-        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.7 * speed;
+        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.6 * speed;
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();

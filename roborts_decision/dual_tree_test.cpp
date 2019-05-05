@@ -149,6 +149,7 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->HurtedPerSecond() > 400) {
+                                                                                                  ROS_INFO("DMP: %f",blackboard_ptr_->dmp_);
 																																																	return true;
 																																																} else {
 																																																	return false;

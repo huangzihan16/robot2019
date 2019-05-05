@@ -44,7 +44,7 @@ ConstraintSet::ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox):
 
 void ConstraintSet::LoadParam() {
   //read parameters
-  model = svm_load_model("/home/ubuntu4/roborts_ws/src/icra/roborts_detection/armor_detection/constraint_set/contourHOG_SVM");
+  model = svm_load_model("/home/ubuntu3/roborts_ws/src/icra/roborts_detection/armor_detection/constraint_set/contourHOG_SVM");
   ConstraintSetConfig constraint_set_config_;
   std::string file_name = ros::package::getPath("roborts_detection") + \
       "/armor_detection/constraint_set/config/constraint_set.prototxt";

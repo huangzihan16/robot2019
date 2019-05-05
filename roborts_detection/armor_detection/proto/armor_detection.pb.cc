@@ -26,6 +26,21 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ProjectileModelInfo_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ProjectileModelInfo_reflection_ = NULL;
+const ::google::protobuf::Descriptor* OffsetPitch_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  OffsetPitch_reflection_ = NULL;
+const ::google::protobuf::Descriptor* BoundKy_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  BoundKy_reflection_ = NULL;
+const ::google::protobuf::Descriptor* BoundKs_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  BoundKs_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Ky_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Ky_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Ks_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Ks_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ArmorDetectionAlgorithms_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ArmorDetectionAlgorithms_reflection_ = NULL;
@@ -74,14 +89,119 @@ void protobuf_AssignDesc_armor_5fdetection_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ProjectileModelInfo));
-  ArmorDetectionAlgorithms_descriptor_ = file->message_type(2);
-  static const int ArmorDetectionAlgorithms_offsets_[6] = {
+  OffsetPitch_descriptor_ = file->message_type(2);
+  static const int OffsetPitch_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset3_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset4_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, offset5_),
+  };
+  OffsetPitch_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      OffsetPitch_descriptor_,
+      OffsetPitch::default_instance_,
+      OffsetPitch_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OffsetPitch, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(OffsetPitch));
+  BoundKy_descriptor_ = file->message_type(3);
+  static const int BoundKy_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky3_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky4_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, boundky5_),
+  };
+  BoundKy_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      BoundKy_descriptor_,
+      BoundKy::default_instance_,
+      BoundKy_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKy, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(BoundKy));
+  BoundKs_descriptor_ = file->message_type(4);
+  static const int BoundKs_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks3_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks4_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, boundks5_),
+  };
+  BoundKs_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      BoundKs_descriptor_,
+      BoundKs::default_instance_,
+      BoundKs_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundKs, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(BoundKs));
+  Ky_descriptor_ = file->message_type(5);
+  static const int Ky_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky3_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky4_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, ky5_),
+  };
+  Ky_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Ky_descriptor_,
+      Ky::default_instance_,
+      Ky_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ky, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Ky));
+  Ks_descriptor_ = file->message_type(6);
+  static const int Ks_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks0_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks1_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks2_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks3_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks4_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, ks5_),
+  };
+  Ks_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Ks_descriptor_,
+      Ks::default_instance_,
+      Ks_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Ks, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Ks));
+  ArmorDetectionAlgorithms_descriptor_ = file->message_type(7);
+  static const int ArmorDetectionAlgorithms_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, selected_algorithm_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, undetected_armor_delay_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, camera_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, camera_gimbal_transform_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, projectile_model_info_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, offset_pitch_fuzzy_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, boundky_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, boundks_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, ky_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, ks_),
   };
   ArmorDetectionAlgorithms_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -111,6 +231,16 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ProjectileModelInfo_descriptor_, &ProjectileModelInfo::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    OffsetPitch_descriptor_, &OffsetPitch::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    BoundKy_descriptor_, &BoundKy::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    BoundKs_descriptor_, &BoundKs::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Ky_descriptor_, &Ky::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Ks_descriptor_, &Ks::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ArmorDetectionAlgorithms_descriptor_, &ArmorDetectionAlgorithms::default_instance());
 }
 
@@ -121,6 +251,16 @@ void protobuf_ShutdownFile_armor_5fdetection_2eproto() {
   delete CameraGimbalTransform_reflection_;
   delete ProjectileModelInfo::default_instance_;
   delete ProjectileModelInfo_reflection_;
+  delete OffsetPitch::default_instance_;
+  delete OffsetPitch_reflection_;
+  delete BoundKy::default_instance_;
+  delete BoundKy_reflection_;
+  delete BoundKs::default_instance_;
+  delete BoundKs_reflection_;
+  delete Ky::default_instance_;
+  delete Ky_reflection_;
+  delete Ks::default_instance_;
+  delete Ks_reflection_;
   delete ArmorDetectionAlgorithms::default_instance_;
   delete ArmorDetectionAlgorithms_reflection_;
 }
@@ -137,21 +277,49 @@ void protobuf_AddDesc_armor_5fdetection_2eproto() {
     "\001 \002(\002\022\020\n\010offset_y\030\002 \002(\002\022\020\n\010offset_z\030\003 \002("
     "\002\022\024\n\014offset_pitch\030\004 \002(\002\022\022\n\noffset_yaw\030\005 "
     "\002(\002\"5\n\023ProjectileModelInfo\022\016\n\006init_v\030\001 \001"
-    "(\002\022\016\n\006init_k\030\002 \001(\002\"\213\002\n\030ArmorDetectionAlg"
-    "orithms\022\014\n\004name\030\001 \003(\t\022\032\n\022selected_algori"
-    "thm\030\002 \001(\t\022\036\n\026undetected_armor_delay\030\003 \001("
-    "\r\022\023\n\013camera_name\030\004 \001(\t\022I\n\027camera_gimbal_"
-    "transform\030\005 \002(\0132(.roborts_detection.Came"
-    "raGimbalTransform\022E\n\025projectile_model_in"
-    "fo\030\006 \001(\0132&.roborts_detection.ProjectileM"
-    "odelInfo", 488);
+    "(\002\022\016\n\006init_k\030\002 \001(\002\"s\n\013OffsetPitch\022\017\n\007off"
+    "set0\030\001 \002(\002\022\017\n\007offset1\030\002 \002(\002\022\017\n\007offset2\030\003"
+    " \002(\002\022\017\n\007offset3\030\004 \002(\002\022\017\n\007offset4\030\005 \002(\002\022\017"
+    "\n\007offset5\030\006 \002(\002\"u\n\007BoundKy\022\020\n\010boundky0\030\001"
+    " \002(\002\022\020\n\010boundky1\030\002 \002(\002\022\020\n\010boundky2\030\003 \002(\002"
+    "\022\020\n\010boundky3\030\004 \002(\002\022\020\n\010boundky4\030\005 \002(\002\022\020\n\010"
+    "boundky5\030\006 \002(\002\"u\n\007BoundKs\022\020\n\010boundks0\030\001 "
+    "\002(\002\022\020\n\010boundks1\030\002 \002(\002\022\020\n\010boundks2\030\003 \002(\002\022"
+    "\020\n\010boundks3\030\004 \002(\002\022\020\n\010boundks4\030\005 \002(\002\022\020\n\010b"
+    "oundks5\030\006 \002(\002\"R\n\002Ky\022\013\n\003ky0\030\001 \002(\002\022\013\n\003ky1\030"
+    "\002 \002(\002\022\013\n\003ky2\030\003 \002(\002\022\013\n\003ky3\030\004 \002(\002\022\013\n\003ky4\030\005"
+    " \002(\002\022\013\n\003ky5\030\006 \002(\002\"R\n\002Ks\022\013\n\003ks0\030\001 \002(\002\022\013\n\003"
+    "ks1\030\002 \002(\002\022\013\n\003ks2\030\003 \002(\002\022\013\n\003ks3\030\004 \002(\002\022\013\n\003k"
+    "s4\030\005 \002(\002\022\013\n\003ks5\030\006 \002(\002\"\347\003\n\030ArmorDetection"
+    "Algorithms\022\014\n\004name\030\001 \003(\t\022\032\n\022selected_alg"
+    "orithm\030\002 \001(\t\022\036\n\026undetected_armor_delay\030\003"
+    " \001(\r\022\023\n\013camera_name\030\004 \001(\t\022I\n\027camera_gimb"
+    "al_transform\030\005 \002(\0132(.roborts_detection.C"
+    "ameraGimbalTransform\022E\n\025projectile_model"
+    "_info\030\006 \001(\0132&.roborts_detection.Projecti"
+    "leModelInfo\022:\n\022offset_pitch_fuzzy\030\007 \002(\0132"
+    "\036.roborts_detection.OffsetPitch\022+\n\007bound"
+    "ky\030\010 \002(\0132\032.roborts_detection.BoundKy\022+\n\007"
+    "boundks\030\t \002(\0132\032.roborts_detection.BoundK"
+    "s\022!\n\002ky\030\n \002(\0132\025.roborts_detection.Ky\022!\n\002"
+    "ks\030\013 \002(\0132\025.roborts_detection.Ks", 1231);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "armor_detection.proto", &protobuf_RegisterTypes);
   CameraGimbalTransform::default_instance_ = new CameraGimbalTransform();
   ProjectileModelInfo::default_instance_ = new ProjectileModelInfo();
+  OffsetPitch::default_instance_ = new OffsetPitch();
+  BoundKy::default_instance_ = new BoundKy();
+  BoundKs::default_instance_ = new BoundKs();
+  Ky::default_instance_ = new Ky();
+  Ks::default_instance_ = new Ks();
   ArmorDetectionAlgorithms::default_instance_ = new ArmorDetectionAlgorithms();
   CameraGimbalTransform::default_instance_->InitAsDefaultInstance();
   ProjectileModelInfo::default_instance_->InitAsDefaultInstance();
+  OffsetPitch::default_instance_->InitAsDefaultInstance();
+  BoundKy::default_instance_->InitAsDefaultInstance();
+  BoundKs::default_instance_->InitAsDefaultInstance();
+  Ky::default_instance_->InitAsDefaultInstance();
+  Ks::default_instance_->InitAsDefaultInstance();
   ArmorDetectionAlgorithms::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_armor_5fdetection_2eproto);
 }
@@ -817,12 +985,2102 @@ void ProjectileModelInfo::Swap(ProjectileModelInfo* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int OffsetPitch::kOffset0FieldNumber;
+const int OffsetPitch::kOffset1FieldNumber;
+const int OffsetPitch::kOffset2FieldNumber;
+const int OffsetPitch::kOffset3FieldNumber;
+const int OffsetPitch::kOffset4FieldNumber;
+const int OffsetPitch::kOffset5FieldNumber;
+#endif  // !_MSC_VER
+
+OffsetPitch::OffsetPitch()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.OffsetPitch)
+}
+
+void OffsetPitch::InitAsDefaultInstance() {
+}
+
+OffsetPitch::OffsetPitch(const OffsetPitch& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.OffsetPitch)
+}
+
+void OffsetPitch::SharedCtor() {
+  _cached_size_ = 0;
+  offset0_ = 0;
+  offset1_ = 0;
+  offset2_ = 0;
+  offset3_ = 0;
+  offset4_ = 0;
+  offset5_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+OffsetPitch::~OffsetPitch() {
+  // @@protoc_insertion_point(destructor:roborts_detection.OffsetPitch)
+  SharedDtor();
+}
+
+void OffsetPitch::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void OffsetPitch::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* OffsetPitch::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return OffsetPitch_descriptor_;
+}
+
+const OffsetPitch& OffsetPitch::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+OffsetPitch* OffsetPitch::default_instance_ = NULL;
+
+OffsetPitch* OffsetPitch::New() const {
+  return new OffsetPitch;
+}
+
+void OffsetPitch::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<OffsetPitch*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(offset0_, offset5_);
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool OffsetPitch::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.OffsetPitch)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float offset0 = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset0_)));
+          set_has_offset0();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_offset1;
+        break;
+      }
+
+      // required float offset1 = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_offset1:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset1_)));
+          set_has_offset1();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_offset2;
+        break;
+      }
+
+      // required float offset2 = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_offset2:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset2_)));
+          set_has_offset2();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_offset3;
+        break;
+      }
+
+      // required float offset3 = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_offset3:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset3_)));
+          set_has_offset3();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(45)) goto parse_offset4;
+        break;
+      }
+
+      // required float offset4 = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_offset4:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset4_)));
+          set_has_offset4();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_offset5;
+        break;
+      }
+
+      // required float offset5 = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_offset5:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &offset5_)));
+          set_has_offset5();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.OffsetPitch)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.OffsetPitch)
+  return false;
+#undef DO_
+}
+
+void OffsetPitch::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.OffsetPitch)
+  // required float offset0 = 1;
+  if (has_offset0()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->offset0(), output);
+  }
+
+  // required float offset1 = 2;
+  if (has_offset1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->offset1(), output);
+  }
+
+  // required float offset2 = 3;
+  if (has_offset2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->offset2(), output);
+  }
+
+  // required float offset3 = 4;
+  if (has_offset3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->offset3(), output);
+  }
+
+  // required float offset4 = 5;
+  if (has_offset4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->offset4(), output);
+  }
+
+  // required float offset5 = 6;
+  if (has_offset5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->offset5(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.OffsetPitch)
+}
+
+::google::protobuf::uint8* OffsetPitch::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.OffsetPitch)
+  // required float offset0 = 1;
+  if (has_offset0()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->offset0(), target);
+  }
+
+  // required float offset1 = 2;
+  if (has_offset1()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->offset1(), target);
+  }
+
+  // required float offset2 = 3;
+  if (has_offset2()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->offset2(), target);
+  }
+
+  // required float offset3 = 4;
+  if (has_offset3()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->offset3(), target);
+  }
+
+  // required float offset4 = 5;
+  if (has_offset4()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->offset4(), target);
+  }
+
+  // required float offset5 = 6;
+  if (has_offset5()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->offset5(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.OffsetPitch)
+  return target;
+}
+
+int OffsetPitch::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float offset0 = 1;
+    if (has_offset0()) {
+      total_size += 1 + 4;
+    }
+
+    // required float offset1 = 2;
+    if (has_offset1()) {
+      total_size += 1 + 4;
+    }
+
+    // required float offset2 = 3;
+    if (has_offset2()) {
+      total_size += 1 + 4;
+    }
+
+    // required float offset3 = 4;
+    if (has_offset3()) {
+      total_size += 1 + 4;
+    }
+
+    // required float offset4 = 5;
+    if (has_offset4()) {
+      total_size += 1 + 4;
+    }
+
+    // required float offset5 = 6;
+    if (has_offset5()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void OffsetPitch::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const OffsetPitch* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const OffsetPitch*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void OffsetPitch::MergeFrom(const OffsetPitch& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_offset0()) {
+      set_offset0(from.offset0());
+    }
+    if (from.has_offset1()) {
+      set_offset1(from.offset1());
+    }
+    if (from.has_offset2()) {
+      set_offset2(from.offset2());
+    }
+    if (from.has_offset3()) {
+      set_offset3(from.offset3());
+    }
+    if (from.has_offset4()) {
+      set_offset4(from.offset4());
+    }
+    if (from.has_offset5()) {
+      set_offset5(from.offset5());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void OffsetPitch::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void OffsetPitch::CopyFrom(const OffsetPitch& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool OffsetPitch::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void OffsetPitch::Swap(OffsetPitch* other) {
+  if (other != this) {
+    std::swap(offset0_, other->offset0_);
+    std::swap(offset1_, other->offset1_);
+    std::swap(offset2_, other->offset2_);
+    std::swap(offset3_, other->offset3_);
+    std::swap(offset4_, other->offset4_);
+    std::swap(offset5_, other->offset5_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata OffsetPitch::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = OffsetPitch_descriptor_;
+  metadata.reflection = OffsetPitch_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int BoundKy::kBoundky0FieldNumber;
+const int BoundKy::kBoundky1FieldNumber;
+const int BoundKy::kBoundky2FieldNumber;
+const int BoundKy::kBoundky3FieldNumber;
+const int BoundKy::kBoundky4FieldNumber;
+const int BoundKy::kBoundky5FieldNumber;
+#endif  // !_MSC_VER
+
+BoundKy::BoundKy()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.BoundKy)
+}
+
+void BoundKy::InitAsDefaultInstance() {
+}
+
+BoundKy::BoundKy(const BoundKy& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.BoundKy)
+}
+
+void BoundKy::SharedCtor() {
+  _cached_size_ = 0;
+  boundky0_ = 0;
+  boundky1_ = 0;
+  boundky2_ = 0;
+  boundky3_ = 0;
+  boundky4_ = 0;
+  boundky5_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+BoundKy::~BoundKy() {
+  // @@protoc_insertion_point(destructor:roborts_detection.BoundKy)
+  SharedDtor();
+}
+
+void BoundKy::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void BoundKy::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* BoundKy::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return BoundKy_descriptor_;
+}
+
+const BoundKy& BoundKy::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+BoundKy* BoundKy::default_instance_ = NULL;
+
+BoundKy* BoundKy::New() const {
+  return new BoundKy;
+}
+
+void BoundKy::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<BoundKy*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(boundky0_, boundky5_);
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool BoundKy::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.BoundKy)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float boundky0 = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky0_)));
+          set_has_boundky0();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_boundky1;
+        break;
+      }
+
+      // required float boundky1 = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_boundky1:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky1_)));
+          set_has_boundky1();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_boundky2;
+        break;
+      }
+
+      // required float boundky2 = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_boundky2:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky2_)));
+          set_has_boundky2();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_boundky3;
+        break;
+      }
+
+      // required float boundky3 = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_boundky3:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky3_)));
+          set_has_boundky3();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(45)) goto parse_boundky4;
+        break;
+      }
+
+      // required float boundky4 = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_boundky4:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky4_)));
+          set_has_boundky4();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_boundky5;
+        break;
+      }
+
+      // required float boundky5 = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_boundky5:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundky5_)));
+          set_has_boundky5();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.BoundKy)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.BoundKy)
+  return false;
+#undef DO_
+}
+
+void BoundKy::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.BoundKy)
+  // required float boundky0 = 1;
+  if (has_boundky0()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->boundky0(), output);
+  }
+
+  // required float boundky1 = 2;
+  if (has_boundky1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->boundky1(), output);
+  }
+
+  // required float boundky2 = 3;
+  if (has_boundky2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->boundky2(), output);
+  }
+
+  // required float boundky3 = 4;
+  if (has_boundky3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->boundky3(), output);
+  }
+
+  // required float boundky4 = 5;
+  if (has_boundky4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->boundky4(), output);
+  }
+
+  // required float boundky5 = 6;
+  if (has_boundky5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->boundky5(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.BoundKy)
+}
+
+::google::protobuf::uint8* BoundKy::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.BoundKy)
+  // required float boundky0 = 1;
+  if (has_boundky0()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->boundky0(), target);
+  }
+
+  // required float boundky1 = 2;
+  if (has_boundky1()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->boundky1(), target);
+  }
+
+  // required float boundky2 = 3;
+  if (has_boundky2()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->boundky2(), target);
+  }
+
+  // required float boundky3 = 4;
+  if (has_boundky3()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->boundky3(), target);
+  }
+
+  // required float boundky4 = 5;
+  if (has_boundky4()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->boundky4(), target);
+  }
+
+  // required float boundky5 = 6;
+  if (has_boundky5()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->boundky5(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.BoundKy)
+  return target;
+}
+
+int BoundKy::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float boundky0 = 1;
+    if (has_boundky0()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundky1 = 2;
+    if (has_boundky1()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundky2 = 3;
+    if (has_boundky2()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundky3 = 4;
+    if (has_boundky3()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundky4 = 5;
+    if (has_boundky4()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundky5 = 6;
+    if (has_boundky5()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void BoundKy::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const BoundKy* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const BoundKy*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void BoundKy::MergeFrom(const BoundKy& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_boundky0()) {
+      set_boundky0(from.boundky0());
+    }
+    if (from.has_boundky1()) {
+      set_boundky1(from.boundky1());
+    }
+    if (from.has_boundky2()) {
+      set_boundky2(from.boundky2());
+    }
+    if (from.has_boundky3()) {
+      set_boundky3(from.boundky3());
+    }
+    if (from.has_boundky4()) {
+      set_boundky4(from.boundky4());
+    }
+    if (from.has_boundky5()) {
+      set_boundky5(from.boundky5());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void BoundKy::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void BoundKy::CopyFrom(const BoundKy& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BoundKy::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void BoundKy::Swap(BoundKy* other) {
+  if (other != this) {
+    std::swap(boundky0_, other->boundky0_);
+    std::swap(boundky1_, other->boundky1_);
+    std::swap(boundky2_, other->boundky2_);
+    std::swap(boundky3_, other->boundky3_);
+    std::swap(boundky4_, other->boundky4_);
+    std::swap(boundky5_, other->boundky5_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata BoundKy::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = BoundKy_descriptor_;
+  metadata.reflection = BoundKy_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int BoundKs::kBoundks0FieldNumber;
+const int BoundKs::kBoundks1FieldNumber;
+const int BoundKs::kBoundks2FieldNumber;
+const int BoundKs::kBoundks3FieldNumber;
+const int BoundKs::kBoundks4FieldNumber;
+const int BoundKs::kBoundks5FieldNumber;
+#endif  // !_MSC_VER
+
+BoundKs::BoundKs()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.BoundKs)
+}
+
+void BoundKs::InitAsDefaultInstance() {
+}
+
+BoundKs::BoundKs(const BoundKs& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.BoundKs)
+}
+
+void BoundKs::SharedCtor() {
+  _cached_size_ = 0;
+  boundks0_ = 0;
+  boundks1_ = 0;
+  boundks2_ = 0;
+  boundks3_ = 0;
+  boundks4_ = 0;
+  boundks5_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+BoundKs::~BoundKs() {
+  // @@protoc_insertion_point(destructor:roborts_detection.BoundKs)
+  SharedDtor();
+}
+
+void BoundKs::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void BoundKs::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* BoundKs::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return BoundKs_descriptor_;
+}
+
+const BoundKs& BoundKs::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+BoundKs* BoundKs::default_instance_ = NULL;
+
+BoundKs* BoundKs::New() const {
+  return new BoundKs;
+}
+
+void BoundKs::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<BoundKs*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(boundks0_, boundks5_);
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool BoundKs::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.BoundKs)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float boundks0 = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks0_)));
+          set_has_boundks0();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_boundks1;
+        break;
+      }
+
+      // required float boundks1 = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_boundks1:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks1_)));
+          set_has_boundks1();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_boundks2;
+        break;
+      }
+
+      // required float boundks2 = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_boundks2:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks2_)));
+          set_has_boundks2();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_boundks3;
+        break;
+      }
+
+      // required float boundks3 = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_boundks3:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks3_)));
+          set_has_boundks3();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(45)) goto parse_boundks4;
+        break;
+      }
+
+      // required float boundks4 = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_boundks4:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks4_)));
+          set_has_boundks4();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_boundks5;
+        break;
+      }
+
+      // required float boundks5 = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_boundks5:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &boundks5_)));
+          set_has_boundks5();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.BoundKs)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.BoundKs)
+  return false;
+#undef DO_
+}
+
+void BoundKs::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.BoundKs)
+  // required float boundks0 = 1;
+  if (has_boundks0()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->boundks0(), output);
+  }
+
+  // required float boundks1 = 2;
+  if (has_boundks1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->boundks1(), output);
+  }
+
+  // required float boundks2 = 3;
+  if (has_boundks2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->boundks2(), output);
+  }
+
+  // required float boundks3 = 4;
+  if (has_boundks3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->boundks3(), output);
+  }
+
+  // required float boundks4 = 5;
+  if (has_boundks4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->boundks4(), output);
+  }
+
+  // required float boundks5 = 6;
+  if (has_boundks5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->boundks5(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.BoundKs)
+}
+
+::google::protobuf::uint8* BoundKs::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.BoundKs)
+  // required float boundks0 = 1;
+  if (has_boundks0()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->boundks0(), target);
+  }
+
+  // required float boundks1 = 2;
+  if (has_boundks1()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->boundks1(), target);
+  }
+
+  // required float boundks2 = 3;
+  if (has_boundks2()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->boundks2(), target);
+  }
+
+  // required float boundks3 = 4;
+  if (has_boundks3()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->boundks3(), target);
+  }
+
+  // required float boundks4 = 5;
+  if (has_boundks4()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->boundks4(), target);
+  }
+
+  // required float boundks5 = 6;
+  if (has_boundks5()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->boundks5(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.BoundKs)
+  return target;
+}
+
+int BoundKs::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float boundks0 = 1;
+    if (has_boundks0()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundks1 = 2;
+    if (has_boundks1()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundks2 = 3;
+    if (has_boundks2()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundks3 = 4;
+    if (has_boundks3()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundks4 = 5;
+    if (has_boundks4()) {
+      total_size += 1 + 4;
+    }
+
+    // required float boundks5 = 6;
+    if (has_boundks5()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void BoundKs::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const BoundKs* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const BoundKs*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void BoundKs::MergeFrom(const BoundKs& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_boundks0()) {
+      set_boundks0(from.boundks0());
+    }
+    if (from.has_boundks1()) {
+      set_boundks1(from.boundks1());
+    }
+    if (from.has_boundks2()) {
+      set_boundks2(from.boundks2());
+    }
+    if (from.has_boundks3()) {
+      set_boundks3(from.boundks3());
+    }
+    if (from.has_boundks4()) {
+      set_boundks4(from.boundks4());
+    }
+    if (from.has_boundks5()) {
+      set_boundks5(from.boundks5());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void BoundKs::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void BoundKs::CopyFrom(const BoundKs& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BoundKs::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void BoundKs::Swap(BoundKs* other) {
+  if (other != this) {
+    std::swap(boundks0_, other->boundks0_);
+    std::swap(boundks1_, other->boundks1_);
+    std::swap(boundks2_, other->boundks2_);
+    std::swap(boundks3_, other->boundks3_);
+    std::swap(boundks4_, other->boundks4_);
+    std::swap(boundks5_, other->boundks5_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata BoundKs::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = BoundKs_descriptor_;
+  metadata.reflection = BoundKs_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Ky::kKy0FieldNumber;
+const int Ky::kKy1FieldNumber;
+const int Ky::kKy2FieldNumber;
+const int Ky::kKy3FieldNumber;
+const int Ky::kKy4FieldNumber;
+const int Ky::kKy5FieldNumber;
+#endif  // !_MSC_VER
+
+Ky::Ky()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.Ky)
+}
+
+void Ky::InitAsDefaultInstance() {
+}
+
+Ky::Ky(const Ky& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.Ky)
+}
+
+void Ky::SharedCtor() {
+  _cached_size_ = 0;
+  ky0_ = 0;
+  ky1_ = 0;
+  ky2_ = 0;
+  ky3_ = 0;
+  ky4_ = 0;
+  ky5_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Ky::~Ky() {
+  // @@protoc_insertion_point(destructor:roborts_detection.Ky)
+  SharedDtor();
+}
+
+void Ky::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void Ky::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Ky::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Ky_descriptor_;
+}
+
+const Ky& Ky::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+Ky* Ky::default_instance_ = NULL;
+
+Ky* Ky::New() const {
+  return new Ky;
+}
+
+void Ky::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Ky*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(ky0_, ky5_);
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Ky::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.Ky)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float ky0 = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky0_)));
+          set_has_ky0();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_ky1;
+        break;
+      }
+
+      // required float ky1 = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_ky1:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky1_)));
+          set_has_ky1();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_ky2;
+        break;
+      }
+
+      // required float ky2 = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_ky2:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky2_)));
+          set_has_ky2();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_ky3;
+        break;
+      }
+
+      // required float ky3 = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_ky3:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky3_)));
+          set_has_ky3();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(45)) goto parse_ky4;
+        break;
+      }
+
+      // required float ky4 = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_ky4:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky4_)));
+          set_has_ky4();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_ky5;
+        break;
+      }
+
+      // required float ky5 = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_ky5:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ky5_)));
+          set_has_ky5();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.Ky)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.Ky)
+  return false;
+#undef DO_
+}
+
+void Ky::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.Ky)
+  // required float ky0 = 1;
+  if (has_ky0()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->ky0(), output);
+  }
+
+  // required float ky1 = 2;
+  if (has_ky1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->ky1(), output);
+  }
+
+  // required float ky2 = 3;
+  if (has_ky2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->ky2(), output);
+  }
+
+  // required float ky3 = 4;
+  if (has_ky3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->ky3(), output);
+  }
+
+  // required float ky4 = 5;
+  if (has_ky4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->ky4(), output);
+  }
+
+  // required float ky5 = 6;
+  if (has_ky5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->ky5(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.Ky)
+}
+
+::google::protobuf::uint8* Ky::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.Ky)
+  // required float ky0 = 1;
+  if (has_ky0()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->ky0(), target);
+  }
+
+  // required float ky1 = 2;
+  if (has_ky1()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->ky1(), target);
+  }
+
+  // required float ky2 = 3;
+  if (has_ky2()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->ky2(), target);
+  }
+
+  // required float ky3 = 4;
+  if (has_ky3()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->ky3(), target);
+  }
+
+  // required float ky4 = 5;
+  if (has_ky4()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->ky4(), target);
+  }
+
+  // required float ky5 = 6;
+  if (has_ky5()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->ky5(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.Ky)
+  return target;
+}
+
+int Ky::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float ky0 = 1;
+    if (has_ky0()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ky1 = 2;
+    if (has_ky1()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ky2 = 3;
+    if (has_ky2()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ky3 = 4;
+    if (has_ky3()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ky4 = 5;
+    if (has_ky4()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ky5 = 6;
+    if (has_ky5()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Ky::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Ky* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Ky*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Ky::MergeFrom(const Ky& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_ky0()) {
+      set_ky0(from.ky0());
+    }
+    if (from.has_ky1()) {
+      set_ky1(from.ky1());
+    }
+    if (from.has_ky2()) {
+      set_ky2(from.ky2());
+    }
+    if (from.has_ky3()) {
+      set_ky3(from.ky3());
+    }
+    if (from.has_ky4()) {
+      set_ky4(from.ky4());
+    }
+    if (from.has_ky5()) {
+      set_ky5(from.ky5());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Ky::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Ky::CopyFrom(const Ky& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Ky::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void Ky::Swap(Ky* other) {
+  if (other != this) {
+    std::swap(ky0_, other->ky0_);
+    std::swap(ky1_, other->ky1_);
+    std::swap(ky2_, other->ky2_);
+    std::swap(ky3_, other->ky3_);
+    std::swap(ky4_, other->ky4_);
+    std::swap(ky5_, other->ky5_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Ky::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Ky_descriptor_;
+  metadata.reflection = Ky_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Ks::kKs0FieldNumber;
+const int Ks::kKs1FieldNumber;
+const int Ks::kKs2FieldNumber;
+const int Ks::kKs3FieldNumber;
+const int Ks::kKs4FieldNumber;
+const int Ks::kKs5FieldNumber;
+#endif  // !_MSC_VER
+
+Ks::Ks()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.Ks)
+}
+
+void Ks::InitAsDefaultInstance() {
+}
+
+Ks::Ks(const Ks& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.Ks)
+}
+
+void Ks::SharedCtor() {
+  _cached_size_ = 0;
+  ks0_ = 0;
+  ks1_ = 0;
+  ks2_ = 0;
+  ks3_ = 0;
+  ks4_ = 0;
+  ks5_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Ks::~Ks() {
+  // @@protoc_insertion_point(destructor:roborts_detection.Ks)
+  SharedDtor();
+}
+
+void Ks::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void Ks::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Ks::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Ks_descriptor_;
+}
+
+const Ks& Ks::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+Ks* Ks::default_instance_ = NULL;
+
+Ks* Ks::New() const {
+  return new Ks;
+}
+
+void Ks::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Ks*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(ks0_, ks5_);
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Ks::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.Ks)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float ks0 = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks0_)));
+          set_has_ks0();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_ks1;
+        break;
+      }
+
+      // required float ks1 = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_ks1:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks1_)));
+          set_has_ks1();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_ks2;
+        break;
+      }
+
+      // required float ks2 = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_ks2:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks2_)));
+          set_has_ks2();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_ks3;
+        break;
+      }
+
+      // required float ks3 = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_ks3:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks3_)));
+          set_has_ks3();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(45)) goto parse_ks4;
+        break;
+      }
+
+      // required float ks4 = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_ks4:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks4_)));
+          set_has_ks4();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(53)) goto parse_ks5;
+        break;
+      }
+
+      // required float ks5 = 6;
+      case 6: {
+        if (tag == 53) {
+         parse_ks5:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &ks5_)));
+          set_has_ks5();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.Ks)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.Ks)
+  return false;
+#undef DO_
+}
+
+void Ks::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.Ks)
+  // required float ks0 = 1;
+  if (has_ks0()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->ks0(), output);
+  }
+
+  // required float ks1 = 2;
+  if (has_ks1()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->ks1(), output);
+  }
+
+  // required float ks2 = 3;
+  if (has_ks2()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->ks2(), output);
+  }
+
+  // required float ks3 = 4;
+  if (has_ks3()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->ks3(), output);
+  }
+
+  // required float ks4 = 5;
+  if (has_ks4()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->ks4(), output);
+  }
+
+  // required float ks5 = 6;
+  if (has_ks5()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->ks5(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.Ks)
+}
+
+::google::protobuf::uint8* Ks::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.Ks)
+  // required float ks0 = 1;
+  if (has_ks0()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->ks0(), target);
+  }
+
+  // required float ks1 = 2;
+  if (has_ks1()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->ks1(), target);
+  }
+
+  // required float ks2 = 3;
+  if (has_ks2()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->ks2(), target);
+  }
+
+  // required float ks3 = 4;
+  if (has_ks3()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->ks3(), target);
+  }
+
+  // required float ks4 = 5;
+  if (has_ks4()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->ks4(), target);
+  }
+
+  // required float ks5 = 6;
+  if (has_ks5()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->ks5(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.Ks)
+  return target;
+}
+
+int Ks::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float ks0 = 1;
+    if (has_ks0()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ks1 = 2;
+    if (has_ks1()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ks2 = 3;
+    if (has_ks2()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ks3 = 4;
+    if (has_ks3()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ks4 = 5;
+    if (has_ks4()) {
+      total_size += 1 + 4;
+    }
+
+    // required float ks5 = 6;
+    if (has_ks5()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Ks::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Ks* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Ks*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Ks::MergeFrom(const Ks& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_ks0()) {
+      set_ks0(from.ks0());
+    }
+    if (from.has_ks1()) {
+      set_ks1(from.ks1());
+    }
+    if (from.has_ks2()) {
+      set_ks2(from.ks2());
+    }
+    if (from.has_ks3()) {
+      set_ks3(from.ks3());
+    }
+    if (from.has_ks4()) {
+      set_ks4(from.ks4());
+    }
+    if (from.has_ks5()) {
+      set_ks5(from.ks5());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Ks::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Ks::CopyFrom(const Ks& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Ks::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void Ks::Swap(Ks* other) {
+  if (other != this) {
+    std::swap(ks0_, other->ks0_);
+    std::swap(ks1_, other->ks1_);
+    std::swap(ks2_, other->ks2_);
+    std::swap(ks3_, other->ks3_);
+    std::swap(ks4_, other->ks4_);
+    std::swap(ks5_, other->ks5_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Ks::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Ks_descriptor_;
+  metadata.reflection = Ks_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int ArmorDetectionAlgorithms::kNameFieldNumber;
 const int ArmorDetectionAlgorithms::kSelectedAlgorithmFieldNumber;
 const int ArmorDetectionAlgorithms::kUndetectedArmorDelayFieldNumber;
 const int ArmorDetectionAlgorithms::kCameraNameFieldNumber;
 const int ArmorDetectionAlgorithms::kCameraGimbalTransformFieldNumber;
 const int ArmorDetectionAlgorithms::kProjectileModelInfoFieldNumber;
+const int ArmorDetectionAlgorithms::kOffsetPitchFuzzyFieldNumber;
+const int ArmorDetectionAlgorithms::kBoundkyFieldNumber;
+const int ArmorDetectionAlgorithms::kBoundksFieldNumber;
+const int ArmorDetectionAlgorithms::kKyFieldNumber;
+const int ArmorDetectionAlgorithms::kKsFieldNumber;
 #endif  // !_MSC_VER
 
 ArmorDetectionAlgorithms::ArmorDetectionAlgorithms()
@@ -834,6 +3092,11 @@ ArmorDetectionAlgorithms::ArmorDetectionAlgorithms()
 void ArmorDetectionAlgorithms::InitAsDefaultInstance() {
   camera_gimbal_transform_ = const_cast< ::roborts_detection::CameraGimbalTransform*>(&::roborts_detection::CameraGimbalTransform::default_instance());
   projectile_model_info_ = const_cast< ::roborts_detection::ProjectileModelInfo*>(&::roborts_detection::ProjectileModelInfo::default_instance());
+  offset_pitch_fuzzy_ = const_cast< ::roborts_detection::OffsetPitch*>(&::roborts_detection::OffsetPitch::default_instance());
+  boundky_ = const_cast< ::roborts_detection::BoundKy*>(&::roborts_detection::BoundKy::default_instance());
+  boundks_ = const_cast< ::roborts_detection::BoundKs*>(&::roborts_detection::BoundKs::default_instance());
+  ky_ = const_cast< ::roborts_detection::Ky*>(&::roborts_detection::Ky::default_instance());
+  ks_ = const_cast< ::roborts_detection::Ks*>(&::roborts_detection::Ks::default_instance());
 }
 
 ArmorDetectionAlgorithms::ArmorDetectionAlgorithms(const ArmorDetectionAlgorithms& from)
@@ -851,6 +3114,11 @@ void ArmorDetectionAlgorithms::SharedCtor() {
   camera_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   camera_gimbal_transform_ = NULL;
   projectile_model_info_ = NULL;
+  offset_pitch_fuzzy_ = NULL;
+  boundky_ = NULL;
+  boundks_ = NULL;
+  ky_ = NULL;
+  ks_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -869,6 +3137,11 @@ void ArmorDetectionAlgorithms::SharedDtor() {
   if (this != default_instance_) {
     delete camera_gimbal_transform_;
     delete projectile_model_info_;
+    delete offset_pitch_fuzzy_;
+    delete boundky_;
+    delete boundks_;
+    delete ky_;
+    delete ks_;
   }
 }
 
@@ -894,7 +3167,7 @@ ArmorDetectionAlgorithms* ArmorDetectionAlgorithms::New() const {
 }
 
 void ArmorDetectionAlgorithms::Clear() {
-  if (_has_bits_[0 / 32] & 62) {
+  if (_has_bits_[0 / 32] & 254) {
     if (has_selected_algorithm()) {
       if (selected_algorithm_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         selected_algorithm_->clear();
@@ -911,6 +3184,23 @@ void ArmorDetectionAlgorithms::Clear() {
     }
     if (has_projectile_model_info()) {
       if (projectile_model_info_ != NULL) projectile_model_info_->::roborts_detection::ProjectileModelInfo::Clear();
+    }
+    if (has_offset_pitch_fuzzy()) {
+      if (offset_pitch_fuzzy_ != NULL) offset_pitch_fuzzy_->::roborts_detection::OffsetPitch::Clear();
+    }
+    if (has_boundky()) {
+      if (boundky_ != NULL) boundky_->::roborts_detection::BoundKy::Clear();
+    }
+  }
+  if (_has_bits_[8 / 32] & 1792) {
+    if (has_boundks()) {
+      if (boundks_ != NULL) boundks_->::roborts_detection::BoundKs::Clear();
+    }
+    if (has_ky()) {
+      if (ky_ != NULL) ky_->::roborts_detection::Ky::Clear();
+    }
+    if (has_ks()) {
+      if (ks_ != NULL) ks_->::roborts_detection::Ks::Clear();
     }
   }
   name_.Clear();
@@ -1018,6 +3308,71 @@ bool ArmorDetectionAlgorithms::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(58)) goto parse_offset_pitch_fuzzy;
+        break;
+      }
+
+      // required .roborts_detection.OffsetPitch offset_pitch_fuzzy = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_offset_pitch_fuzzy:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_offset_pitch_fuzzy()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(66)) goto parse_boundky;
+        break;
+      }
+
+      // required .roborts_detection.BoundKy boundky = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_boundky:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_boundky()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(74)) goto parse_boundks;
+        break;
+      }
+
+      // required .roborts_detection.BoundKs boundks = 9;
+      case 9: {
+        if (tag == 74) {
+         parse_boundks:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_boundks()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(82)) goto parse_ky;
+        break;
+      }
+
+      // required .roborts_detection.Ky ky = 10;
+      case 10: {
+        if (tag == 82) {
+         parse_ky:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_ky()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(90)) goto parse_ks;
+        break;
+      }
+
+      // required .roborts_detection.Ks ks = 11;
+      case 11: {
+        if (tag == 90) {
+         parse_ks:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_ks()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1094,6 +3449,36 @@ void ArmorDetectionAlgorithms::SerializeWithCachedSizes(
       6, this->projectile_model_info(), output);
   }
 
+  // required .roborts_detection.OffsetPitch offset_pitch_fuzzy = 7;
+  if (has_offset_pitch_fuzzy()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, this->offset_pitch_fuzzy(), output);
+  }
+
+  // required .roborts_detection.BoundKy boundky = 8;
+  if (has_boundky()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->boundky(), output);
+  }
+
+  // required .roborts_detection.BoundKs boundks = 9;
+  if (has_boundks()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, this->boundks(), output);
+  }
+
+  // required .roborts_detection.Ky ky = 10;
+  if (has_ky()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      10, this->ky(), output);
+  }
+
+  // required .roborts_detection.Ks ks = 11;
+  if (has_ks()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      11, this->ks(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1155,6 +3540,41 @@ void ArmorDetectionAlgorithms::SerializeWithCachedSizes(
         6, this->projectile_model_info(), target);
   }
 
+  // required .roborts_detection.OffsetPitch offset_pitch_fuzzy = 7;
+  if (has_offset_pitch_fuzzy()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        7, this->offset_pitch_fuzzy(), target);
+  }
+
+  // required .roborts_detection.BoundKy boundky = 8;
+  if (has_boundky()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->boundky(), target);
+  }
+
+  // required .roborts_detection.BoundKs boundks = 9;
+  if (has_boundks()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        9, this->boundks(), target);
+  }
+
+  // required .roborts_detection.Ky ky = 10;
+  if (has_ky()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        10, this->ky(), target);
+  }
+
+  // required .roborts_detection.Ks ks = 11;
+  if (has_ks()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        11, this->ks(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1200,6 +3620,43 @@ int ArmorDetectionAlgorithms::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->projectile_model_info());
+    }
+
+    // required .roborts_detection.OffsetPitch offset_pitch_fuzzy = 7;
+    if (has_offset_pitch_fuzzy()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->offset_pitch_fuzzy());
+    }
+
+    // required .roborts_detection.BoundKy boundky = 8;
+    if (has_boundky()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->boundky());
+    }
+
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // required .roborts_detection.BoundKs boundks = 9;
+    if (has_boundks()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->boundks());
+    }
+
+    // required .roborts_detection.Ky ky = 10;
+    if (has_ky()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->ky());
+    }
+
+    // required .roborts_detection.Ks ks = 11;
+    if (has_ks()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->ks());
     }
 
   }
@@ -1252,6 +3709,23 @@ void ArmorDetectionAlgorithms::MergeFrom(const ArmorDetectionAlgorithms& from) {
     if (from.has_projectile_model_info()) {
       mutable_projectile_model_info()->::roborts_detection::ProjectileModelInfo::MergeFrom(from.projectile_model_info());
     }
+    if (from.has_offset_pitch_fuzzy()) {
+      mutable_offset_pitch_fuzzy()->::roborts_detection::OffsetPitch::MergeFrom(from.offset_pitch_fuzzy());
+    }
+    if (from.has_boundky()) {
+      mutable_boundky()->::roborts_detection::BoundKy::MergeFrom(from.boundky());
+    }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_boundks()) {
+      mutable_boundks()->::roborts_detection::BoundKs::MergeFrom(from.boundks());
+    }
+    if (from.has_ky()) {
+      mutable_ky()->::roborts_detection::Ky::MergeFrom(from.ky());
+    }
+    if (from.has_ks()) {
+      mutable_ks()->::roborts_detection::Ks::MergeFrom(from.ks());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1269,10 +3743,25 @@ void ArmorDetectionAlgorithms::CopyFrom(const ArmorDetectionAlgorithms& from) {
 }
 
 bool ArmorDetectionAlgorithms::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000010) != 0x00000010) return false;
+  if ((_has_bits_[0] & 0x000007d0) != 0x000007d0) return false;
 
   if (has_camera_gimbal_transform()) {
     if (!this->camera_gimbal_transform().IsInitialized()) return false;
+  }
+  if (has_offset_pitch_fuzzy()) {
+    if (!this->offset_pitch_fuzzy().IsInitialized()) return false;
+  }
+  if (has_boundky()) {
+    if (!this->boundky().IsInitialized()) return false;
+  }
+  if (has_boundks()) {
+    if (!this->boundks().IsInitialized()) return false;
+  }
+  if (has_ky()) {
+    if (!this->ky().IsInitialized()) return false;
+  }
+  if (has_ks()) {
+    if (!this->ks().IsInitialized()) return false;
   }
   return true;
 }
@@ -1285,6 +3774,11 @@ void ArmorDetectionAlgorithms::Swap(ArmorDetectionAlgorithms* other) {
     std::swap(camera_name_, other->camera_name_);
     std::swap(camera_gimbal_transform_, other->camera_gimbal_transform_);
     std::swap(projectile_model_info_, other->projectile_model_info_);
+    std::swap(offset_pitch_fuzzy_, other->offset_pitch_fuzzy_);
+    std::swap(boundky_, other->boundky_);
+    std::swap(boundks_, other->boundks_);
+    std::swap(ky_, other->ky_);
+    std::swap(ks_, other->ks_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

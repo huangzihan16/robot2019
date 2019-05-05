@@ -61,7 +61,8 @@ class GimbalContrl
    * @param pitch Rotate pitch
    * @param yaw Rotate yaw
    */
-  void Init(float x,float y,float z,float pitch,float yaw, float init_v, float init_k);
+  void Init(float x,float y,float z,float pitch,float yaw, float init_v, float init_k, 
+            float offset1, float offset2, float offset3, float offset4, float offset5, float offset6);
   /**
    * @brief Get the gimbal control info.
    * @param postion Enemy position(actually it should be the target armor).

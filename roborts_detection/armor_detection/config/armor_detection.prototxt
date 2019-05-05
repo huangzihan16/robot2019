@@ -14,3 +14,48 @@ projectile_model_info {
     init_v: 15 # Launching projectile velocity
     init_k: 0.026
 }
+
+offset_pitch_fuzzy {
+    offset0: 3
+    offset1: 2
+    offset2: 1
+    offset3: 0
+    offset4: -0.5
+    offset5: -1.5
+}
+
+boundky {
+    boundky0: -0.5
+    boundky1: -0.05
+    boundky2: 0
+    boundky3: 0.05
+    boundky4: 0.2
+    boundky5: 0.75
+}
+
+boundks {
+    boundks0: -0.5
+    boundks1: -0.1
+    boundks2: 0
+    boundks3: 0.1
+    boundks4: 0.2
+    boundks5: 0.75
+}
+
+ky {
+    ky0: 0.3
+    ky1: 0.35
+    ky2: 0.7
+    ky3: 0.35
+    ky4: 0.35
+    ky5: 0.3
+}
+
+ks {
+    ks0: 1
+    ks1: 20
+    ks2: 5000
+    ks3: 20
+    ks4: 10
+    ks5: 1
+}

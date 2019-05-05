@@ -23,8 +23,11 @@
 #include "../../roborts_base/gimbal/gimbal.h"
 
 namespace roborts_detection {
+  float Bound[6]  = {0 , 1000 , 2000 , 3000 , 4000 , 5000};
+  float OffsetPitch[6];
 
-void GimbalContrl::Init(float x,float y,float z,float pitch,float yaw, float init_v, float init_k) {
+void GimbalContrl::Init(float x,float y,float z,float pitch,float yaw, float init_v, float init_k, 
+                        float offset1, float offset2, float offset3, float offset4, float offset5, float offset6) {
   offset_.x = x;
   offset_.y = y;
   offset_.z = z;
@@ -32,6 +35,14 @@ void GimbalContrl::Init(float x,float y,float z,float pitch,float yaw, float ini
   offset_yaw_ = yaw;
   init_v_ = init_v;
   init_k_ = init_k;
+  OffsetPitch[0] = offset1;
+  OffsetPitch[1] = offset2;
+  OffsetPitch[2] = offset3;
+  OffsetPitch[3] = offset4;
+  OffsetPitch[4] = offset5;
+  OffsetPitch[5] = offset6;
+  for (int i = 0; i < NUM; i++) 
+    ROS_INFO("%f", OffsetPitch[i]);
 }
 
 //air friction is considered
@@ -70,11 +81,7 @@ roborts_msgs::ShootCmd srv;
     srv.request.mode = msg->mode;
     srv.request.number = msg->number;
 }
-*/
-
-  float Bound[6]  = {0 , 1000 , 2000 , 3000 , 4000 , 5000};
-  // test float OffsetPitch[6]  = {0, -1, -1.5, -2.5, -3.5, -4.5};
-  float OffsetPitch[6]  = {3, 2, 1, 0, -0.5, -1.5};
+*/  
 
 void GimbalContrl::CalcMembership(float value, float *membership, float *bound)
 {
