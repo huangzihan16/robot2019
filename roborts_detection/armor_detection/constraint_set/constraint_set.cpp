@@ -102,18 +102,18 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       return error_info;
     }
     cv::Mat srcImg;
-    read_index_ = cv_toolbox_->NextImage(src_img_);
+    read_index_ = cv_toolbox_->NextImage(srcImg);
     depth_img_=cv_toolbox_->depthImg;
-    // cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
-    //     std::vector< vector<Point> > contour;
-    //     std::vector<Point> pts;
-    //     pts.push_back(Point(0,180));
-    //     pts.push_back(Point(640,180));
-    //     pts.push_back(Point(640,480));
-    //     pts.push_back(Point(0,640));
-    //     contour.push_back(pts);
-    //     cv::drawContours(roi,contour,0,Scalar::all(255),-1);
-    //     srcImg.copyTo(src_img_,roi);
+    cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
+        std::vector< vector<Point> > contour;
+        std::vector<Point> pts;
+        pts.push_back(Point(0,180));
+        pts.push_back(Point(640,180));
+        pts.push_back(Point(640,480));
+        pts.push_back(Point(0,640));
+        contour.push_back(pts);
+        cv::drawContours(roi,contour,0,Scalar::all(255),-1);
+        srcImg.copyTo(src_img_,roi);
 
 
     if (read_index_ < 0) {

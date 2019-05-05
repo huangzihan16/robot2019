@@ -215,7 +215,7 @@ void ArmorDetectionNode::ExecuteLoop() {
           speed = 0;
         }
         ROS_INFO("yaw:%f, speed:%f",yaw,speed);
-        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.8 * speed;
+        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.7 * speed;
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
