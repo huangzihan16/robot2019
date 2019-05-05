@@ -144,7 +144,7 @@ public:
       enemy_detected_(false),
       armor_detection_actionlib_client_("armor_detection_node_action", true),
       back_camera_client_("backcamera_node_action", true),
-			self_identity_(Identity::SLAVE),
+			//self_identity_(Identity::SLAVE),
       partner_detect_enemy_(false),
 			supply_number_(0),
       identity_number_(1),
@@ -186,10 +186,9 @@ public:
     last_enemy_disappear_time_ = ros::Time::now() + ros::Duration(5*60);
     /*******************/
 
-    roborts_decision::DecisionConfig decision_config;
-    roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config);
+    roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config_);
 
-    if (!decision_config.simulate()){
+    if (!decision_config_.simulate()){
 
       armor_detection_actionlib_client_.waitForServer();
 
@@ -209,18 +208,26 @@ public:
                                    actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
                                    boost::bind(&Blackboard::BackCameraCallback, this, _1));
     }
-		bullet_num_ = decision_config.initial_bullet_num();
-    std::string partner_name = decision_config.partner_name();
+		bullet_num_ = decision_config_.initial_bullet_num();
+    std::string partner_name = decision_config_.partner_name();
     std::string partner_topic_sub = "/" + partner_name + "/partner_msg";
 		partner_sub_ = nh.subscribe<roborts_msgs::PartnerInformation>(partner_topic_sub, 1, &Blackboard::PartnerCallback, this);
 		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
+    if (decision_config_.master())
+      self_identity_ = Identity::MASTER;
+    else
+      self_identity_ = Identity::SLAVE;
+
     cachedmapforchaseandsupport_ptr_ =
 			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 3.0, 1.0, costmap_2d_));
   }
 
   ~Blackboard() = default;
+
+  /*******************Parameter Setting for Match*******************/
+  void InitParameter();
 
   /*******************Enemy Information from roborts_detection*******************/
   void ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback);
@@ -494,6 +501,9 @@ public:
   roborts_msgs::ProjectileSupply projectilesupply_; //补弹指令
 
 private:
+   /*******************Parameter Config for this Robot*******************/
+  roborts_decision::DecisionConfig decision_config_;
+
   /*******************Enemy Detection Cmd and Result*******************/
   roborts_msgs::ArmorDetectionGoal armor_detection_goal_;
   roborts_msgs::BackCameraGoal back_camera_goal_;

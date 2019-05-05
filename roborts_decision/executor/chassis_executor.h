@@ -53,6 +53,7 @@ class ChassisExecutor{
   void Execute(const double yaw);	
 
   void SetMode(ExcutionMode mode);
+  ExcutionMode GetMode();
   /**
    * @brief Update the current chassis executor state
    * @return Current chassis executor state(same with behavior state)

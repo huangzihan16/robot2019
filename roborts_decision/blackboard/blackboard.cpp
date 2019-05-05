@@ -335,12 +335,29 @@ namespace roborts_decision {
                                     actionlib::SimpleActionClient<roborts_msgs::BackCameraAction>::SimpleActiveCallback(),
                                     boost::bind(&Blackboard::BackCameraCallback, this, _1));
     }
-  }  
+  }
+
+  void Blackboard::InitParameter() {
+    last_hp_ = 2000;
+    dmp_ = 0;
+		supply_number_ = 0;
+    identity_number_ = 1;
+ 		gain_buff_number_ = 0;
+
+    bullet_num_ = decision_config_.initial_bullet_num();
+    if (decision_config_.master())
+      self_identity_ = Identity::MASTER;
+    else
+      self_identity_ = Identity::SLAVE;
+  }
 
   /*******************Referee System Interaction(Callback and Send Cmd)*******************/
   void Blackboard::GameStatusCallback(const roborts_msgs::GameStatus::ConstPtr& game_status) {
     game_status_ = (GameStatus)game_status->game_status;
     remaining_time_ = game_status->remaining_time;
+
+    if (game_status_ == GameStatus::FIVE_SEC_CD && remaining_time_ > 4)
+      InitParameter();
   }
 
   void Blackboard::GameResultCallback(const roborts_msgs::GameResult::ConstPtr& game_result) {
@@ -610,8 +627,17 @@ namespace roborts_decision {
     tf::Stamped<tf::Pose> robot_tf_pose;
     robot_tf_pose.setIdentity();
 
+    ros::Time transform_time = ros::Time();
+    std::string tf_error;
+
     robot_tf_pose.frame_id_ = "base_link";
-    robot_tf_pose.stamp_ = ros::Time();
+    robot_tf_pose.stamp_ = transform_time;
+
+    if (!tf_ptr_->waitForTransform("map", "base_link", transform_time, ros::Duration(0.3),
+                            ros::Duration(0.01), &tf_error)) {
+      ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+      return;
+    }
     try {
       geometry_msgs::PoseStamped robot_pose;
       tf::poseStampedTFToMsg(robot_tf_pose, robot_pose);

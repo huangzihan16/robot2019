@@ -41,7 +41,8 @@ class ChaseBehavior {
     
     auto robot_map_pose = blackboard_->GetRobotMapPose();
         // chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
-    if (executor_state != BehaviorState::RUNNING) {
+        std::cout <<"-------------------------"  << std::endl;
+    if (executor_state != BehaviorState::RUNNING || chassis_executor_->GetMode() == ChassisExecutor::ExcutionMode::SPEED_MODE) {
         std::cout <<"-------------------------"  << std::endl;
       chase_buffer_[chase_count_++ % 2] = blackboard_->GetEnemy();
 
@@ -53,27 +54,27 @@ class ChaseBehavior {
 
       if (/*std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) >= 1.0 && */std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) <= 2.0) {
         // std::cout <<"-------------------------"  << std::endl;
-        ROS_INFO("+++++++++++++++++++++++++++++");
+        //ROS_INFO("+++++++++++++++++++++++++++++");
         if (cancel_goal_) {
-        std::cout <<"*******************************" << std::endl;
+        //std::cout <<"*******************************" << std::endl;
           chassis_executor_->Cancel();
-          ROS_INFO("?????????????????????????????????????????????");
+          //ROS_INFO("?????????????????????????????????????????????");
           cancel_goal_ = false;
         }
         chassis_executor_->Execute(blackboard_->GetGimbalYaw());
-        ROS_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //ROS_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return;
 
       } else {
-        ROS_INFO("XXXXXXXXXXXXXXXXXXXXXXXXXXXX+++");
+        //ROS_INFO("XXXXXXXXXXXXXXXXXXXXXXXXXXXX+++");
         auto orientation = tf::createQuaternionMsgFromYaw(yaw);
         geometry_msgs::PoseStamped reduce_goal;
         reduce_goal.pose.orientation = robot_map_pose.pose.orientation;
 
         reduce_goal.header.frame_id = "map";
         reduce_goal.header.stamp = ros::Time::now();
-        reduce_goal.pose.position.x = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.x - 1.2 * cos(yaw);
-        reduce_goal.pose.position.y = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.y - 1.2 * sin(yaw);
+        reduce_goal.pose.position.x = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.x - 1.6 * cos(yaw);
+        reduce_goal.pose.position.y = chase_buffer_[(chase_count_ + 2 - 1) % 2].pose.position.y - 1.6 * sin(yaw);
         auto enemy_x = reduce_goal.pose.position.x;
         auto enemy_y = reduce_goal.pose.position.y;
         reduce_goal.pose.position.z = 1;
