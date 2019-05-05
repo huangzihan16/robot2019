@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 																																																}*/
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
-  //game_start_selector->AddChildren(no_bullet_left_condition_);
+  game_start_selector->AddChildren(no_bullet_left_condition_);
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
