@@ -39,6 +39,19 @@ class ArmorInfo {
     target_3d = target_pos;
     
   }
+  cv::Point2f calccenter()
+  {
+    cv::Point2f center;
+    for(auto iter = vertex.begin(); iter != vertex.end(); iter ++)
+    {
+        center.x += (*iter).x;
+        center.y += (*iter).y;
+    }
+    center.x = center.x/vertex.size();
+    center.y = center.x/vertex.size();
+    return center;
+  }
+
  public:
   cv::RotatedRect rect;
   std::vector<cv::Point2f> vertex;

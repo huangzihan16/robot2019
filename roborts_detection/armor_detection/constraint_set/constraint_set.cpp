@@ -44,7 +44,9 @@ ConstraintSet::ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox):
 
 void ConstraintSet::LoadParam() {
   //read parameters
-  model = svm_load_model("/home/ubuntu3/roborts_ws/src/icra/roborts_detection/armor_detection/constraint_set/contourHOG_SVM");
+  std::string svm_path = ros::package::getPath("roborts_detection") + \
+      "/armor_detection/constraint_set/contourHOG_SVM";
+  model = svm_load_model(svm_path.c_str());
   ConstraintSetConfig constraint_set_config_;
   std::string file_name = ros::package::getPath("roborts_detection") + \
       "/armor_detection/constraint_set/config/constraint_set.prototxt";
@@ -101,19 +103,21 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       ErrorInfo error_info(ErrorCode::STOP_DETECTION);
       return error_info;
     }
-    cv::Mat srcImg;
+    cv::Mat srcImg=cv::Mat::zeros(480,640,CV_8UC3);
     read_index_ = cv_toolbox_->NextImage(srcImg);
     depth_img_=cv_toolbox_->depthImg;
     cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
-        std::vector< vector<Point> > contour;
-        std::vector<Point> pts;
-        pts.push_back(Point(0,180));
-        pts.push_back(Point(640,180));
-        pts.push_back(Point(640,480));
-        pts.push_back(Point(0,640));
-        contour.push_back(pts);
-        cv::drawContours(roi,contour,0,Scalar::all(255),-1);
-        srcImg.copyTo(src_img_,roi);
+    cv::Rect roirect(0,roiy_,640,480-roiy_);
+    src_img_=srcImg(roirect);
+        // std::vector< vector<Point> > contour;
+        // std::vector<Point> pts;
+        // pts.push_back(Point(0,180));
+        // pts.push_back(Point(640,180));
+        // pts.push_back(Point(640,480));
+        // pts.push_back(Point(0,640));
+        // contour.push_back(pts);
+        // cv::drawContours(roi,contour,0,Scalar::all(255),-1);
+        // srcImg.copyTo(src_img_,roi);
 
 
     if (read_index_ < 0) {
@@ -181,6 +185,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
         }
         else if(final_armor[i].num == 2) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(0, 0, 255), 2,2);
+            std::cout<<"armor x : "<<final_armor[i].rect.center.x<<std::endl;
         }
         else if(final_armor[i].num == 0) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(255, 0, 0), 2,0);
@@ -477,8 +482,8 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
     auto stddev = mat_stddev.at<double>(0, 0);
     auto mean = mat_mean.at<double>(0, 0);
-    //std::cout << "stddev: " << stddev << std::endl;
-    //std::cout << "mean: " << mean << std::endl;
+    std::cout << "stddev: " << stddev << std::endl;
+    std::cout << "mean: " << mean << std::endl;
 
     if (stddev > armor_max_stddev_ || mean > armor_max_mean_) {
       armor_iter = armors.erase(armor_iter);
@@ -491,45 +496,46 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
   std::vector<bool> is_armor(armors.size(), true);
 
     //========depth filter============
+
   for (int i = 0; i < armors.size() ; i++) {
     cv::Point2f corners[4];
     armors[i].rect.points(corners);
-    float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y ,corners[0].x);
-    float depth0y=(corners[0].y-240)*depth0z/387.4;
-    float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y ,corners[1].x);
-    float depth1y=(corners[1].y-240)*depth1z/387.4;
-    float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y ,corners[2].x);
-    float depth2y=(corners[2].y-240)*depth2z/387.4;
-    float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y ,corners[3].x);
-    float depth3y=(corners[3].y-240)*depth3z/387.4;
+    float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y+roiy_ ,corners[0].x);
+    float depth0y=(corners[0].y+roiy_-240)*depth0z/387.4;
+    float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y+roiy_ ,corners[1].x);
+    float depth1y=(corners[1].y+roiy_-240)*depth1z/387.4;
+    float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y+roiy_ ,corners[2].x);
+    float depth2y=(corners[2].y+roiy_-240)*depth2z/387.4;
+    float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y +roiy_ ,corners[3].x);
+    float depth3y=(corners[3].y+roiy_-240)*depth3z/387.4;
 
-    int yd=armors[i].rect.center.y;
+    int yd=armors[i].rect.center.y+roiy_ ;
     int xd=armors[i].rect.center.x;
     float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-    float depthy=(armors[i].rect.center.y-240)*depthz/387.4;
+    float depthy=(yd-240)*depthz/387.4;
     int thresh=10;
-    if(depth0z!=0){
-      if(depth0y<thresh){
-        is_armor[i] = false;
-      }
-    }
-    if(depth1z!=0){
-      if(depth1y<thresh){
-        is_armor[i] = false;
-      }
-    }
-    if(depth2z!=0){
-      if(depth2y<thresh){
-        is_armor[i] = false; 
-      }
-    }
-    if(depth3z!=0){
-      if(depth3y<thresh){
-        is_armor[i] = false;
-      }
-    }
+    // if(depth0z!=0){
+    //   if(depth0y<thresh){
+    //     is_armor[i] = false;
+    //   }
+    // }
+    // if(depth1z!=0){
+    //   if(depth1y<thresh){
+    //     is_armor[i] = false;
+    //   }
+    // }
+    // if(depth2z!=0){
+    //   if(depth2y<thresh){
+    //     is_armor[i] = false; 
+    //   }
+    // }
+    // if(depth3z!=0){
+    //   if(depth3y<thresh){
+    //     is_armor[i] = false;
+    //   }
+    // }
     if(depthz!=0){
-      if(depthy<thresh){
+      if(depthy<200||depthy>275){//225,267
         is_armor[i] = false;
       }
     }
@@ -573,31 +579,320 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     cv::imshow("armors_after_filter", show_armors_after_filter_);
 }
 
-std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &armors) {
+// std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &armors) {
 
-   std::vector<ArmorInfo> final_armor; 
+//    std::vector<ArmorInfo> final_armor; 
+//    std::sort(armors.begin(),
+//             armors.end(),
+//             [](const ArmorInfo &p1, const ArmorInfo &p2) { return p1.rect.size.area() > p2.rect.size.area(); });
+
+//   for(int i=0;i<armors.size();i++){
+//     if(armors[i].num==1){
+//       final_armor.push_back(armors[i]);
+//       break;
+//     }
+//   }
+//   for(int i=0;i<armors.size();i++){
+//     if(armors[i].num==2){
+//       final_armor.push_back(armors[i]);
+//       break;
+//     }
+//   }
+
+//   if(final_armor.size()==0) 
+//   for(int i=0;i<armors.size();i++){
+//     final_armor.push_back(armors[i]);
+//   }
+//   return final_armor;
+// }
+std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &armors) {
+   std::vector<cv::Point2f> final_armor_center; 
+   std::vector<ArmorInfo> final_armor0,final_armor1,final_armor2,final_armor; 
+   std::vector<ArmorInfo> final_armor_fine; 
+
    std::sort(armors.begin(),
             armors.end(),
             [](const ArmorInfo &p1, const ArmorInfo &p2) { return p1.rect.size.area() > p2.rect.size.area(); });
 
-  for(int i=0;i<armors.size();i++){
+    int armor_1_size = 0;
+    int armor_2_size = 0;
+    int armor_0_size = 0;
+    
+      for(int i=0;i<armors.size();i++){
     if(armors[i].num==1){
-      final_armor.push_back(armors[i]);
-      break;
+       armor_1_size++;
+       final_armor1.push_back(armors[i]);
+       
+       std::cout<<"armor_num1_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
+       if(armor_1_size>1)
+       { 
+         if((left_flag&&(final_armor1[0].rect.center.x<final_armor1[1].rect.center.x)))
+         { 
+           
+          final_armor1.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor1[0]);
+          break;
+         }
+         
+         else if(left_flag)//if last time choose the left one but this time the left area is smaller than the right one's
+         {
+
+          if((final_armor1[1].rect.size.area()/final_armor1[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            
+            final_armor1[0] = final_armor1[1];
+            final_armor1.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor1[0]);
+            break;
+          }
+          else
+          {//selectthe right and largest one,left_flag=false
+            final_armor1.pop_back();  
+            left_flag = false;
+            final_armor.pop_back();
+            final_armor.push_back(final_armor1[0]);
+            break;
+          }
+          //final_armor[1] = fiinal_armor[0];
+          
+          }
+          if(((left_flag==false)&&(final_armor1[0].rect.center.x>final_armor1[1].rect.center.x)))
+         { 
+           //std::cout<<" right,don't change!"<<std::endl;
+           left_flag=false;
+          //do not change the value of the left_flag just choose the first one
+          final_armor1.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor1[0]);
+          //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+          break;
+         }
+         else if (!left_flag)//last time is the right one,but this time the largest is the left one
+          {
+            if((final_armor1[1].rect.size.area()/final_armor1[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            //std::cout<<"right,area decrease don't change!"<<std::endl;
+            final_armor1[0] = final_armor1[1];
+            //std::vector<ArmorInfo>::iterator iter = final_armor.begin();
+            //final_armor.erase(iter);
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            final_armor1.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor1[0]);
+            break;
+          }
+          else
+          {//select the left and largest one,left_flag=true
+            final_armor1.pop_back();
+            //std::cout<<"right,change!"<<std::endl;
+            left_flag = true;
+            final_armor.pop_back();
+            final_armor.push_back(final_armor1[0]);
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            break;
+          }
+
+          }
+        
+       }
+       if(armor_1_size==1)
+       {
+         final_armor.push_back(armors[i]);
+       }
+       //final_armor_center.clear();
+       //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+       
     }
   }
+    
+      
+   
   for(int i=0;i<armors.size();i++){
     if(armors[i].num==2){
-      final_armor.push_back(armors[i]);
-      break;
+       armor_2_size++;
+       final_armor2.push_back(armors[i]);
+       
+       std::cout<<"armor_num2_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
+       if(armor_2_size>1)
+       { 
+         if((left_flag&&(final_armor2[0].rect.center.x<final_armor2[1].rect.center.x)))
+         { 
+           
+          final_armor2.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor2[0]);
+          break;
+         }
+         
+         else if(left_flag)//if last time choose the left one but this time the left area is smaller than the right one's
+         {
+
+          if((final_armor2[1].rect.size.area()/final_armor2[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            
+            final_armor2[0] = final_armor2[1];
+            final_armor2.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor2[0]);
+            break;
+          }
+          else
+          {//selectthe right and largest one,left_flag=false
+            final_armor2.pop_back();  
+            left_flag = false;
+            final_armor.pop_back();
+            final_armor.push_back(final_armor2[0]);
+            break;
+          }
+          //final_armor[1] = fiinal_armor[0];
+          
+          }
+          if(((left_flag==false)&&(final_armor2[0].rect.center.x>final_armor2[1].rect.center.x)))
+         { 
+           //std::cout<<" right,don't change!"<<std::endl;
+           left_flag=false;
+          //do not change the value of the left_flag just choose the first one
+          final_armor2.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor2[0]);
+          //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+          break;
+         }
+         else if (!left_flag)//last time is the right one,but this time the largest is the left one
+          {
+            if((final_armor2[1].rect.size.area()/final_armor2[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            //std::cout<<"right,area decrease don't change!"<<std::endl;
+            final_armor2[0] = final_armor2[1];
+            //std::vector<ArmorInfo>::iterator iter = final_armor.begin();
+            //final_armor.erase(iter);
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            final_armor2.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor2[0]);
+            break;
+          }
+          else
+          {//select the left and largest one,left_flag=true
+            final_armor2.pop_back();
+            //std::cout<<"right,change!"<<std::endl;
+            left_flag = true;
+            final_armor.pop_back();
+            final_armor.push_back(final_armor2[0]);
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            break;
+          }
+
+          }
+        
+       }
+       if(armor_2_size==1)
+       {
+         final_armor.push_back(armors[i]);
+       }
+       //final_armor_center.clear();
+       //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
     }
   }
+  
+    for(int i=0;i<armors.size();i++){
+    if(armors[i].num==0){
+       armor_0_size++;
+       final_armor0.push_back(armors[i]);
+       
+       std::cout<<"armor_num0_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
+       if(armor_0_size>1)
+       { 
+         if((left_flag&&(final_armor0[0].rect.center.x<final_armor0[1].rect.center.x)))
+         { 
+           
+          final_armor0.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor0[0]);
+          break;
+         }
+         
+         else if(left_flag)//if last time choose the left one but this time the left area is smaller than the right one's
+         {
 
-  if(final_armor.size()==0) 
-  for(int i=0;i<armors.size();i++){
-    final_armor.push_back(armors[i]);
+          if((final_armor0[1].rect.size.area()/final_armor0[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            
+            final_armor0[0] = final_armor0[1];
+            
+            final_armor0.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor0[0]);
+            break;
+          }
+          else
+          {//selectthe right and largest one,left_flag=false
+            final_armor0.pop_back(); 
+            final_armor.pop_back();
+            final_armor.push_back(final_armor0[0]); 
+            left_flag = false;
+            break;
+          }
+          //final_armor[1] = fiinal_armor[0];
+          
+          }
+          if(((left_flag==false)&&(final_armor0[0].rect.center.x>final_armor0[1].rect.center.x)))
+         { 
+           //std::cout<<" right,don't change!"<<std::endl;
+           left_flag=false;
+          //do not change the value of the left_flag just choose the first one
+          final_armor0.pop_back();
+          final_armor.pop_back();
+          final_armor.push_back(final_armor0[0]);
+          //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+          break;
+         }
+         else if (!left_flag)//last time is the right one,but this time the largest is the left one
+          {
+            if((final_armor0[1].rect.size.area()/final_armor0[0].rect.size.area())>0.6)//left.area()/right.area()>0.8 
+          {//select the left but not largest one,left_flag= true
+            //std::cout<<"right,area decrease don't change!"<<std::endl;
+            final_armor0[0] = final_armor0[1];
+            final_armor0.pop_back();
+            //std::vector<ArmorInfo>::iterator iter = final_armor.begin();
+            //final_armor.erase(iter);
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            final_armor.pop_back();
+            final_armor.push_back(final_armor0[0]);
+            final_armor0.pop_back();
+            break;
+          }
+          else
+          {//select the left and largest one,left_flag=true
+            final_armor0.pop_back();
+            final_armor.pop_back();
+            final_armor.push_back(final_armor0[0]);
+            //std::cout<<"right,change!"<<std::endl;
+            left_flag = true;
+            //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+            break;
+          }
+
+          }
+        
+       }
+       if(armor_0_size==1)
+       {
+         final_armor.push_back(armors[i]);
+       }
+       //final_armor_center.clear();
+       //std::cout<<"final_armor size is :"<<final_armor.size()<<std::endl;
+    }
   }
+  // std::cout<<"left_flag:"<<left_flag<<std::endl;
+  // std::cout<<"final_armor size:"<<final_armor.size()<<std::endl;
+  // std::cout<<"select armor center:"<<final_armor[0].rect.center.x;
+  
   return final_armor;
+
+  
 }
 
 
@@ -608,15 +903,15 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   //=================================================depth================
   
   
-  int yd=armor.rect.center.y;
+  int yd=armor.rect.center.y+roiy_;
   int xd=armor.rect.center.x;
   float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-  float depthy=(armor.rect.center.y-240)*depthz/387.4;
+  float depthy=(yd-240)*depthz/387.4;
   if(depthy!=0){
-  float depthx=(armor.rect.center.x-320)*depthz/387.4;
-  //cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
-  //cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
-  //cv::imshow("depth",depth_img_*20);
+  float depthx=(xd-320)*depthz/387.4;
+  // cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
+  // cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
+  // cv::imshow("depth",depth_img_*20);
   armor.target_3d.z=depthz;
   armor.target_3d.y=depthy;
   armor.target_3d.x=depthx;
@@ -625,6 +920,9 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   std::cout<<"y-"<<armor.target_3d.y<<std::endl;
   std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }else{
+  for (unsigned int i = 0; i < 4; i++) {
+      armor.vertex[i].y=armor.vertex[i].y+roiy_;
+    }
   cv::solvePnP(armor_points_,
                armor.vertex,
                intrinsic_matrix_,
@@ -632,7 +930,7 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
                rvec,
                tvec);
   armor.target_3d = cv::Point3f(tvec);
-  //std::cout<<"==========from PnP=========="<<std::endl;
+  std::cout<<"==========from PnP=========="<<std::endl;
   // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
   // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
   // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
@@ -706,10 +1004,11 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
 
     //获得canny边缘检测结果
     Mat canny;
-    Canny(gray, canny, std::ceil(mean*1.5), std::ceil(mean));
+    Canny(gray, canny, std::ceil(mean*1.2), std::ceil(mean*0.8));
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2, 2));
     dilate(canny, canny, element);//对canny膨胀，可防止提取轮廓时不闭合的情况
     imshow("canny",canny);
+    //imshow("gray",gray);
 
 
     //从canny图中提取轮廓
@@ -745,6 +1044,18 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
             //由于轮廓序列存储的是轮廓点在原图的坐标，因此先生成一个等大空图，画上轮廓，再从中截取轮廓外接矩形部分，resize成固定大大小进行HOG识别。
 	    Rect boundRect = boundingRect(Mat(contours[i]));
 	    if(boundRect.width>boundRect.height*1.2) continue;
+
+      int brightCount = 0;
+      for(int k=boundRect.x;k<boundRect.x+boundRect.width;k++)
+      for(int l=boundRect.y;l<boundRect.y+boundRect.height;l++)
+      {
+        if(gray.at<uchar>(k,l)>150) brightCount++;
+      }
+      if(brightCount > boundRect.width*boundRect.height/16) {
+        continue;
+        std::cout<<"erase for bright"<<std::endl;}
+
+      if(boundRect.x)
 
             tempContours.push_back(contours[i]);
             Mat tempGray = Mat::zeros(gray.rows, gray.cols, CV_8UC1);

@@ -50,7 +50,7 @@ class CVToolbox {
     image_transport::ImageTransport it(nh);
 
     camera_sub_ = it.subscribeCamera("color/image_raw",
-                                     20,
+                                     1,
                                      boost::bind(&CVToolbox::ImageCallback, this, _1,_2));
     depth_sub_= nh.subscribe("aligned_depth_to_color/image_raw",
                                      1,

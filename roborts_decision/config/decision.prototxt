@@ -1,5 +1,5 @@
-simulate: true
-master: true
+simulate: false
+master: false
 
 offset_x: 0.03
 half_robot_length: 0.35

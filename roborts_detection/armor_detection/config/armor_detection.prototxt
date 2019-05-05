@@ -1,6 +1,6 @@
 name: "constraint_set"
 selected_algorithm: "constraint_set"
-undetected_armor_delay: 50
+undetected_armor_delay: 30
 camera_name: "camera"
 camera_gimbal_transform {
     offset_x :-4
@@ -15,13 +15,13 @@ projectile_model_info {
     init_k: 0.026
 }
 
-offset_pitch_fuzzy {
-    offset0: 3
-    offset1: 2
-    offset2: 1
-    offset3: 0
-    offset4: -0.5
-    offset5: -1.5
+offset_pitch_fuzzy {   
+    offset0: 1
+    offset1: 0
+    offset2: -1
+    offset3: -1.5
+    offset4: -2
+    offset5: -2.5
 }
 
 boundky {

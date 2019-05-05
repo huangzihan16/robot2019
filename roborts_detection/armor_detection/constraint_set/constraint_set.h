@@ -127,7 +127,7 @@ class ConstraintSet : public ArmorDetectionBase {
   #define num_cell_max 50
   std::vector<Point2f> historical_nums_position;//按照迭代数升序排列
   std::vector<int> historical_nums_iternum,historical_nums;
-
+  bool left_flag = true;
   ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox);
   /**
    * @brief Loading parameters from .prototxt file.
@@ -232,7 +232,7 @@ class ConstraintSet : public ArmorDetectionBase {
   bool enable_debug_;
   bool using_hsv_;
   unsigned int enemy_color_;
-  int roiy_=80;
+  int roiy_=150;
 
   //! Use for debug
   cv::Mat show_lights_before_filter_;
