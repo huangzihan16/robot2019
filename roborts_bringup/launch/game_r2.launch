@@ -7,6 +7,7 @@
   <!--Load parameters for localization node  -->
   <rosparam command="load" file="$(find roborts_localization)/config/localization.yaml" />
   <rosparam command="load" file="$(find roborts_localization)/amcl/config/amcl.yaml" />
+  <rosparam command="load" file="$(find initial_pose)/config/initialpose.yaml" />
 
   <!-- Run the multimaster_discovery -->
   <include file="$(find roborts_bringup)/launch/multimaster_discovery.launch" />
@@ -35,7 +36,7 @@
 
   <!-- Run the initial pose node -->
   <node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/>
-  
+
   <!-- Run the back camera node  rosrun roborts_camera roborts_camera_node-->
   <node pkg="roborts_camera" type="roborts_camera_node" name="roborts_camera_node" respawn="false" />
 
