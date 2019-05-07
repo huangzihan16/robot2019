@@ -69,9 +69,9 @@ void ConstraintSet::LoadParam() {
   // armor_max_stddev_ = constraint_set_config_.threshold().armor_max_stddev();
   // armor_max_mean_   = constraint_set_config_.threshold().armor_max_mean();
 
-  // color_thread_ = constraint_set_config_.threshold().color_thread();
-  // blue_thread_ = constraint_set_config_.threshold().blue_thread();
-  // red_thread_ = constraint_set_config_.threshold().red_thread();
+  color_thread_ = constraint_set_config_.threshold().color_thread();
+  blue_thread_ = constraint_set_config_.threshold().blue_thread();
+  red_thread_ = constraint_set_config_.threshold().red_thread();
 
   int get_intrinsic_state = -1;
   int get_distortion_state = -1;
@@ -257,7 +257,7 @@ void ConstraintSet::FilterLights(std::vector<cv::RotatedRect> &lights) {
     }
   }
   if (enable_debug_)
-    //cv::imshow("lights_after_filter", show_lights_after_filter_);
+    cv::imshow("lights_after_filter", show_lights_after_filter_);
 
   lights = rects;
 }
