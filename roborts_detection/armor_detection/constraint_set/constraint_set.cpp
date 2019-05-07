@@ -512,7 +512,6 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     int thresh=130;  //参数
     int sumvertex=0;
     int nflag=0;
-
     if(depthz>4500){
       is_armor[i] = false;
     }
@@ -523,7 +522,6 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
         is_armor[i] = false;
         continue;
       }
-
       for(int k=0;k<4;k++){
           for(int kk=0;kk<4;kk++){
               float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
@@ -544,6 +542,33 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
        
     }
   }
+  
+  //     }else{
+  //           int dewidth=corners[2].x-corners[0].x;//最小24
+  //   int deheight=-corners[2].y+corners[0].y;//最小8
+  //   std::cout<<"dewidth"<<dewidth<<std::endl;
+  //   std::cout<<"deheight"<<deheight<<std::endl;
+  //   int wtrans=dewidth/4;
+  //   int htrans=deheight/4;
+  //        float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y+roiy_-htrans ,corners[0].x+wtrans);
+  //     float depth0y=(corners[0].y+roiy_-htrans -240)*depth0z/387.4;
+  //     float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y+roiy_ +htrans,corners[1].x+wtrans);
+  //      float depth1y=(corners[1].y+roiy_+htrans-240)*depth1z/387.4;
+  //      float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y+roiy_ +htrans,corners[2].x)-wtrans;
+  //      float depth2y=(corners[2].y+roiy_+htrans-240)*depth2z/387.4;
+  //      float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y +roiy_ -htrans,corners[3].x-wtrans);
+  //     float depth3y=(corners[3].y+roiy_-htrans-240)*depth3z/387.4;
+
+
+  //     if(depth0z!=0){
+  //     sumvertex+=depth0z;
+  //     nflag++;
+  //     if(depth0y<thresh){
+  //       is_armor[i] = false;
+  //       continue;
+  //     }
+  //   }
+  
   // nms
   
   for (int i = 0; i < armors.size() && is_armor[i] == true; i++) {

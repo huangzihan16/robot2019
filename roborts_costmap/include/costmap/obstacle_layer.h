@@ -62,6 +62,8 @@
 #include <sensor_msgs/point_cloud_conversion.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
+#include <geometry_msgs/PointStamped.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include "footprint.h"
 #include "map_common.h"
 #include "costmap_layer.h"

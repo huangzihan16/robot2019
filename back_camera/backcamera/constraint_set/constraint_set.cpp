@@ -53,21 +53,21 @@ void ConstraintSet::LoadParam() {
   using_hsv_ = constraint_set_config_.using_hsv();
 
   //armor info
-  float armor_width = constraint_set_config_.armor_size().width();
-  float armor_height = constraint_set_config_.armor_size().height();
-  SolveArmorCoordinate(armor_width, armor_height);
+  // float armor_width = constraint_set_config_.armor_size().width();
+  // float armor_height = constraint_set_config_.armor_size().height();
+  // SolveArmorCoordinate(armor_width, armor_height);
 
   //algorithm threshold parameters
   light_max_aspect_ratio_ = constraint_set_config_.threshold().light_max_aspect_ratio();
   light_min_area_ = constraint_set_config_.threshold().light_min_area();
   light_max_angle_ = constraint_set_config_.threshold().light_max_angle();
   light_max_angle_diff_ = constraint_set_config_.threshold().light_max_angle_diff();
-  armor_max_angle_ = constraint_set_config_.threshold().armor_max_angle();
-  armor_min_area_ = constraint_set_config_.threshold().armor_min_area();
-  armor_max_aspect_ratio_ = constraint_set_config_.threshold().armor_max_aspect_ratio();
-  armor_max_pixel_val_ = constraint_set_config_.threshold().armor_max_pixel_val();
-  armor_max_stddev_ = constraint_set_config_.threshold().armor_max_stddev();
-  armor_max_mean_   = constraint_set_config_.threshold().armor_max_mean();
+  // armor_max_angle_ = constraint_set_config_.threshold().armor_max_angle();
+  // armor_min_area_ = constraint_set_config_.threshold().armor_min_area();
+  // armor_max_aspect_ratio_ = constraint_set_config_.threshold().armor_max_aspect_ratio();
+  // armor_max_pixel_val_ = constraint_set_config_.threshold().armor_max_pixel_val();
+  // armor_max_stddev_ = constraint_set_config_.threshold().armor_max_stddev();
+  // armor_max_mean_   = constraint_set_config_.threshold().armor_max_mean();
 
   color_thread_ = constraint_set_config_.threshold().color_thread();
   blue_thread_ = constraint_set_config_.threshold().blue_thread();
@@ -87,7 +87,7 @@ void ConstraintSet::LoadParam() {
 
 
 
-ErrorInfo ConstraintSet::DetectArmor(bool &detected, cv::Point3f &target_3d) {
+ErrorInfo ConstraintSet::DetectArmor(bool &detected) {
   std::vector<cv::RotatedRect> lights;
   std::vector<ArmorInfo> armors;
 
@@ -143,25 +143,25 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, cv::Point3f &target_3d) {
 
     DetectLights(src_img_, lights);
     FilterLights(lights);
-    PossibleArmors(lights, armors);
-    FilterArmors(armors);
-    if(!armors.empty()) {
+    //PossibleArmors(lights, armors);
+    //FilterArmors(armors);
+    if(!lights.empty()) {
       detected = true;
       std::cout<<"set info detected!!!!!"<<std::endl;
-      ArmorInfo final_armor = SlectFinalArmor(armors);
-      cv_toolbox_->DrawRotatedRect(src_img_, armors[0].rect, cv::Scalar(0, 255, 0), 2);
-      CalcControlInfo(final_armor, target_3d);
+      //ArmorInfo final_armor = SlectFinalArmor(armors);
+      //cv_toolbox_->DrawRotatedRect(src_img_, armors[0].rect, cv::Scalar(0, 255, 0), 2);
+      //CalcControlInfo(final_armor, target_3d);
     } else
       
       {detected = false;
        std::cout<<"set info undetected!!!!!"<<std::endl; 
       }
-    if(enable_debug_) {
-      cv::imshow("relust_img_", src_img_);
-    }
+    // if(enable_debug_) {
+    //   cv::imshow("relust_img_", src_img_);
+    // }
 
   lights.clear();
-  armors.clear();
+  //armors.clear();
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>

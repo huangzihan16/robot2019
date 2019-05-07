@@ -243,6 +243,10 @@ void DistanceMap::ConvertWorldToMap(const double&x, const double& y, int& mx, in
 }
 
 double DistanceMap::GetDistance(double wx, double wy) {
+  if (wx < 0.075 || wx > 8.075 || wy < 0.075 || wy > 5.075) {
+    return 0;
+  }
+  
 	int mx, my;
 	ConvertWorldToMap(wx, wy, mx, my);
 	
@@ -436,9 +440,37 @@ void ObstacleLayer::UpdateBounds(double robot_x,
       }
 
       double dist_to_wall = 0;
-      if (map_is_global_)
+      if (map_is_global_) {
         dist_to_wall = distance_map_ptr_->GetDistance(px, py);
-      if (map_is_global_ && (dist_to_wall > 1.5 * enemy_inflation_)) {
+      } else {
+        // stamped point to be transformed
+        geometry_msgs::PointStamped ps;
+        pcl_conversions::fromPCL(cloud.header.stamp, ps.header.stamp);
+        ps.header.frame_id = cloud.header.frame_id;
+        ps.point.x = px;
+        ps.point.y = py;
+
+        // stamped point after transformation
+        geometry_msgs::PointStamped ps_map;
+
+        // transform from odom to map
+        bool is_get_transform = true;
+        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(3.0));
+        try {
+          tf_->transformPoint("map", ros::Time(0), ps, ps.header.frame_id, ps_map);
+        } catch (tf::ExtrapolationException &ex) {
+          ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+          is_get_transform = false;
+        }
+
+        // compute dist_to_wall
+        if (is_get_transform)
+          dist_to_wall = distance_map_ptr_->GetDistance(ps_map.point.x, ps_map.point.y);
+        else
+          dist_to_wall = 0.0;
+      }
+
+      if (dist_to_wall > 1.5 * enemy_inflation_) {
         if (mx > enemy_inflation_grid_)
   				mx = mx - enemy_inflation_grid_;
 				else
