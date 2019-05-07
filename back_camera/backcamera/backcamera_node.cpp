@@ -140,12 +140,13 @@ void ArmorDetectionNode::ExecuteLoop() {
     usleep(1);  //将线程挂起1微秒
     if (node_state_ == NodeState::RUNNING) {
       cv::Point3f target_3d;
-      ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, target_3d);
+      //ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, target_3d);
+      ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_);
       {
         std::lock_guard<std::mutex> guard(mutex_);  //互斥锁，在析构时解锁
-        x_ = target_3d.x;
-        y_ = target_3d.y;
-        z_ = target_3d.z;
+        // x_ = target_3d.x;
+        // y_ = target_3d.y;
+        // z_ = target_3d.z;
         error_info_ = error_info;
       }
 
