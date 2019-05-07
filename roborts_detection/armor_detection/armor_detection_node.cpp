@@ -243,18 +243,28 @@ void ArmorDetectionNode::ExecuteLoop() {
                 Ks += Ks_[i] * MembershipKs[i] / 100;
   		        }
           }
-        } else{
+          gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
+          PublishMsgs();
+        } else if (enemy_duration_time >2 && speed > 0.03){
+            // ROS_INFO("yaw:%f, speed>XXXX:%f",yaw,speed);
+            gimbal_angle_.yaw_angle = 0;//0.3 0.6
+            PublishMsgs();
+        } else {
           speed = 0;
+          gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
+          PublishMsgs();
         }
-        ROS_INFO("yaw:%f, speed:%f",yaw,speed);
-        gimbal_angle_.yaw_angle = 0.3 * yaw + 0.6 * speed;//0.3 0.6
+        //ROS_INFO("yaw:%f, speed:%f",yaw,speed);
+        //gimbal_angle_.yaw_angle = 0.3 * yaw + 0.6 * speed;//0.3 0.6
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
-        PublishMsgs();
+        //PublishMsgs();
+
+
         //TODO ff
 
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
-        ROS_INFO("enemy_x_shooter:%f",enemy_x_shooter);
+        // ROS_INFO("enemy_x_shooter:%f",enemy_x_shooter);
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 4000) {
           shoot_executor_.Execute();
         }

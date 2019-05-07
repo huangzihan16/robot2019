@@ -653,6 +653,7 @@ class TurnToHurtAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     //  std::cout << "TurnToHurtAction OnInitialize" << std::endl;
+    turn_to_hurt_behavior_.initial_yaw_ = blackboard_ptr_->GetChassisYaw();
   };
 
   virtual BehaviorState Update() {
@@ -694,6 +695,7 @@ class TurnBackAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     //  std::cout << "TurnBackAction OnInitialize" << std::endl;
+    turn_back_behavior_.initial_yaw_ = blackboard_ptr_->GetChassisYaw();
   };
 
   virtual BehaviorState Update() {

@@ -102,7 +102,7 @@ void Execute(){
   excution_mode_ = ExcutionMode::SHOOT_MODE;
   shootdecision();
   if(cmd_shoot_client_.call(shoot_cmd_)) {
-    ROS_INFO("yes %d", (int)shoot_cmd_.response.received);
+    //ROS_INFO("yes %d", (int)shoot_cmd_.response.received);
 		is_published_ = true;
 	}
   else {
@@ -143,7 +143,7 @@ void Execute(){
       shoot_cmd_.request.mode = 1;
       shoot_cmd_.request.number = 1;
     }
-    ROS_INFO("shoot_cmd_.request.mode:%d,shoot_cmd_.request.number:%d",(int)shoot_cmd_.request.mode,(int)shoot_cmd_.request.number);
+    //ROS_INFO("shoot_cmd_.request.mode:%d,shoot_cmd_.request.number:%d",(int)shoot_cmd_.request.mode,(int)shoot_cmd_.request.number);
 
 	}
   const int GetBulletNum() {

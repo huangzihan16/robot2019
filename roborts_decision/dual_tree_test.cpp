@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 																																																}*/
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
-  game_start_selector->AddChildren(no_bullet_left_condition_);
+  //game_start_selector->AddChildren(no_bullet_left_condition_);
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
   offensive_selector->AddChildren(offensive_detect_enemy_condition_);
   offensive_selector->AddChildren(offensive_under_attack_condition_);
   offensive_selector->AddChildren(offensive_back_detect_condition_);
-  //offensive_selector->AddChildren(master_receive_condition_);
+  offensive_selector->AddChildren(master_receive_condition_);
   offensive_selector->AddChildren(offensive_search_condition_);
   offensive_selector->AddChildren(offensive_patrol_condition_);
 
@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
   // offensive_detect_enemy_sequence->AddChildren(shoot_action_);
   offensive_under_attack_condition_->SetChild(turn_to_hurt_action_);
   offensive_back_detect_condition_->SetChild(turn_back_action_);
-  //master_receive_condition_->SetChild(support_action_);
+  master_receive_condition_->SetChild(support_action_);
   offensive_search_condition_->SetChild(search_action_);
   offensive_patrol_condition_->SetChild(patrol_action_);
 

@@ -162,7 +162,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     }
     armors.clear();
     DetectLights(src_img_, lights);
-    //FilterLights(lights);
+    FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
 	//svm load
@@ -176,6 +176,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     detected = false;
     if(!armors.empty()) {
       final_armor = SlectFinalArmor(armors);
+
       if(!final_armor.empty()){
       if(final_armor.size()>0) detected = true;
       
@@ -185,12 +186,14 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
         }
         else if(final_armor[i].num == 2) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(0, 0, 255), 2,2);
-            std::cout<<"armor x : "<<final_armor[i].rect.center.x<<std::endl;
+            // std::cout<<"armor x : "<<final_armor[i].rect.center.x<<std::endl;
         }
         else if(final_armor[i].num == 0) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(255, 0, 0), 2,0);
         }
+
         CalcControlInfo(final_armor[i]);
+
       }
       }
       
@@ -482,8 +485,8 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
     auto stddev = mat_stddev.at<double>(0, 0);
     auto mean = mat_mean.at<double>(0, 0);
-    std::cout << "stddev: " << stddev << std::endl;
-    std::cout << "mean: " << mean << std::endl;
+    // std::cout << "stddev: " << stddev << std::endl;
+    // std::cout << "mean: " << mean << std::endl;
 
     if (stddev > armor_max_stddev_ || mean > armor_max_mean_) {
       armor_iter = armors.erase(armor_iter);
@@ -498,46 +501,47 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     //========depth filter============
 
   for (int i = 0; i < armors.size() ; i++) {
+     
     cv::Point2f corners[4];
-    armors[i].rect.points(corners);
-    float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y+roiy_ ,corners[0].x);
-    float depth0y=(corners[0].y+roiy_-240)*depth0z/387.4;
-    float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y+roiy_ ,corners[1].x);
-    float depth1y=(corners[1].y+roiy_-240)*depth1z/387.4;
-    float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y+roiy_ ,corners[2].x);
-    float depth2y=(corners[2].y+roiy_-240)*depth2z/387.4;
-    float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y +roiy_ ,corners[3].x);
-    float depth3y=(corners[3].y+roiy_-240)*depth3z/387.4;
+    armors[i].rect.points(corners);//0为左下角，1为左上，2为右上角
 
     int yd=armors[i].rect.center.y+roiy_ ;
     int xd=armors[i].rect.center.x;
     float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
     float depthy=(yd-240)*depthz/387.4;
-    int thresh=10;
-    // if(depth0z!=0){
-    //   if(depth0y<thresh){
-    //     is_armor[i] = false;
-    //   }
-    // }
-    // if(depth1z!=0){
-    //   if(depth1y<thresh){
-    //     is_armor[i] = false;
-    //   }
-    // }
-    // if(depth2z!=0){
-    //   if(depth2y<thresh){
-    //     is_armor[i] = false; 
-    //   }
-    // }
-    // if(depth3z!=0){
-    //   if(depth3y<thresh){
-    //     is_armor[i] = false;
-    //   }
-    // }
+    int thresh=130;  //参数
+    int sumvertex=0;
+    int nflag=0;
+
+    if(depthz>4500){
+      is_armor[i] = false;
+    }
     if(depthz!=0){
-      if(depthy<200||depthy>275){//225,267
+      sumvertex=sumvertex/nflag;
+      int diff =abs(sumvertex-depthz);
+      if(depthy<thresh){//225,307   中间大框115
         is_armor[i] = false;
+        continue;
       }
+
+      for(int k=0;k<4;k++){
+          for(int kk=0;kk<4;kk++){
+              float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
+              float depth3y=(yd+k-240)*depth3z/387.4;
+              if(depth3y!=0){
+                if(depth3y<thresh){
+                  is_armor[i] = false;
+                  break;
+                }
+              }
+          }
+          if(!is_armor[i]){
+            break;
+          }
+    }
+    }else{
+      is_armor[i] = false;
+       
     }
   }
   // nms
@@ -714,7 +718,7 @@ std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &ar
        armor_2_size++;
        final_armor2.push_back(armors[i]);
        
-       std::cout<<"armor_num2_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
+      //  std::cout<<"armor_num2_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
        if(armor_2_size>1)
        { 
          if((left_flag&&(final_armor2[0].rect.center.x<final_armor2[1].rect.center.x)))
@@ -802,7 +806,7 @@ std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &ar
        armor_0_size++;
        final_armor0.push_back(armors[i]);
        
-       std::cout<<"armor_num0_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
+      //  std::cout<<"armor_num0_"<<i<<" : "<<armors[i].rect.size.area()<<std::endl;
        if(armor_0_size>1)
        { 
          if((left_flag&&(final_armor0[0].rect.center.x<final_armor0[1].rect.center.x)))
@@ -889,6 +893,12 @@ std::vector<ArmorInfo> ConstraintSet::SlectFinalArmor(std::vector<ArmorInfo> &ar
   // std::cout<<"left_flag:"<<left_flag<<std::endl;
   // std::cout<<"final_armor size:"<<final_armor.size()<<std::endl;
   // std::cout<<"select armor center:"<<final_armor[0].rect.center.x;
+
+  final_armor_center.clear(); 
+  final_armor0.clear();
+  final_armor1.clear();
+  final_armor2.clear(); 
+  final_armor_fine.clear(); 
   
   return final_armor;
 
@@ -915,10 +925,10 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   armor.target_3d.z=depthz;
   armor.target_3d.y=depthy;
   armor.target_3d.x=depthx;
-  std::cout<<"==========from depth map=========="<<std::endl;
-  std::cout<<"x-"<<armor.target_3d.x<<std::endl;
-  std::cout<<"y-"<<armor.target_3d.y<<std::endl;
-  std::cout<<"z-"<<armor.target_3d.z<<std::endl;
+  // std::cout<<"==========from depth map=========="<<std::endl;
+  // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
+  // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
+  // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }else{
   for (unsigned int i = 0; i < 4; i++) {
       armor.vertex[i].y=armor.vertex[i].y+roiy_;
@@ -930,7 +940,7 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
                rvec,
                tvec);
   armor.target_3d = cv::Point3f(tvec);
-  std::cout<<"==========from PnP=========="<<std::endl;
+  // std::cout<<"==========from PnP=========="<<std::endl;
   // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
   // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
   // std::cout<<"z-"<<armor.target_3d.z<<std::endl;

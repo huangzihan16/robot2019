@@ -347,6 +347,8 @@ public:
   }
 
   double GetGimbalYaw();
+
+  double GetChassisYaw();
   /*******************Cost Map*******************/
   const std::shared_ptr<CostMap> GetCostMap(){
     return costmap_ptr_;

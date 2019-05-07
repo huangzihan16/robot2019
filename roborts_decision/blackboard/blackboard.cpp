@@ -420,7 +420,7 @@ namespace roborts_decision {
   }
 
   void Blackboard::SendSupplyCmd() {
-    projectilesupply_.supply = 1;
+    projectilesupply_.number = 50;
     projectile_supply_pub_.publish(projectilesupply_);
   }
 
@@ -527,6 +527,15 @@ namespace roborts_decision {
     UpdateGimbalPose();
     tf::Quaternion q;
     tf::quaternionMsgToTF(gimbal_base_pose_.pose.orientation, q);
+    double roll,pitch,yaw;
+    tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+    return yaw;
+  }
+
+  double Blackboard::GetChassisYaw() {
+    UpdateRobotPose();
+    tf::Quaternion q;
+    tf::quaternionMsgToTF(robot_map_pose_.pose.orientation, q);
     double roll,pitch,yaw;
     tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
     return yaw;

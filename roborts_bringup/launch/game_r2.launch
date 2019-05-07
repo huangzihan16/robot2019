@@ -1,4 +1,10 @@
 <launch>
+<!-- Run the multimaster_discovery -->
+<include file="$(find roborts_bringup)/launch/multimaster_discovery.launch" />
+
+<!-- Run the multimaster_sync -->
+<include file="$(find roborts_bringup)/launch/multimaster_sync_robot2.launch" />
+
 <arg name="identity" value="robot2" />
 <group ns="$(arg identity)">
   <master auto="start"/>
@@ -7,13 +13,8 @@
   <!--Load parameters for localization node  -->
   <rosparam command="load" file="$(find roborts_localization)/config/localization.yaml" />
   <rosparam command="load" file="$(find roborts_localization)/amcl/config/amcl.yaml" />
-
-  <!-- Run the multimaster_discovery -->
-  <include file="$(find roborts_bringup)/launch/multimaster_discovery.launch" />
-
-  <!-- Run the multimaster_sync -->
-  <include file="$(find roborts_bringup)/launch/multimaster_sync_robot1.launch" />
-
+  <rosparam command="load" file="$(find initial_pose)/config/initialpose.yaml" />
+  
   <!-- Run the robot sdk interface -->
   <include file="$(find roborts_bringup)/launch/base.launch" />
 
