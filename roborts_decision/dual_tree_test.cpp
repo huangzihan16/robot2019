@@ -97,19 +97,19 @@ int main(int argc, char **argv) {
   //game_start_selector
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
-																																															[&]() {if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-                                                                                                /*if (!blackboard_ptr_->IsBulletLeft()) {
+																																															[&]() {/*if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}*/
+                                                                                                if (!blackboard_ptr_->IsBulletLeft()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
-  //game_start_selector->AddChildren(no_bullet_left_condition_);
+  game_start_selector->AddChildren(no_bullet_left_condition_);
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
   supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
 
-  // no_bullet_left_selector->AddChildren(guard_action_);
+  no_bullet_left_selector->AddChildren(guard_action_);
 
 
   //bullet left
