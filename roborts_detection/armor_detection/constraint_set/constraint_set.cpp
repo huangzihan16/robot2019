@@ -24,6 +24,7 @@
 
 #include "svm.h"
 
+
 namespace roborts_detection {
 
 ConstraintSet::ConstraintSet(std::shared_ptr<CVToolbox> cv_toolbox):
@@ -162,20 +163,23 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     }
     armors.clear();
     DetectLights(src_img_, lights);
-    FilterLights(lights);
+    //FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
 	//svm load
-    vector<Point2f> ones, twos;           
+    vector<Point2f> ones, twos;  
+    std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
     detect12FromImage(src_img_, ones, twos);//svm
+    std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
     Add12Label(armors, ones, twos);
-    
+    std::cout<<"ccccccccccccccccccccccc"<<std::endl;
     
 
     std::vector<ArmorInfo> final_armor;
     detected = false;
     if(!armors.empty()) {
       final_armor = SlectFinalArmor(armors);
+      std::cout<<"ddddddddddddddddddddddd"<<std::endl;
 
       if(!final_armor.empty()){
       if(final_armor.size()>0) detected = true;
@@ -190,9 +194,11 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
         }
         else if(final_armor[i].num == 0) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(255, 0, 0), 2,0);
-        }
+        }    
+        std::cout<<"eeeeeeeeeeeeeeeeeeeeeeeee"<<std::endl;
 
         CalcControlInfo(final_armor[i]);
+        std::cout<<"ffffffffffffffffffffff"<<std::endl;
 
       }
       }
@@ -209,6 +215,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
   //armors.clear();
   armors = final_armor;
   final_armor.clear();
+  std::cout<<"gggggggggggggggggggggggggggg"<<std::endl;
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
@@ -335,21 +342,21 @@ void ConstraintSet::PossibleArmors(const std::vector<cv::RotatedRect> &lights, s
 
       float light1_angle = light1.angle; //light1.size.width < light1.size.height ? -light1.angle : light1.angle + 90
       float light2_angle = light2.angle; //light2.size.width < light2.size.height ? -light2.angle : light2.angle + 90
-      //std::cout << "light1_angle: " << light1_angle << std::endl;
-      //std::cout << "light2_angle: " << light2_angle << std::endl;
+      std::cout << "light1_angle: " << light1_angle << std::endl;
+      std::cout << "light2_angle: " << light2_angle << std::endl;
 
-      // if (enable_debug_) {
-      //   std::cout << "*******************************" << std::endl;
-      //   std::cout << "light_angle_diff_: " << std::abs(light1_angle - light2_angle) << std::endl;
-      //   std::cout << "radio: " << std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) << std::endl;
-      //   std::cout << "armor_angle_: " << std::abs(center_angle) << std::endl;
-       // std::cout << "armor_aspect_ratio_: " << rect.size.width / (float) (rect.size.height) << std::endl;
-      //   std::cout << "armor_area_: " << std::abs(rect.size.area()) << std::endl;
-      //   std::cout << "armor_pixel_val_: " << (float)(gray_img_.at<uchar>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))) << std::endl;
-      //   std::cout << "pixel_y" << static_cast<int>(rect.center.y) << std::endl;
-      //   std::cout << "pixel_x" << static_cast<int>(rect.center.x) << std::endl;
-      // }
-      //
+      if (enable_debug_) {
+        std::cout << "*******************************" << std::endl;
+        std::cout << "light_angle_diff_: " << std::abs(light1_angle - light2_angle) << std::endl;
+        std::cout << "radio: " << std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) << std::endl;
+        std::cout << "armor_angle_: " << std::abs(center_angle) << std::endl;
+       std::cout << "armor_aspect_ratio_: " << rect.size.width / (float) (rect.size.height) << std::endl;
+        std::cout << "armor_area_: " << std::abs(rect.size.area()) << std::endl;
+        std::cout << "armor_pixel_val_: " << (float)(gray_img_.at<uchar>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))) << std::endl;
+        std::cout << "pixel_y" << static_cast<int>(rect.center.y) << std::endl;
+        std::cout << "pixel_x" << static_cast<int>(rect.center.x) << std::endl;
+      }
+      
       auto angle_diff = std::abs(light1_angle - light2_angle);
       // Avoid incorrect calculation at 180 and 0.
       if (angle_diff > 175) {
@@ -1039,7 +1046,8 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
 
     //获得canny边缘检测结果
     Mat canny;
-    Canny(gray, canny, std::ceil(mean*1.2), std::ceil(mean*0.8));
+    Canny(gray, canny, 150, 100);
+    //Canny(gray, canny, 70, 50);//night
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2, 2));
     dilate(canny, canny, element);//对canny膨胀，可防止提取轮廓时不闭合的情况
     imshow("canny",canny);
@@ -1060,37 +1068,37 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
     sortLinkList *two_sort = new sortLinkList;
     two_sort->next = NULL;
 
-    vector<Mat> bgr;
-    split(colorImg, bgr);
+    // vector<Mat> bgr;
+    // split(colorImg, bgr);
 
-    Mat redImg,blueImg;
-    redImg = bgr[2]-bgr[0];
-    blueImg = bgr[0]-bgr[2];
+    // Mat redImg,blueImg;
+    // redImg = bgr[2]-bgr[0];
+    // blueImg = bgr[0]-bgr[2];
 
-    threshold(redImg,redImg,50,255,CV_THRESH_BINARY);
-    threshold(blueImg,blueImg,50,255,CV_THRESH_BINARY);
+    // threshold(redImg,redImg,50,255,CV_THRESH_BINARY);
+    // threshold(blueImg,blueImg,50,255,CV_THRESH_BINARY);
+    // imshow("redImg",redImg);
+    // imshow("blueImg",blueImg);
 
     //在这个循环里获得候选矩形框并存入链表，从而进行下一步非极大值抑制
     for(unsigned int i=0;i<contours.size();i++)
     {
         double contArea = contourArea(contours[i]);//这个函数能够估计一个轮廓占的像素面积
-        if(contArea>80&&contArea<1500)//用面积做初步筛选，剔除无关轮廓,500是经验值，可以调整
+        if(contArea>80)//用面积做初步筛选，剔除无关轮廓,500是经验值，可以调整&&contArea<1500
         {
             //由于轮廓序列存储的是轮廓点在原图的坐标，因此先生成一个等大空图，画上轮廓，再从中截取轮廓外接矩形部分，resize成固定大大小进行HOG识别。
-	    Rect boundRect = boundingRect(Mat(contours[i]));
-	    if(boundRect.width>boundRect.height*1.2) continue;
+	          Rect boundRect = boundingRect(Mat(contours[i]));
+	          if(boundRect.width>boundRect.height*1.2) continue;
 
-      int brightCount = 0;
-      for(int k=boundRect.x;k<boundRect.x+boundRect.width;k++)
-      for(int l=boundRect.y;l<boundRect.y+boundRect.height;l++)
-      {
-        if(gray.at<uchar>(k,l)>150) brightCount++;
-      }
-      if(brightCount > boundRect.width*boundRect.height/16) {
-        continue;
-        std::cout<<"erase for bright"<<std::endl;}
-
-      if(boundRect.x)
+      // int brightCount = 0;
+      // for(int k=boundRect.x;k<boundRect.x+boundRect.width;k++)
+      // for(int l=boundRect.y;l<boundRect.y+boundRect.height;l++)
+      // {
+      //   if(gray.at<uchar>(k,l)>150) brightCount++;
+      // }
+      // if(brightCount > boundRect.width*boundRect.height/16) {
+      //   continue;
+      //   std::cout<<"erase for bright"<<std::endl;}
 
             tempContours.push_back(contours[i]);
             Mat tempGray = Mat::zeros(gray.rows, gray.cols, CV_8UC1);
@@ -1137,16 +1145,16 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
 
             if(pred2!=0)//如果检测到了数字则进行颜色筛选
             {
-                unsigned int redCount=0,blueCount=0;
-                for(int k=tempBoundRect.x;k<tempBoundRect.x+tempBoundRect.width;k++)
-                for(int j=tempBoundRect.y;j<tempBoundRect.y+tempBoundRect.height;j++)
-                {
-                    if(redImg.at<uchar>(j,k)>127) redCount++;
-                    if(blueImg.at<uchar>(j,k)>127) blueCount++;
-                }
-                //if(blueCount>3*redCount&&enemy_color_==BLUE) rectangle(tempImage,boundRect,Scalar(255,0,0),4);//如果蓝色比红色多三倍,且需要识别蓝色
-                //else if(redCount>3*blueCount&&enemy_color_==RED) rectangle(tempImage,boundRect,Scalar(0,0,255),4);//如果红色比蓝色多三倍,且需要识别红色
-                if(!((blueCount>2*redCount&&enemy_color_==BLUE)||(redCount>2*blueCount&&enemy_color_==RED))) continue;
+                // unsigned int redCount=0,blueCount=0;
+                // for(int k=tempBoundRect.x;k<tempBoundRect.x+tempBoundRect.width;k++)
+                // for(int j=tempBoundRect.y;j<tempBoundRect.y+tempBoundRect.height;j++)
+                // {
+                //     if(redImg.at<uchar>(j,k)>127) redCount++;
+                //     if(blueImg.at<uchar>(j,k)>127) blueCount++;
+                // }
+                // //if(blueCount>3*redCount&&enemy_color_==BLUE) rectangle(tempImage,boundRect,Scalar(255,0,0),4);//如果蓝色比红色多三倍,且需要识别蓝色
+                // //else if(redCount>3*blueCount&&enemy_color_==RED) rectangle(tempImage,boundRect,Scalar(0,0,255),4);//如果红色比蓝色多三倍,且需要识别红色
+                // if(!((blueCount>2*redCount&&enemy_color_==BLUE)||(redCount>2*blueCount&&enemy_color_==RED))) continue;
 
                 //根据SVM结果将信息存储于对应链表中
                 if(pred2>0)

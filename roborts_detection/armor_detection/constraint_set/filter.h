@@ -10,12 +10,12 @@ using namespace std;
 
 class Filter {
 public:
-  Filter(): stateNum_(2), measureNum_(2), T_(0.03){
+  Filter(): stateNum_(2), measureNum_(2), T_(1/45){
     kalmanfilter_.init(stateNum_,measureNum_,0);
     kalmanfilter_.transitionMatrix = (Mat_<float>(2, 2) <<1,T_,0,1);  //转移矩阵A
     kalmanfilter_.measurementMatrix = (Mat_<float>(2, 2) <<1,0,0,1);//测量矩阵H
-	setIdentity(kalmanfilter_.processNoiseCov, Scalar::all(1e-8));                            //系统噪声方差矩阵Q
-	setIdentity(kalmanfilter_.measurementNoiseCov, Scalar::all(1e-8));                        //测量噪声方差矩阵R
+	setIdentity(kalmanfilter_.processNoiseCov, Scalar::all(1e-2));                            //系统噪声方差矩阵Q
+	setIdentity(kalmanfilter_.measurementNoiseCov, Scalar::all(1));                        //测量噪声方差矩阵R
 	setIdentity(kalmanfilter_.errorCovPost, Scalar::all(1));                                  //后验估计协方差矩阵P
     kalmanfilter_.statePost = (Mat_<float>(2, 1) <<0,0.00);      //初始状态值x(0)
 	  measurement = (Mat_<float>(2, 1) <<0,0);                          //初始测量值x'(0)，因为后面要更新这个值，所以必须先定义
@@ -35,20 +35,10 @@ public:
  
 	//4.update
 	kalmanfilter_.correct(measurement);  //最终结果是更新后的statePost
-
-
-  speed = kalmanfilter_.statePost.at<float>(0) - last_yaw_;
-  last_yaw_ = kalmanfilter_.statePost.at<float>(0);
-  yaw_ = kalmanfilter_.statePost.at<float>(0) + kalmanfilter_.statePost.at<float>(1) * 1;
-
-  ROS_INFO("speed_f:%f",kalmanfilter_.statePost.at<float>(1));
-  if (kalmanfilter_.statePost.at<float>(1) < 0.1 && kalmanfilter_.statePost.at<float>(1) > -0.1){
-    return 0;
-  } else {
-    return kalmanfilter_.statePost.at<float>(1);
-  }
-
-  
+  speed_ = kalmanfilter_.statePost.at<float>(1);
+  float yaw_calibration;
+  yaw_calibration = kalmanfilter_.statePost.at<float>(0) + 0.5 * kalmanfilter_.statePost.at<float>(1);
+  return kalmanfilter_.statePost.at<float>(1);
 
   }
 

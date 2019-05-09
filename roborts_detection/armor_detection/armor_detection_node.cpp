@@ -19,7 +19,8 @@
 #include <unistd.h>
 #include "armor_detection_node.h"
 #include "ros/ros.h"
-
+#include<stdio.h>
+#include<stdlib.h>
 namespace roborts_detection {
 
 ArmorDetectionNode::ArmorDetectionNode():
@@ -201,9 +202,15 @@ void ArmorDetectionNode::ExecuteLoop() {
         // float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
         // float Ks_[6] = {1,20,5000,20,10,1};
         float Ky, Ks;
-        float enemy_duration_time;
-        static ros::Time last_enemy_time = ros::Time::now();
-
+        float enemy_duration_time,gimbal_control_time;
+        static ros::Time last_enemy_time = ros::Time::now(),last_time_ = ros::Time::now();
+        char yawArray[20],speedArray[20];
+  FILE *file_fd = fopen("filter.txt","a+"); 
+    if(file_fd == NULL) {  
+       ROS_ERROR("File Open failed!"); 
+    } else {  
+       ROS_INFO("File Open successed!");  
+    } 
   while(running_) {
     usleep(1);
     if (node_state_ == NodeState::RUNNING) {
@@ -220,19 +227,23 @@ void ArmorDetectionNode::ExecuteLoop() {
         enemy_duration_time = enemy_duration.toSec();
         ROS_INFO("enemy_duration_time:%f",enemy_duration_time);
         gimbal_control_.Transform(armors[0].target_3d, pitch, yaw);
-        
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
         gimbal_angle_.pitch_angle = pitch;
-          double gimbal_yaw = GetGimbalYaw();
-          delta_yaw = yaw;
-          all_yaw = gimbal_yaw + delta_yaw;
-          speed = (all_yaw - last_yaw_) / 1;
-          ROS_INFO("all_yaw:%f, last_yaw_:%f, speed:%f",all_yaw,last_yaw_,speed);
-          last_yaw_ = all_yaw;
+        double gimbal_yaw = GetGimbalYaw();
+        delta_yaw = yaw;
+        all_yaw = gimbal_yaw + delta_yaw;
+        sprintf(yawArray,"%.10lf",all_yaw);
+        ROS_INFO("yawArray:%s",yawArray);
+        fwrite(yawArray,sizeof(yawArray),1,file_fd);
+        // fwrite("\n",sizeof("\n"),1,file_fd);
+        duration = ros::Time::now() - last_time_;
+        gimbal_control_time = duration.toSec();
+        speed = (all_yaw - last_yaw_) / gimbal_control_time;
+        last_yaw_ = all_yaw;
+        last_time_ = ros::Time::now();
 
         if (enemy_duration_time > 2 && yaw < 0.1){
-          //speed = kalmanfilter_.Update(all_yaw, speed);
           CalcMembership(yaw, MembershipKy, BoundKy_);
           CalcMembership(yaw, MembershipKs, BoundKs_);
           Ky = 0;
@@ -243,22 +254,19 @@ void ArmorDetectionNode::ExecuteLoop() {
                 Ks += Ks_[i] * MembershipKs[i] / 100;
   		        }
           }
-          gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
+          float speed_estimate = kalmanfilter_.Update(all_yaw, speed);
+          if (speed_estimate > 1 || speed_estimate < -1)
+             speed_estimate = 0;
+          gimbal_angle_.yaw_angle =  0.3 * yaw + 0.06 * speed_estimate;
+
           PublishMsgs();
-        } else if (enemy_duration_time >2 && speed > 0.03){
-            // ROS_INFO("yaw:%f, speed>XXXX:%f",yaw,speed);
-            gimbal_angle_.yaw_angle = 0;//0.3 0.6
-            PublishMsgs();
         } else {
           speed = 0;
           gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
           PublishMsgs();
         }
-        //ROS_INFO("yaw:%f, speed:%f",yaw,speed);
-        //gimbal_angle_.yaw_angle = 0.3 * yaw + 0.6 * speed;//0.3 0.6
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
-        //PublishMsgs();
 
 
         //TODO ff
