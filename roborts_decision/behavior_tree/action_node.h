@@ -654,6 +654,22 @@ class TurnToHurtAction : public ActionNode {
   virtual void OnInitialize() {
     //  std::cout << "TurnToHurtAction OnInitialize" << std::endl;
     turn_to_hurt_behavior_.initial_yaw_ = blackboard_ptr_->GetChassisYaw();
+    turn_to_hurt_behavior_.initial_damage_source_ = blackboard_ptr_->GetDamageSource();
+    
+    switch (turn_to_hurt_behavior_.initial_damage_source_){
+      case DamageSource::BACKWARD:
+        turn_to_hurt_behavior_.initial_speed_ = 2 * M_PI;
+        break;
+      case DamageSource::LEFT:
+        turn_to_hurt_behavior_.initial_speed_ = 2 * M_PI;
+        break;
+      case DamageSource::RIGHT:
+        turn_to_hurt_behavior_.initial_speed_ = -2 * M_PI;
+        break;
+      default:
+        turn_to_hurt_behavior_.initial_speed_ = 0;
+    }
+    turn_to_hurt_behavior_.StopTimesSetToZero();
   };
 
   virtual BehaviorState Update() {
@@ -696,6 +712,7 @@ class TurnBackAction : public ActionNode {
   virtual void OnInitialize() {
     //  std::cout << "TurnBackAction OnInitialize" << std::endl;
     turn_back_behavior_.initial_yaw_ = blackboard_ptr_->GetChassisYaw();
+    turn_back_behavior_.StopTimesSetToZero();
   };
 
   virtual BehaviorState Update() {

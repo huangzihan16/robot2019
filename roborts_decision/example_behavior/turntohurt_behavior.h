@@ -20,81 +20,86 @@ class TurnToHurtBehavior {
 		rotate_speed_.angular.x = 0;
 		rotate_speed_.angular.y = 0;
 		rotate_speed_.angular.z = 0;
+    last_stop_time_ = ros::Time::now();
+    stop_times_ = 0;
   }
 
   void Run() {
     auto executor_state = Update();
-
-    if (executor_state != BehaviorState::RUNNING)
-      initial_damage_source_ = blackboard_->GetDamageSource();
-    
-    double speed;
-    switch (initial_damage_source_){
-      case DamageSource::FORWARD:
-        rotate_speed_.angular.z = 0;
-        break;
-      case DamageSource::BACKWARD:
-        rotate_speed_.angular.z = 2 * M_PI;
-        break;
-      case DamageSource::LEFT:
-        rotate_speed_.angular.z = 2 * M_PI;
-        break;
-      case DamageSource::RIGHT:
-        rotate_speed_.angular.z = -2 * M_PI;
-        break;
-      default:
-        rotate_speed_.angular.z = 0;
-        return;
-    }
     double delta_yaw = StandardAngleDiff(blackboard_->GetChassisYaw(), initial_yaw_);
+    double speed = 0;
+    ros::Duration laststop_to_now = ros::Time::now() - last_stop_time_;
     switch (initial_damage_source_){
       case DamageSource::BACKWARD:
-        if (delta_yaw > 170 * M_PI / 180 || delta_yaw < -170 * M_PI / 180) {
+        if (delta_yaw > 115 * M_PI / 180 && (stop_times_ == 0 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 0) {         
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if ((delta_yaw > 170 * M_PI / 180 || delta_yaw < 0 * M_PI / 180) &&
+                    (stop_times_ == 1 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 1) {
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if (delta_yaw > -125 * M_PI / 180 && (stop_times_ == 2 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 2) {
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if (stop_times_ == 3) {
           chassis_executor_->Cancel();
           return;
-        }
+        } else 
+          speed = initial_speed_;
         break;
       case DamageSource::LEFT:
-        if (delta_yaw > M_PI / 2) {
+        if (delta_yaw > 55 * M_PI / 180 && (stop_times_ == 0 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 0) {         
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if (delta_yaw > 115 * M_PI / 180 && (stop_times_ == 1 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 1) {
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if (stop_times_ == 2) {
           chassis_executor_->Cancel();
           return;
-        }
+        } else 
+          speed = initial_speed_;
         break;
       case DamageSource::RIGHT:
-        if (delta_yaw < -M_PI / 2) {
+        if (delta_yaw < -55 * M_PI / 180 && (stop_times_ == 0 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 0) {         
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        }else if (delta_yaw < -115 * M_PI / 180 && (stop_times_ == 1 || laststop_to_now.toSec() < 0.3)) {
+          speed = 0;
+          if (stop_times_ == 1) {
+            last_stop_time_ = ros::Time::now();
+            stop_times_++;
+          }
+        } else if (stop_times_ == 2) {
           chassis_executor_->Cancel();
           return;
-        }
+        } else 
+          speed = initial_speed_;
         break;
       default:
         return;
     }
+    
+    rotate_speed_.angular.z = speed;
     chassis_executor_->Execute(rotate_speed_);
-    // ROS_INFO("Executor_state: %d", (int)executor_state);
-    /*if (executor_state != BehaviorState::RUNNING){
-      double yaw;
-      switch (blackboard_->GetDamageSource()){
-        case DamageSource::FORWARD:
-          break;
-        case DamageSource::BACKWARD:
-          yaw = M_PI;
-          break;
-        case DamageSource::LEFT:
-          yaw = M_PI/2.;
-          break;
-        case DamageSource::RIGHT:
-          yaw = -M_PI/2.;
-          break;
-        default:
-          return;
-      }
-      geometry_msgs::PoseStamped hurt_pose;
-      auto quaternion = tf::createQuaternionMsgFromYaw(yaw);
-      hurt_pose.header.frame_id="base_link";
-      hurt_pose.header.stamp=ros::Time::now();
-      hurt_pose.pose.orientation=quaternion;
-      chassis_executor_->Execute(hurt_pose);
-    }*/
   }
 
   void Cancel() {
@@ -103,6 +108,10 @@ class TurnToHurtBehavior {
 
   BehaviorState Update() {
     return chassis_executor_->Update();
+  }
+
+  void StopTimesSetToZero() {
+    stop_times_ = 0;
   }
 
   ~TurnToHurtBehavior() = default;
@@ -121,6 +130,7 @@ class TurnToHurtBehavior {
   //The initial yaw when the behavior is on
   double initial_yaw_;
   DamageSource initial_damage_source_;
+  double initial_speed_;
 
  private:
   //! executor
@@ -130,6 +140,9 @@ class TurnToHurtBehavior {
   Blackboard* const blackboard_;
 
   geometry_msgs::Twist rotate_speed_;
+
+  ros::Time last_stop_time_;
+  int stop_times_;
 };
 
 class TurnBackBehavior {
@@ -141,30 +154,42 @@ class TurnBackBehavior {
 		rotate_speed_.linear.z = 0;
 		rotate_speed_.angular.x = 0;
 		rotate_speed_.angular.y = 0;
-		rotate_speed_.angular.z = 2 * M_PI;
+		rotate_speed_.angular.z = 0;
+    initial_speed_ = 2 * M_PI;
   }
 
   void Run() {
     auto executor_state = Update();
     double delta_yaw = StandardAngleDiff(blackboard_->GetChassisYaw(), initial_yaw_);
-    if (delta_yaw > 170 * M_PI / 180 || delta_yaw < -170 * M_PI / 180) {
+    double speed = 0;
+    ros::Duration laststop_to_now = ros::Time::now() - last_stop_time_;
+    if (delta_yaw > 115 * M_PI / 180 && (stop_times_ == 0 || laststop_to_now.toSec() < 0.3)) {
+      speed = 0;
+      if (stop_times_ == 0) {         
+        last_stop_time_ = ros::Time::now();
+        stop_times_++;
+      }
+    } else if ((delta_yaw > 170 * M_PI / 180 || delta_yaw < 0 * M_PI / 180) &&
+               (stop_times_ == 1 || laststop_to_now.toSec() < 0.3)) {
+      speed = 0;
+      if (stop_times_ == 1) {
+        last_stop_time_ = ros::Time::now();
+        stop_times_++;
+      }
+    } else if (delta_yaw > -125 * M_PI / 180 && (stop_times_ == 2 || laststop_to_now.toSec() < 0.3)) {
+      speed = 0;
+      if (stop_times_ == 2) {
+        last_stop_time_ = ros::Time::now();
+        stop_times_++;
+      }
+    } else if (stop_times_ == 3) {
       chassis_executor_->Cancel();
       return;
-    }
+    } else 
+      speed = initial_speed_;
+
+    rotate_speed_.angular.z = speed;
     chassis_executor_->Execute(rotate_speed_);
-    // if (executor_state != BehaviorState::RUNNING){
-    //   if(blackboard_->back_enemy_detected_){
-    //     double yaw = M_PI;
-    //     geometry_msgs::PoseStamped back_pose;
-    //     auto quaternion = tf::createQuaternionMsgFromYaw(yaw);
-    //     back_pose.header.frame_id="base_link";
-    //     back_pose.header.stamp=ros::Time::now();
-    //     back_pose.pose.orientation=quaternion;
-    //     chassis_executor_->Execute(back_pose);
-    //   }else{
-    //     return;
-    //   }
-    // }
   }
 
   void Cancel() {
@@ -173,6 +198,10 @@ class TurnBackBehavior {
 
   BehaviorState Update() {
     return chassis_executor_->Update();
+  }
+
+  void StopTimesSetToZero() {
+    stop_times_ = 0;
   }
 
   ~TurnBackBehavior() = default;
@@ -190,6 +219,7 @@ private:
  public:
   //The initial yaw when the behavior is on
   double initial_yaw_;
+  double initial_speed_;
 
  private:
   //! executor
@@ -199,6 +229,9 @@ private:
   Blackboard* const blackboard_;
 
   geometry_msgs::Twist rotate_speed_;
+
+  ros::Time last_stop_time_;
+  int stop_times_;
 };
 
 
