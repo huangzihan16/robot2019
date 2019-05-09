@@ -409,6 +409,9 @@ void ObstacleLayer::UpdateBounds(double robot_x,
     RaytraceFreespace(clearing_observations[i], min_x, min_y, max_x, max_y);
   }
 
+  // reset map each time
+  memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+
   double resolution = layered_costmap_->GetCostMap()->GetResolution();
 	enemy_inflation_grid_ = (int)std::ceil(enemy_inflation_ / resolution);
 

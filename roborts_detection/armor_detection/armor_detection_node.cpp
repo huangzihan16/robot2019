@@ -190,7 +190,7 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
 }
 
 #define MAX_MIN_WHIRL_ANGLE     60*3.1415926/180
-#define WHIRL_SCAN_DELTA_ANGLE  3*3.1415926/180
+#define WHIRL_SCAN_DELTA_ANGLE  6*3.1415926/180
 void ArmorDetectionNode::ExecuteLoop() {
   undetected_count_ = 0;
                    static float direction = 1;

@@ -170,9 +170,9 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
 
     // Constants
-    const double arc_length = 0.3;
-    const double r = 0.3;
-    const double angle_step = arc_length / r;
+    double arc_length = 0.2;
+    double r = 0.2;
+    double angle_step = arc_length / r;
     const double h = 0.0;
     pcl::PointXYZ temp;
     temp.z = h;
@@ -192,6 +192,9 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
       }
     }
 
+    arc_length = 0.135;
+    r = 0.135;
+    angle_step = arc_length / r;
     if (is_enemy_detected) {
       if (!enemy_poses_from_partner_.empty()) {
         for (int i = 0; i < enemy_poses_from_partner_.size(); i++) {
