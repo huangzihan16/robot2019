@@ -259,17 +259,25 @@ public:
   void SendSupplyCmd();
   
   GameStatus GetGameStatus() const{
-    ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
+    // ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
     return game_status_;
   }
-  BonusStatus GetBonusStatus() const {// not right
-    ROS_INFO("%s: %d", __FUNCTION__, (int)red_bonus_status_);
-    return red_bonus_status_;
+  BonusStatus GetBonusStatus() const {
+    //   ROS_INFO("%s: %d", __FUNCTION__, (int)blue_bonus_status_);
+    if (id_ == 3 || id_ == 4){
+      return red_bonus_status_;
+    } else {
+      return blue_bonus_status_;  
+    } 
   }
-  BonusStatus GetEnemyBonusStatus() const {// not right
-    ROS_INFO("%s: %d", __FUNCTION__, (int)blue_bonus_status_);
-    return blue_bonus_status_;
-  }
+
+  BonusStatus GetEnemyBonusStatus() const {
+    // ROS_INFO("%s: %d", __FUNCTION__, (int)blue_bonus_status_);
+    if (id_ == 3 || id_ == 4){
+      return blue_bonus_status_;
+    } else {
+      return red_bonus_status_;  
+    }   }
 
   SupplierStatus GetSupplierStatus(){
     ROS_INFO("%s: %d", __FUNCTION__, (int)supplier_status_);

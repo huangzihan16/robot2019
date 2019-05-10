@@ -420,7 +420,7 @@ namespace roborts_decision {
   }
 
   void Blackboard::SendSupplyCmd() {
-    projectilesupply_.number = 50;
+    projectilesupply_.number = 100;
     projectile_supply_pub_.publish(projectilesupply_);
   }
 
@@ -429,14 +429,14 @@ namespace roborts_decision {
 		UpdateRobotPose();
 		double delta_x = robot_map_pose_.pose.position.x - 6.3;
 		double delta_y = robot_map_pose_.pose.position.y - 1.75;
-		// if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
-    //   return true;
-    // else 
-    //   return false;
-		if (delta_x * delta_x + delta_y * delta_y < 0.01) 
-			return true;
-		else 
-			return false;
+		if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
+      return true;
+    else 
+      return false;
+		// if (delta_x * delta_x + delta_y * delta_y < 0.01) 
+		// 	return true;
+		// else 
+		// 	return false;
 	}
 
   geometry_msgs::PoseStamped Blackboard::GetSupplyGoal() {
@@ -678,7 +678,6 @@ namespace roborts_decision {
 		ros::Duration time_past = ros::Time::now() - start_time_;
 		if (time_past.toSec() >= 60 * supply_number_){
       return true;
-      supplier_status_ = SupplierStatus::PREPARING;
     }
 		else
 			return false;
