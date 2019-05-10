@@ -182,13 +182,31 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
     if (!partner_pose_.header.frame_id.empty()) {
       // Transform partner_pose_ to partner_pose_tmp_
       geometry_msgs::PoseStamped partner_pose_tmp_;
-      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, partner_pose_.header.stamp, ros::Duration(3.0));
-      tf_.transformPose(cloud.header.frame_id, partner_pose_, partner_pose_tmp_);
-      // Add partner information into pcl_cloud
-      for(double angle = 0; angle < 2*3.14; angle += angle_step) {
-        temp.x = partner_pose_tmp_.pose.position.x + r * cos(angle);
-        temp.y = partner_pose_tmp_.pose.position.y + r * sin(angle);
-        pcl_cloud.push_back(temp);
+      bool is_transform = true;
+      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+      try {
+        tf_.transformPose(cloud.header.frame_id, ros::Time(0), partner_pose_, partner_pose_.header.frame_id, partner_pose_tmp_);
+      } catch (tf::ExtrapolationException &ex) {
+        ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+        is_transform = false;
+      } catch (TransformException &tfe) {
+        ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", partner_pose_.header.frame_id.c_str(),
+              cloud.header.frame_id.c_str(), tfe.what());
+        is_transform = false;
+      } catch (const std::exception &e) {
+        std::cerr << e.what() << '\n';
+        is_transform = false;
+      } catch (...) {
+        ROS_ERROR("Unknown exception when transforming partner pose");
+        is_transform = false;
+      }
+      if (is_transform) {
+        // Add partner information into pcl_cloud
+        for(double angle = 0; angle < 2*3.14; angle += angle_step) {
+          temp.x = partner_pose_tmp_.pose.position.x + r * cos(angle);
+          temp.y = partner_pose_tmp_.pose.position.y + r * sin(angle);
+          pcl_cloud.push_back(temp);
+        }
       }
     }
 
@@ -201,14 +219,32 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
           // Transform enemy_pose_from_partner_ to enemy_pose_tmp_
 					if (!enemy_poses_from_partner_[i].header.frame_id.empty()) {
 						geometry_msgs::PoseStamped enemy_pose_tmp_;
-            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, enemy_poses_from_partner_[i].header.stamp, ros::Duration(3.0));
-						tf_.transformPose(cloud.header.frame_id, enemy_poses_from_partner_[i], enemy_pose_tmp_);
-						// Add partner information into pcl_cloud
-						for(double angle = 0; angle < 2*3.14; angle += angle_step) {
-							temp.x = enemy_pose_tmp_.pose.position.x + r * cos(angle);
-							temp.y = enemy_pose_tmp_.pose.position.y + r * sin(angle);
-							pcl_cloud.push_back(temp);
-						}
+            bool is_transform = true;
+            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+            try {
+              tf_.transformPose(cloud.header.frame_id, ros::Time(0), enemy_poses_from_partner_[i], enemy_poses_from_partner_[i].header.frame_id, enemy_pose_tmp_);
+            } catch (tf::ExtrapolationException &ex) {
+              ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+              is_transform = false;
+            } catch (TransformException &tfe) {
+              ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", enemy_poses_from_partner_[i].header.frame_id.c_str(),
+                    cloud.header.frame_id.c_str(), tfe.what());
+              is_transform = false;
+            } catch (const std::exception &e) {
+              std::cerr << e.what() << '\n';
+              is_transform = false;
+            } catch (...) {
+              ROS_ERROR("Unknown exception when transforming enemy pose from partner");
+              is_transform = false;
+            }
+            if (is_transform) {
+              // Add partner information into pcl_cloud
+              for(double angle = 0; angle < 2*3.14; angle += angle_step) {
+                temp.x = enemy_pose_tmp_.pose.position.x + r * cos(angle);
+                temp.y = enemy_pose_tmp_.pose.position.y + r * sin(angle);
+                pcl_cloud.push_back(temp);
+              }
+            }
 					}
 				}
       }

@@ -124,7 +124,21 @@ int DistanceMap::GetSizeY() const {
 }
 
 const double DistanceMap::GetCellOccDistByIndex(int cell_index) {
-	return cells_vec_[cell_index].occ_distance;
+	// return cells_vec_[cell_index].occ_distance;
+  double dis = 0.0;
+  try {
+    dis = cells_vec_.at(cell_index).occ_distance;
+  } catch (const std::out_of_range &oor) {
+    std::cerr << "Out of Range error: " << oor.what() << '\n';
+    dis = 0.0;
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    dis = 0.0;
+  } catch (...) {
+    ROS_ERROR("Unknown exception when getting distance to wall");
+    dis = 0.0;
+  }
+  return dis;
 }
 
 int DistanceMap::ComputeCellIndexByMap(const int& i, const int& j) {
@@ -409,7 +423,7 @@ void ObstacleLayer::UpdateBounds(double robot_x,
     RaytraceFreespace(clearing_observations[i], min_x, min_y, max_x, max_y);
   }
 
-  // reset map each time
+  // reset obstacle layer each time
   memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
 
   double resolution = layered_costmap_->GetCostMap()->GetResolution();
@@ -457,20 +471,32 @@ void ObstacleLayer::UpdateBounds(double robot_x,
         geometry_msgs::PointStamped ps_map;
 
         // transform from odom to map
-        bool is_get_transform = true;
+        bool is_transform = true;
         tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(3.0));
         try {
           tf_->transformPoint("map", ros::Time(0), ps, ps.header.frame_id, ps_map);
         } catch (tf::ExtrapolationException &ex) {
           ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
-          is_get_transform = false;
+          is_transform = false;
+        } catch (tf::TransformException &tfe) {
+          ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", ps.header.frame_id.c_str(),
+                "map", tfe.what());
+          is_transform = false;
+        } catch (const std::exception &e) {
+          std::cerr << e.what() << '\n';
+          is_transform = false;
+        } catch (...) {
+          ROS_ERROR("Unknown exception when transforming stamped point");
+          is_transform = false;
         }
 
         // compute dist_to_wall
-        if (is_get_transform)
+        if (is_transform) {
           dist_to_wall = distance_map_ptr_->GetDistance(ps_map.point.x, ps_map.point.y);
-        else
+        }
+        else {
           dist_to_wall = 0.0;
+        }
       }
 
       if (dist_to_wall > 1.5 * enemy_inflation_) {
