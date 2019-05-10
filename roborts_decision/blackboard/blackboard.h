@@ -98,6 +98,9 @@ private:
 	double GetAngleBetweenNonZeroVectorandCachedVector(double x, double y, int num);
 	double GetDistanceBetweenPointandLine(double x, double y, double x1, double y1, double x2, double y2);
 	double GetDistanceBetweenPointandLineWithBottomLength(double x, double y, double x1, double y1, double x2, double y2, double bottom_length);
+  double VectorCrossProduct(double x1, double y1, double x2, double y2) {
+		return (x1 * y2 - x2 * y1);
+	}
 public:
 	std::vector<int> cached_map_x_bias_;//from enemy to cell
 	std::vector<int> cached_map_y_bias_;//from enemy to cell
@@ -460,6 +463,18 @@ public:
   /*******************Variable for Chase and Support*******************/
 	CachedMapCell::Ptr cachedmapforchaseandsupport_ptr_;
 
+  /*******************Partner Interaciton Information*******************/
+	Identity self_identity_;        //机器人身份
+	PartnerStatus partner_status_;  //队友的状态
+	
+	bool partner_detect_enemy_;     //友方是否检测到敌人
+  geometry_msgs::PoseStamped partner_enemy_pose_;
+	std::vector<roborts_msgs::EnemyInfo> partner_enemy_info_; //友方检测到的敌人位置
+	geometry_msgs::PoseStamped partner_pose_;       //友方的位姿
+	int partner_patrol_count_;                      //友方巡逻位置相关
+
+  roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
+
   /****************补弹tag id******************/
   int tag_id_;
   int back_camera_mode_;
@@ -530,18 +545,6 @@ private:
   
 	/*******************Time*******************/
 	ros::Time start_time_;   //ros内系统时钟上比赛开始的时间
-
-  /*******************Partner Interaciton Information*******************/
-	Identity self_identity_;        //机器人身份
-	PartnerStatus partner_status_;  //队友的状态
-	
-	bool partner_detect_enemy_;     //友方是否检测到敌人
-  geometry_msgs::PoseStamped partner_enemy_pose_;
-	std::vector<roborts_msgs::EnemyInfo> partner_enemy_info_; //友方检测到的敌人位置
-	geometry_msgs::PoseStamped partner_pose_;       //友方的位姿
-	int partner_patrol_count_;                      //友方巡逻位置相关
-
-  roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
 
 	/*******************Variables Used in Test Interface*******************/
   geometry_msgs::PoseStamped goal_;
