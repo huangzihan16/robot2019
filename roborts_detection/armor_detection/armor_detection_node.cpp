@@ -257,14 +257,15 @@ void ArmorDetectionNode::ExecuteLoop() {
           float speed_estimate = kalmanfilter_.Update(all_yaw, speed);
           if (speed_estimate > 1 || speed_estimate < -1)
              speed_estimate = 0;
-          gimbal_angle_.yaw_angle =  0.3 * yaw + 0.06 * speed_estimate;
-
-          PublishMsgs();
+          // gimbal_angle_.yaw_angle =  0.3 * yaw + 0.00 * speed_estimate;
+          // PublishMsgs();
         } else {
-          speed = 0;
-          gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
-          PublishMsgs();
+          // speed = 0;
+          // gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
+          // PublishMsgs();
         }
+        gimbal_angle_.yaw_angle =  0.3 * yaw;
+        PublishMsgs();
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
 
