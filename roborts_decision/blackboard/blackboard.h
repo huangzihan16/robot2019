@@ -534,7 +534,8 @@ private:
 	std::vector<roborts_msgs::EnemyInfo> partner_enemy_info_; //友方检测到的敌人位置
 	geometry_msgs::PoseStamped partner_pose_;       //友方的位姿
 	int partner_patrol_count_;                      //友方巡逻位置相关
-  int partner_bullet_num_;
+  int partner_bullet_num_;              //队友弹量
+  unsigned int partner_remain_hp_;               //队友血量
 
   roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
 

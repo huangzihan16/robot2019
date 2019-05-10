@@ -701,11 +701,29 @@ namespace roborts_decision {
     ros::Duration time_past = ros::Time::now() - start_time_;
     //每分钟更新一次
 	  if (time_past.toSec() >= 60 * identity_number_) {
-      if (self_identity_ == Identity::MASTER) {
-        self_identity_ = Identity::SLAVE;
-      } else {
-        self_identity_ = Identity::MASTER;
+
+      // partner_remain_hp_ remain_hp_
+      // partner_bullet_num_ bullet_num_
+
+      //双方都没弹
+      // TODO：获取队友血量
+      if(bullet_num_ < 5 && partner_bullet_num_ <5){
+        //血量高的补
+        if(remain_hp_ > partner_remain_hp_){
+          return true;
+        }else{
+          return false;
+        }
+      //仅我没弹
+      }else if(bullet_num_ < 5){
+        return true;
+      //都有弹，弹量少于队友
+      }else if(bullet_num_ < partner_bullet_num_){
+        return true;
+      }else{
+        return false;
       }
+
       identity_number_++;
     }
 	}
