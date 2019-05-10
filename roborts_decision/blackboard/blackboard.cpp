@@ -343,6 +343,7 @@ namespace roborts_decision {
 		supply_number_ = 0;
     identity_number_ = 1;
  		gain_buff_number_ = 0;
+    start_time_ = ros::Time::now();
 
     bullet_num_ = decision_config_.initial_bullet_num();
     if (decision_config_.master())
@@ -419,11 +420,14 @@ namespace roborts_decision {
     }
   }
 
-  void Blackboard::SendSupplyCmd() {
+  void Blackboard::SendSupply50Cmd() {
     projectilesupply_.number = 50;
     projectile_supply_pub_.publish(projectilesupply_);
   }
-
+  void Blackboard::SendSupply100Cmd() {
+    projectilesupply_.number = 100;
+    projectile_supply_pub_.publish(projectilesupply_);
+  }
   /*******************Localization Information for Supply and Gain Buff*******************/
   bool Blackboard::ArriveGainBuff() {
 		UpdateRobotPose();
@@ -557,6 +561,7 @@ namespace roborts_decision {
     }
 		partner_pose_ = partner_info->partner_pose;
 		partner_patrol_count_ = partner_info->patrol_count;
+    partner_bullet_num_ = partner_info->bullet_num;
 	}
 
   void Blackboard::PublishPartnerInformation() {
@@ -564,7 +569,8 @@ namespace roborts_decision {
     partner_msg_pub_.enemy_info = enemy_info_;
     UpdateRobotPose();
     partner_msg_pub_.partner_pose = robot_map_pose_;
-    partner_msg_pub_.header.stamp = ros::Time::now();
+    partner_msg_pub_.bullet_num = bullet_num_;
+    partner_msg_pub_.header.stamp = ros::Time::now();partn
     partner_pub_.publish(partner_msg_pub_);
   }
 
@@ -678,10 +684,30 @@ namespace roborts_decision {
 		ros::Duration time_past = ros::Time::now() - start_time_;
 		if (time_past.toSec() >= 60 * supply_number_){
       return true;
-      supplier_status_ = SupplierStatus::PREPARING;
     }
 		else
 			return false;
+	}
+
+  bool Blackboard::IsGoToSupplyCondition() {
+		ros::Duration time_past = ros::Time::now() - start_time_;
+		if (time_past.toSec() >= 60 * supply_number_){
+      return true;
+      // supplier_status_
+    }
+		else
+			return false;
+
+    ros::Duration time_past = ros::Time::now() - start_time_;
+    //每分钟更新一次
+	  if (time_past.toSec() >= 60 * identity_number_) {
+      if (self_identity_ == Identity::MASTER) {
+        self_identity_ = Identity::SLAVE;
+      } else {
+        self_identity_ = Identity::MASTER;
+      }
+      identity_number_++;
+    }
 	}
 
   bool Blackboard::IsGainBuffCondition() {

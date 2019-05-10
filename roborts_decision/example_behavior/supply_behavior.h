@@ -13,7 +13,7 @@ public:
 		if (!have_applicated_){
 			have_applicated_ = true;
 			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING) 
-				blackboard_->SendSupplyCmd();//send command
+				blackboard_->SendSupply50Cmd();//send command
 		}
 			
 		std::cout << "Supplying..." << std::endl;

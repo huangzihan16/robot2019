@@ -256,7 +256,8 @@ public:
   //Robot Shoot
   void RobotShootCallback(const roborts_msgs::RobotShoot::ConstPtr& robot_shoot);
   //Send Supply Cmd
-  void SendSupplyCmd();
+  void SendSupply50Cmd();
+  void SendSupply100Cmd();
   
   GameStatus GetGameStatus() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
@@ -298,12 +299,13 @@ public:
   void SearchCountM() {
     search_count_ -= 1;
   }
+  /*****每次补弹后，记录补弹次数，增加子弹存量********/
   void AddSupplyNum() {
 		supply_number_++;
 		bullet_num_ += 50;
 	}
   void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
-    bullet_num_ -= shoot_cmd.request.number;
+    // bullet_num_ -= shoot_cmd.request.number;
     ROS_INFO("%d can't open file", bullet_num_);
   }  
 	void AddGainBuffNum() {
@@ -532,6 +534,7 @@ private:
 	std::vector<roborts_msgs::EnemyInfo> partner_enemy_info_; //友方检测到的敌人位置
 	geometry_msgs::PoseStamped partner_pose_;       //友方的位姿
 	int partner_patrol_count_;                      //友方巡逻位置相关
+  int partner_bullet_num_;
 
   roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
 
