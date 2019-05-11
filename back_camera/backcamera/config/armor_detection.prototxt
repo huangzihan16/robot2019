@@ -14,3 +14,9 @@ projectile_model_info {
     init_v: 15 # Launching projectile velocity
     init_k: 0.026
 }
+
+supply_offset{
+    delta_x :1314
+    delta_y :0
+    delta_theta :0
+}

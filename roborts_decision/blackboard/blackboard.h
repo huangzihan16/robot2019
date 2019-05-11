@@ -223,7 +223,7 @@ public:
       self_identity_ = Identity::SLAVE;
 
     cachedmapforchaseandsupport_ptr_ =
-			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 3.0, 1.0, costmap_2d_));
+			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 2.0, 1.4, costmap_2d_));
   }
 
   ~Blackboard() = default;

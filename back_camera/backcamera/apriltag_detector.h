@@ -8,7 +8,6 @@
 
 namespace apriltags_ros{
 
-
 class AprilTagDescription{
  public:
   AprilTagDescription(int id, double size, std::string &frame_name):id_(id), size_(size), frame_name_(frame_name){}
@@ -24,21 +23,27 @@ class AprilTagDescription{
 
 class AprilTagDetector{
  public:
-  AprilTagDetector(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+
+  AprilTagDetector(ros::NodeHandle& nh);
   ~AprilTagDetector();
- private:
+  image_transport::CameraSubscriber image_sub_;
+  ros::Publisher initialpose_pub_;
+  image_transport::ImageTransport it_;
   void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);
+ 
+ private:
+ // void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);
   std::map<int, AprilTagDescription> parse_tag_descriptions(XmlRpc::XmlRpcValue& april_tag_descriptions);
 
  private:
   std::map<int, AprilTagDescription> descriptions_;
   std::string sensor_frame_id_;
-  image_transport::ImageTransport it_;
-  image_transport::CameraSubscriber image_sub_;
+  //image_transport::ImageTransport it_;
+  //image_transport::CameraSubscriber image_sub_;
   image_transport::Publisher image_pub_;
   ros::Publisher detections_pub_;
   ros::Publisher pose_pub_;
-  ros::Publisher initialpose_pub_;
+  //ros::Publisher initialpose_pub_;
   ros::Publisher camera_info_pub;
   tf::TransformBroadcaster tf_pub_;
   boost::shared_ptr<AprilTags::TagDetector> tag_detector_;

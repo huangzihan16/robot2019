@@ -42,11 +42,13 @@ int main(int argc, char **argv) {
     std::cout << "1: start the action" << std::endl
               << "2: pause the action" << std::endl
               << "3: stop  the action" << std::endl
-              << "4: exit the program" << std::endl;
+              << "4: exit the program" << std::endl
+              << "5: start the tag detaction" << std::endl;
+
     std::cout << "**************************************************************************************" << std::endl;
     std::cout << "> ";
     std::cin >> command;
-    if (command != '1' && command != '2' && command != '3' && command != '4') {
+    if (command != '1' && command != '2' && command != '3' && command != '4'&& command != '5') {
       std::cout << "please inpugain!" << std::endl;
       std::cout << "> ";
       std::cin >> command;
@@ -64,11 +66,17 @@ int main(int argc, char **argv) {
         goal.command = 2;
         ROS_INFO("Action server will pause.");
         ac.sendGoal(goal);
+        break;
         //stop thread.
       case '3':
         goal.command = 3;
         ROS_INFO("I am cancelling the request");
         ac.cancelGoal();
+        break;
+      case '5':
+        goal.command = 5;
+        ROS_INFO("running tag detection");
+        ac.sendGoal(goal);
         break;
       default:
         break;

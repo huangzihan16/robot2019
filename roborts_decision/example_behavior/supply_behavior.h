@@ -7,7 +7,7 @@
 namespace roborts_decision {
 class SupplyBehavior {
 public:
-	SupplyBehavior(Blackboard* &blackboard): blackboard_(blackboard), have_applicated_(false){}
+	SupplyBehavior(Blackboard* &blackboard): blackboard_(blackboard), have_applicated_(false), status_(0){}
 	
 	void Run() {
 		if (!have_applicated_){
@@ -15,8 +15,9 @@ public:
 			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING) 
 				blackboard_->SendSupply50Cmd();//send command
 		}
-			
-		std::cout << "Supplying..." << std::endl;
+		// if (have_applicated_ == true && status_ == 0)
+		// 	blackboard_->SendSupplyCmd();//send command
+		// std::cout << "Supplying..." << std::endl;
   }
 
   void Cancel() {
@@ -24,31 +25,38 @@ public:
   }
 
   BehaviorState Update() {
-		if (!have_applicated_)
+	  if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING)
+	  	status_ = 1;
+	  if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::SUPPLYING)
+	  	status_ = 2;
+		if (!have_applicated_) {
 			return BehaviorState::IDLE;
-		
-		ros::Duration time_past = ros::Time::now() - application_time_;
-		if (time_past.toSec() >= 2) {
-			blackboard_->AddSupplyNum();
-			std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
-			return BehaviorState::SUCCESS;
 		}
-		else 
-			return BehaviorState::RUNNING;
 
-        // if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING) {
+		// ros::Duration time_past = ros::Time::now() - application_time_;
+		// if (time_past.toSec() >= 2) {
 		// 	blackboard_->AddSupplyNum();
 		// 	std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
 		// 	return BehaviorState::SUCCESS;
 		// }
-		// else
+		// else 
 		// 	return BehaviorState::RUNNING;
+
+        if (status_ == 2 && blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) {
+			blackboard_->AddSupplyNum();
+			status_ = 0;
+			have_applicated_ = false;
+			return BehaviorState::SUCCESS;
+		}
+		else
+			return BehaviorState::RUNNING;
   }
 
   ~SupplyBehavior() = default;
 	
 public:
 	ros::Time application_time_;
+	int status_;
  private:
   //! perception information
   Blackboard* const blackboard_;

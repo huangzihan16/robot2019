@@ -323,9 +323,19 @@ bool CostmapInterface::GetRobotPose(tf::Stamped<tf::Pose> &global_pose) const {
   global_pose.setIdentity();
   tf::Stamped<tf::Pose> robot_pose;
   robot_pose.setIdentity();
+
+  ros::Time transform_time = ros::Time();
+  std::string tf_error;
+
   robot_pose.frame_id_ = robot_base_frame_;
-  robot_pose.stamp_ = ros::Time();
+  robot_pose.stamp_ = transform_time;
   ros::Time current_time = ros::Time::now();
+
+  if (!tf_.waitForTransform(global_frame_, robot_base_frame_, transform_time, ros::Duration(0.3),
+                      ros::Duration(0.005), &tf_error)) {
+    ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+    return false;
+  }
   try {
     tf_.transformPose(global_frame_, robot_pose, global_pose);
   }
