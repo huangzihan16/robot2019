@@ -124,6 +124,34 @@ private:
 	roborts_costmap::Costmap2D* costmap2d_;
 };
 
+class StaticGridMap {
+public:
+	typedef std::shared_ptr<StaticGridMap> Ptr;
+	StaticGridMap(const nav_msgs::OccupancyGrid &map_msg) {
+		size_x_ = map_msg.info.width;
+		size_y_ = map_msg.info.height;
+		scale_ = map_msg.info.resolution;
+		gridmapfree_.resize(size_x_ * size_y_);
+		for (int i = 0; i < size_x_ * size_y_; i++) {
+			auto tmp_msg = static_cast<int>(map_msg.data[i]);
+			if (tmp_msg == 0) {
+				gridmapfree_[i] = true;
+			} else {
+				gridmapfree_[i] = false;
+			}
+		}
+	}
+	int ComputeIndexByMapCoor(const int mx, const int my);
+	void ConvertWorldToMap(const double wx, const double wy, int& mx, int& my);
+	bool IsGridFreeWithMap(const int mx, const int my);
+	
+private:
+	std::vector<bool> gridmapfree_;
+	int size_x_;
+	int size_y_;
+	double scale_;
+};
+
 class Blackboard {
 public:
   typedef std::shared_ptr<Blackboard> Ptr;
@@ -379,6 +407,9 @@ public:
   const unsigned char* GetCharMap() {
     return charmap_;
   }
+  
+  /*******************Gimbal Suggest Through Static Map*******************/
+
 
   /*******************Partner Interaction*******************/
   void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
@@ -459,10 +490,11 @@ public:
   ros::Time last_enemy_disappear_time_; //敌人最后一次出现的时间
   unsigned int search_count_;           //小范围搜索敌人使用，标识用
 
-  /*******************Cost Map*******************/
+  /*******************Map Information*******************/
   std::shared_ptr<CostMap> costmap_ptr_;
   CostMap2D* costmap_2d_;
   unsigned char* charmap_;
+  StaticGridMap::Ptr staticmap_ptr_;
 
   /*******************Variable for Supply Condition and Gain Buff Condition*******************/
   int identity_number_;     //补弹和占Buff所需的身份信息
@@ -471,6 +503,9 @@ public:
   
   /*******************Variable for Chase and Support*******************/
 	CachedMapCell::Ptr cachedmapforchaseandsupport_ptr_;
+
+  /*******************Variable for Gimbal when Patrol*******************/
+  int gimbal_suggest_;
 
   /*******************Partner Interaciton Information*******************/
 	Identity self_identity_;        //机器人身份

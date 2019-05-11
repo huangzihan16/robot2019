@@ -347,10 +347,14 @@ void ObstacleLayer::OnInitialize() {
 	
 	enemy_inflation_ = para_obstacle.enemy_inflation();	
 
-  if (strstr(global_frame_.c_str(), "map") == NULL)
+  if (strstr(global_frame_.c_str(), "map") == NULL) {
     map_is_global_ = false;
-  else 
+    reset_thre = 15;
+  }
+  else {
     map_is_global_ = true;
+    reset_thre = 8;
+  }
   
 }
 
@@ -424,7 +428,12 @@ void ObstacleLayer::UpdateBounds(double robot_x,
   }
 
   // reset obstacle layer each time
-  memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+  static int reset_cnt = 0;
+  reset_cnt++;
+  if (reset_cnt > reset_thre) {
+    reset_cnt = 0;
+    memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+  }
 
   double resolution = layered_costmap_->GetCostMap()->GetResolution();
 	enemy_inflation_grid_ = (int)std::ceil(enemy_inflation_ / resolution);

@@ -235,6 +235,20 @@ namespace roborts_decision {
 			return false;
 		return true;
 	}
+
+  int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
+		return mx + my * size_x_;
+	}
+	
+	void StaticGridMap::ConvertWorldToMap(const double wx, const double wy, int& mx, int& my) {
+		mx = std::floor(wx / scale_ + 0.5);
+		my = std::floor(wy / scale_ + 0.5);
+	}
+	
+	bool StaticGridMap::IsGridFreeWithMap(const int mx, const int my) {
+		return gridmapfree_[ComputeIndexByMapCoor(mx, my)];
+	}
+
   /*******************Enemy Information from roborts_detection*******************/
   void Blackboard::ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback) {
     if (feedback->detected){
