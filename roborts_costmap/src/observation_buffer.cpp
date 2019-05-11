@@ -183,21 +183,21 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
       // Transform partner_pose_ to partner_pose_tmp_
       geometry_msgs::PoseStamped partner_pose_tmp_;
       bool is_transform = true;
-      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(0.1));
       try {
         tf_.transformPose(cloud.header.frame_id, ros::Time(0), partner_pose_, partner_pose_.header.frame_id, partner_pose_tmp_);
       } catch (tf::ExtrapolationException &ex) {
-        ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+        // ROS_ERROR("Extrapolation Error looking up partner pose: %s", ex.what());
         is_transform = false;
       } catch (TransformException &tfe) {
-        ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", partner_pose_.header.frame_id.c_str(),
-              cloud.header.frame_id.c_str(), tfe.what());
+        // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", partner_pose_.header.frame_id.c_str(),
+              // cloud.header.frame_id.c_str(), tfe.what());
         is_transform = false;
       } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
+        // std::cerr << e.what() << '\n';
         is_transform = false;
       } catch (...) {
-        ROS_ERROR("Unknown exception when transforming partner pose");
+        // ROS_ERROR("Unknown exception when transforming partner pose");
         is_transform = false;
       }
       if (is_transform) {
@@ -220,21 +220,21 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
 					if (!enemy_poses_from_partner_[i].header.frame_id.empty()) {
 						geometry_msgs::PoseStamped enemy_pose_tmp_;
             bool is_transform = true;
-            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(0.1));
             try {
               tf_.transformPose(cloud.header.frame_id, ros::Time(0), enemy_poses_from_partner_[i], enemy_poses_from_partner_[i].header.frame_id, enemy_pose_tmp_);
             } catch (tf::ExtrapolationException &ex) {
-              ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+              // ROS_ERROR("Extrapolation Error looking up enemy pose from partner: %s", ex.what());
               is_transform = false;
             } catch (TransformException &tfe) {
-              ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", enemy_poses_from_partner_[i].header.frame_id.c_str(),
-                    cloud.header.frame_id.c_str(), tfe.what());
+              // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", enemy_poses_from_partner_[i].header.frame_id.c_str(),
+              //       cloud.header.frame_id.c_str(), tfe.what());
               is_transform = false;
             } catch (const std::exception &e) {
-              std::cerr << e.what() << '\n';
+              // std::cerr << e.what() << '\n';
               is_transform = false;
             } catch (...) {
-              ROS_ERROR("Unknown exception when transforming enemy pose from partner");
+              // ROS_ERROR("Unknown exception when transforming enemy pose from partner");
               is_transform = false;
             }
             if (is_transform) {

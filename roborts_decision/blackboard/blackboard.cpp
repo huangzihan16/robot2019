@@ -235,6 +235,20 @@ namespace roborts_decision {
 			return false;
 		return true;
 	}
+
+  int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
+		return mx + my * size_x_;
+	}
+	
+	void StaticGridMap::ConvertWorldToMap(const double wx, const double wy, int& mx, int& my) {
+		mx = std::floor(wx / scale_ + 0.5);
+		my = std::floor(wy / scale_ + 0.5);
+	}
+	
+	bool StaticGridMap::IsGridFreeWithMap(const int mx, const int my) {
+		return gridmapfree_[ComputeIndexByMapCoor(mx, my)];
+	}
+
   /*******************Enemy Information from roborts_detection*******************/
   void Blackboard::ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback) {
     if (feedback->detected){
@@ -419,7 +433,10 @@ namespace roborts_decision {
     chassis_output_ = robot_status->chassis_output;
     shooter_output_ = robot_status->shooter_output;
   }
-
+  void Blackboard::PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status) {
+    partner_remain_hp_ = partner_robot_status->remain_hp;
+    last_rec_partner_hp_time_ = ros::Time::now();
+  }
   void Blackboard::RobotHeatCallback(const roborts_msgs::RobotHeat::ConstPtr& robot_heat) {
     chassis_volt_ = robot_heat->chassis_volt;
     chassis_current_ = robot_heat->chassis_current;
@@ -449,14 +466,11 @@ namespace roborts_decision {
     }
   }
 
-  void Blackboard::SendSupply50Cmd() {
-    projectilesupply_.number = 50;
+  void Blackboard::SendSupplyCmd() {
+    // projectilesupply_.number = 50;
     projectile_supply_pub_.publish(projectilesupply_);
   }
-  void Blackboard::SendSupply100Cmd() {
-    projectilesupply_.number = 100;
-    projectile_supply_pub_.publish(projectilesupply_);
-  }
+
   /*******************Localization Information for Supply and Gain Buff*******************/
   bool Blackboard::ArriveGainBuff() {
 		UpdateRobotPose();
@@ -601,7 +615,7 @@ namespace roborts_decision {
     UpdateRobotPose();
     partner_msg_pub_.partner_pose = robot_map_pose_;
     partner_msg_pub_.bullet_num = bullet_num_;
-    partner_msg_pub_.header.stamp = ros::Time::now();partn
+    partner_msg_pub_.header.stamp = ros::Time::now();
     partner_pub_.publish(partner_msg_pub_);
   }
 
@@ -734,6 +748,75 @@ namespace roborts_decision {
     }
 		else
 			return false;
+	}
+
+  bool Blackboard::IsGoToSupplyCondition() {
+    static int status = 0;
+		ros::Duration time_past = ros::Time::now() - start_time_;
+    ros::Duration partner_hp_time = ros::Time::now() - last_rec_partner_hp_time_;
+
+    //TODO:未考虑是否正在攻击状态
+    //通信正常且队友存活
+    if(partner_hp_time.toSec() < 0.3 && partner_remain_hp_ >= 50)
+    {
+      //每分钟更新一次
+      if (time_past.toSec() >= 60 * identity_number_) {
+
+        projectilesupply_.number = 50;
+        int delta_bullet = bullet_num_ - partner_bullet_num_;
+        if(delta_bullet >= 35){
+          status = 4;   //我弹量很多，不补
+          supply_number_++;
+        }else if(delta_bullet > 0){
+          status = 3;   //我略多于队友，后补50
+        }else if(delta_bullet == 0){   //血量高的补
+          if(remain_hp_ >= partner_remain_hp_){
+            status = 2;
+          }else{
+            status = 3;
+          }
+        }else if(delta_bullet >-35){
+          status = 2;   //队友略多于我，先补50
+        }else{
+          status = 1;   //远远少于队友，补100
+          projectilesupply_.number = 100;
+        }
+
+        identity_number_++;
+      } 
+
+      if(status ==1 || status == 2){
+        if (time_past.toSec() >= 60 * supply_number_)
+          return true;
+        else
+          return false;
+      }else if (status == 3){
+        if (time_past.toSec() >= (60 * supply_number_ + 20))
+          return true;
+        else
+          return false;      
+      }else{
+        return false;
+      }
+
+    }else{
+      //补给站开放40s后，强制补弹
+      projectilesupply_.number = 100;
+      if(time_past.toSec() >= (60 * supply_number_ +40)){
+        return true;  
+      }else if (time_past.toSec() >= 60 * supply_number_){
+        //0--40s检测到敌人或弹量不足，去补弹
+        if(bullet_num_ < 10)
+          return true;
+
+        if(enemy_detected_)
+          return false;
+        else
+          return true;
+      }else{
+        return false;
+      }
+    }
 	}
 
   bool Blackboard::IsGainBuffCondition() {
