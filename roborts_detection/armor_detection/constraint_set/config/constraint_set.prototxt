@@ -27,6 +27,8 @@ armor_size {
   height: 60 # mm
 }
 
+
+
 using_hsv: false
 enable_debug: true
 enable_neon: false

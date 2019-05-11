@@ -36,6 +36,13 @@ message SignalRecognization {
   required uint32 min_num = 3;
 }
 
+message CameraMatrix {
+  required fx = 1;
+  required cx = 2;
+  required fy = 3;
+  required cy = 4;
+}
+
 message ConstraintSetConfig {
   required bool enable_debug = 1;
   required bool enable_neon  = 2;
@@ -44,4 +51,5 @@ message ConstraintSetConfig {
   required ArmorSize armor_size = 5;
   required EnemyColor enemy_color = 6;
   required SignalRecognization signal_recognization = 7;
+  required CameraMatrix camera_matrix = 8;
 }
