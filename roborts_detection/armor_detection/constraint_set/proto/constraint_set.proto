@@ -37,10 +37,10 @@ message SignalRecognization {
 }
 
 message CameraMatrix {
-  required fx = 1;
-  required cx = 2;
-  required fy = 3;
-  required cy = 4;
+  required float fx = 1;
+  required float cx = 2;
+  required float fy = 3;
+  required float cy = 4;
 }
 
 message ConstraintSetConfig {

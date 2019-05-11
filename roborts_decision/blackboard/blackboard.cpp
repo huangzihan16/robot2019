@@ -398,7 +398,7 @@ namespace roborts_decision {
     game_status_ = (GameStatus)game_status->game_status;
     remaining_time_ = game_status->remaining_time;
 
-    if (game_status_ == GameStatus::FIVE_SEC_CD && remaining_time_ > 4)
+    if (game_status_ != GameStatus::ROUND)
       InitParameter();
   }
 

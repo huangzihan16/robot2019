@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
 																																															[&]() {
-                                                                                                if (blackboard_ptr_->IsSupplyCondition() /*&& blackboard_ptr_->IsMasterCondition()*/) {
+                                                                                                if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;

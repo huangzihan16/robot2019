@@ -295,23 +295,23 @@ void ArmorDetectionNode::ExecuteLoop() {
         delta_time = duration.toSec();
         double yaw = GetGimbalYaw();
         int mode = 0;
-        if(delta_time > 0.3 && enemy_disappear_duration.toSec() > 1)  {
-          gimbal_angle_.yaw_mode = false;
+        // if(delta_time > 0.3 && enemy_disappear_duration.toSec() > 1)  {
+          gimbal_angle_.yaw_mode = true;
           gimbal_angle_.pitch_mode = true;
           gimbal_angle_.pitch_angle = 0;
-          gimbal_angle_.yaw_angle = GetPatrolAngle(mode, patrol_count, yaw);
-          ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
-          patrol_count += patrol_dir_;
-          // if(yaw > MAX_MIN_WHIRL_ANGLE){
-          //   direction = -1.0;
-          // }
-          // if(yaw < -MAX_MIN_WHIRL_ANGLE){
-          //   direction = 1.0;
-          // }
-          // gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
+        //   gimbal_angle_.yaw_angle = GetPatrolAngle(mode, patrol_count, yaw);
+        //   ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
+        //   patrol_count += patrol_dir_;
+          if(yaw > MAX_MIN_WHIRL_ANGLE){
+            direction = -1.0;
+          }
+          if(yaw < -MAX_MIN_WHIRL_ANGLE){
+            direction = 1.0;
+          }
+          gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
           last_time = ros::Time::now();
           PublishMsgs();
-        }
+        // }
       }
     } else if (node_state_ == NodeState::PAUSE) {
       std::unique_lock<std::mutex> lock(mutex_);

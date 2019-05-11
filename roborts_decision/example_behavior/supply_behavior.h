@@ -12,7 +12,7 @@ public:
 	void Run() {
 		if (!have_applicated_){
 			have_applicated_ = true;
-			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING) 
+			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) 
 				blackboard_->SendSupplyCmd();//send command
 		}
 		// if (have_applicated_ == true && status_ == 0)
