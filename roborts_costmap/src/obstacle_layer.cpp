@@ -472,21 +472,21 @@ void ObstacleLayer::UpdateBounds(double robot_x,
 
         // transform from odom to map
         bool is_transform = true;
-        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(3.0));
+        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(0.05));
         try {
           tf_->transformPoint("map", ros::Time(0), ps, ps.header.frame_id, ps_map);
         } catch (tf::ExtrapolationException &ex) {
-          ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+          // ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
           is_transform = false;
         } catch (tf::TransformException &tfe) {
-          ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", ps.header.frame_id.c_str(),
-                "map", tfe.what());
+          // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", ps.header.frame_id.c_str(),
+          //       "map", tfe.what());
           is_transform = false;
         } catch (const std::exception &e) {
-          std::cerr << e.what() << '\n';
+          // std::cerr << e.what() << '\n';
           is_transform = false;
         } catch (...) {
-          ROS_ERROR("Unknown exception when transforming stamped point");
+          // ROS_ERROR("Unknown exception when transforming stamped point");
           is_transform = false;
         }
 
