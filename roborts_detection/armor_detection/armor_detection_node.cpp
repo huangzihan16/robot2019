@@ -285,7 +285,7 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         undetected_count_--;
         PublishMsgs();
-        patrol_count = 0;
+        //patrol_count = 0;
         enemy_disappear_time = ros::Time::now();
       } else {
         last_enemy_time = ros::Time::now();
@@ -299,16 +299,16 @@ void ArmorDetectionNode::ExecuteLoop() {
           gimbal_angle_.yaw_mode = true;
           gimbal_angle_.pitch_mode = true;
           gimbal_angle_.pitch_angle = 0;
-        //   gimbal_angle_.yaw_angle = GetPatrolAngle(mode, patrol_count, yaw);
-        //   ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
-        //   patrol_count += patrol_dir_;
-          if(yaw > MAX_MIN_WHIRL_ANGLE){
-            direction = -1.0;
-          }
-          if(yaw < -MAX_MIN_WHIRL_ANGLE){
-            direction = 1.0;
-          }
-          gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
+          gimbal_angle_.yaw_angle = GetPatrolAngle(mode, patrol_count, yaw);
+          ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
+          patrol_count += patrol_dir_;
+          // if(yaw > MAX_MIN_WHIRL_ANGLE){
+          //   direction = -1.0;
+          // }
+          // if(yaw < -MAX_MIN_WHIRL_ANGLE){
+          //   direction = 1.0;
+          // }
+          // gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
           last_time = ros::Time::now();
           PublishMsgs();
         // }
@@ -385,10 +385,15 @@ float ArmorDetectionNode::GetPatrolAngle(int mode, int patrol_count, float angle
   float mode6_angle[2] = {-45, -70};
   switch(mode){
     case 0:
-      patrol_angle = mode0_angle[patrol_count % 6];
-      if (patrol_count >= 5 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 5 ){
+         patrol_count=5;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode0_angle[patrol_count % 6];
       break;
     case 1:
       patrol_angle = mode1_angle[patrol_count % 4];
