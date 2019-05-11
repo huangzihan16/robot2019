@@ -382,8 +382,9 @@ namespace roborts_decision {
     last_hp_ = 2000;
     dmp_ = 0;
 		supply_number_ = 0;
-    identity_number_ = 1;
+    identity_number_ = 0;
  		gain_buff_number_ = 0;
+    partner_detect_enemy_ = false;
     start_time_ = ros::Time::now();
 
     bullet_num_ = decision_config_.initial_bullet_num();
