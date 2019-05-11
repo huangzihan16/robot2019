@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()/* && blackboard_ptr_->GetSupplierStatus()
+																																																if (blackboard_ptr_->IsGoToSupplyCondition() /* && blackboard_ptr_->GetSupplierStatus()
                                                                                                 == roborts_decision::SupplierStatus::PREPARING*/) {
 																																																	return true;
 																																																} else {
