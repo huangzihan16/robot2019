@@ -9,6 +9,14 @@ rrts_protobuf_generate_cpp(${CMAKE_CURRENT_SOURCE_DIR}/proto
   ArmorDetectionProtoHds
   ${ProtoFiles})
 
+#apriltags
+include_directories(include include/AprilTags)
+
+add_library(apriltags
+  src/Edge.cc src/FloatImage.cc src/GLine2D.cc src/GLineSegment2D.cc src/Gaussian.cc src/GrayModel.cc src/Homography33.cc src/MathUtil.cc src/Quad.cc src/Segment.cc src/TagDetection.cc src/TagDetector.cc src/TagFamily.cc src/UnionFindSimple.cc
+)
+
+
 
 #backcamera node
 add_executable(backcamera_node
@@ -16,12 +24,14 @@ add_executable(backcamera_node
   ${ArmorDetectionProtoHds}
   backcamera_node.cpp
   gimbal_control.cpp
+  apriltag_detector.cpp
 )
 
 target_link_libraries(backcamera_node
   PRIVATE
   detection::tool_backcamera
   detection::constraint_set_backcamera
+  apriltags
   ${PROTOBUF_LIBRARIES}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}

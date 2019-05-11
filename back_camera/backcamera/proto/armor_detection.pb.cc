@@ -26,6 +26,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ProjectileModelInfo_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ProjectileModelInfo_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SupplyOffset_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SupplyOffset_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ArmorDetectionAlgorithms_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ArmorDetectionAlgorithms_reflection_ = NULL;
@@ -74,14 +77,32 @@ void protobuf_AssignDesc_armor_5fdetection_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ProjectileModelInfo));
-  ArmorDetectionAlgorithms_descriptor_ = file->message_type(2);
-  static const int ArmorDetectionAlgorithms_offsets_[6] = {
+  SupplyOffset_descriptor_ = file->message_type(2);
+  static const int SupplyOffset_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SupplyOffset, delta_x_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SupplyOffset, delta_y_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SupplyOffset, delta_theta_),
+  };
+  SupplyOffset_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SupplyOffset_descriptor_,
+      SupplyOffset::default_instance_,
+      SupplyOffset_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SupplyOffset, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SupplyOffset, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SupplyOffset));
+  ArmorDetectionAlgorithms_descriptor_ = file->message_type(3);
+  static const int ArmorDetectionAlgorithms_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, selected_algorithm_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, undetected_armor_delay_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, camera_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, camera_gimbal_transform_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, projectile_model_info_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ArmorDetectionAlgorithms, supply_offset_),
   };
   ArmorDetectionAlgorithms_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -111,6 +132,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ProjectileModelInfo_descriptor_, &ProjectileModelInfo::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SupplyOffset_descriptor_, &SupplyOffset::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ArmorDetectionAlgorithms_descriptor_, &ArmorDetectionAlgorithms::default_instance());
 }
 
@@ -121,6 +144,8 @@ void protobuf_ShutdownFile_armor_5fdetection_2eproto() {
   delete CameraGimbalTransform_reflection_;
   delete ProjectileModelInfo::default_instance_;
   delete ProjectileModelInfo_reflection_;
+  delete SupplyOffset::default_instance_;
+  delete SupplyOffset_reflection_;
   delete ArmorDetectionAlgorithms::default_instance_;
   delete ArmorDetectionAlgorithms_reflection_;
 }
@@ -137,21 +162,26 @@ void protobuf_AddDesc_armor_5fdetection_2eproto() {
     "\001 \002(\002\022\020\n\010offset_y\030\002 \002(\002\022\020\n\010offset_z\030\003 \002("
     "\002\022\024\n\014offset_pitch\030\004 \002(\002\022\022\n\noffset_yaw\030\005 "
     "\002(\002\"5\n\023ProjectileModelInfo\022\016\n\006init_v\030\001 \001"
-    "(\002\022\016\n\006init_k\030\002 \001(\002\"\213\002\n\030ArmorDetectionAlg"
-    "orithms\022\014\n\004name\030\001 \003(\t\022\032\n\022selected_algori"
-    "thm\030\002 \001(\t\022\036\n\026undetected_armor_delay\030\003 \001("
-    "\r\022\023\n\013camera_name\030\004 \001(\t\022I\n\027camera_gimbal_"
-    "transform\030\005 \002(\0132(.roborts_detection.Came"
-    "raGimbalTransform\022E\n\025projectile_model_in"
-    "fo\030\006 \001(\0132&.roborts_detection.ProjectileM"
-    "odelInfo", 488);
+    "(\002\022\016\n\006init_k\030\002 \001(\002\"E\n\014SupplyOffset\022\017\n\007de"
+    "lta_x\030\001 \002(\002\022\017\n\007delta_y\030\002 \002(\002\022\023\n\013delta_th"
+    "eta\030\003 \002(\002\"\303\002\n\030ArmorDetectionAlgorithms\022\014"
+    "\n\004name\030\001 \003(\t\022\032\n\022selected_algorithm\030\002 \001(\t"
+    "\022\036\n\026undetected_armor_delay\030\003 \001(\r\022\023\n\013came"
+    "ra_name\030\004 \001(\t\022I\n\027camera_gimbal_transform"
+    "\030\005 \002(\0132(.roborts_detection.CameraGimbalT"
+    "ransform\022E\n\025projectile_model_info\030\006 \001(\0132"
+    "&.roborts_detection.ProjectileModelInfo\022"
+    "6\n\rsupply_offset\030\007 \002(\0132\037.roborts_detecti"
+    "on.SupplyOffset", 615);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "armor_detection.proto", &protobuf_RegisterTypes);
   CameraGimbalTransform::default_instance_ = new CameraGimbalTransform();
   ProjectileModelInfo::default_instance_ = new ProjectileModelInfo();
+  SupplyOffset::default_instance_ = new SupplyOffset();
   ArmorDetectionAlgorithms::default_instance_ = new ArmorDetectionAlgorithms();
   CameraGimbalTransform::default_instance_->InitAsDefaultInstance();
   ProjectileModelInfo::default_instance_->InitAsDefaultInstance();
+  SupplyOffset::default_instance_->InitAsDefaultInstance();
   ArmorDetectionAlgorithms::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_armor_5fdetection_2eproto);
 }
@@ -817,12 +847,320 @@ void ProjectileModelInfo::Swap(ProjectileModelInfo* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int SupplyOffset::kDeltaXFieldNumber;
+const int SupplyOffset::kDeltaYFieldNumber;
+const int SupplyOffset::kDeltaThetaFieldNumber;
+#endif  // !_MSC_VER
+
+SupplyOffset::SupplyOffset()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.SupplyOffset)
+}
+
+void SupplyOffset::InitAsDefaultInstance() {
+}
+
+SupplyOffset::SupplyOffset(const SupplyOffset& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.SupplyOffset)
+}
+
+void SupplyOffset::SharedCtor() {
+  _cached_size_ = 0;
+  delta_x_ = 0;
+  delta_y_ = 0;
+  delta_theta_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SupplyOffset::~SupplyOffset() {
+  // @@protoc_insertion_point(destructor:roborts_detection.SupplyOffset)
+  SharedDtor();
+}
+
+void SupplyOffset::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void SupplyOffset::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SupplyOffset::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SupplyOffset_descriptor_;
+}
+
+const SupplyOffset& SupplyOffset::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_armor_5fdetection_2eproto();
+  return *default_instance_;
+}
+
+SupplyOffset* SupplyOffset::default_instance_ = NULL;
+
+SupplyOffset* SupplyOffset::New() const {
+  return new SupplyOffset;
+}
+
+void SupplyOffset::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<SupplyOffset*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  ZR_(delta_x_, delta_theta_);
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool SupplyOffset::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.SupplyOffset)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float delta_x = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &delta_x_)));
+          set_has_delta_x();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_delta_y;
+        break;
+      }
+
+      // required float delta_y = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_delta_y:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &delta_y_)));
+          set_has_delta_y();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_delta_theta;
+        break;
+      }
+
+      // required float delta_theta = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_delta_theta:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &delta_theta_)));
+          set_has_delta_theta();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.SupplyOffset)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.SupplyOffset)
+  return false;
+#undef DO_
+}
+
+void SupplyOffset::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.SupplyOffset)
+  // required float delta_x = 1;
+  if (has_delta_x()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->delta_x(), output);
+  }
+
+  // required float delta_y = 2;
+  if (has_delta_y()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->delta_y(), output);
+  }
+
+  // required float delta_theta = 3;
+  if (has_delta_theta()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->delta_theta(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.SupplyOffset)
+}
+
+::google::protobuf::uint8* SupplyOffset::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.SupplyOffset)
+  // required float delta_x = 1;
+  if (has_delta_x()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->delta_x(), target);
+  }
+
+  // required float delta_y = 2;
+  if (has_delta_y()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->delta_y(), target);
+  }
+
+  // required float delta_theta = 3;
+  if (has_delta_theta()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->delta_theta(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.SupplyOffset)
+  return target;
+}
+
+int SupplyOffset::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float delta_x = 1;
+    if (has_delta_x()) {
+      total_size += 1 + 4;
+    }
+
+    // required float delta_y = 2;
+    if (has_delta_y()) {
+      total_size += 1 + 4;
+    }
+
+    // required float delta_theta = 3;
+    if (has_delta_theta()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SupplyOffset::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const SupplyOffset* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const SupplyOffset*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void SupplyOffset::MergeFrom(const SupplyOffset& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_delta_x()) {
+      set_delta_x(from.delta_x());
+    }
+    if (from.has_delta_y()) {
+      set_delta_y(from.delta_y());
+    }
+    if (from.has_delta_theta()) {
+      set_delta_theta(from.delta_theta());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void SupplyOffset::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SupplyOffset::CopyFrom(const SupplyOffset& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SupplyOffset::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+
+  return true;
+}
+
+void SupplyOffset::Swap(SupplyOffset* other) {
+  if (other != this) {
+    std::swap(delta_x_, other->delta_x_);
+    std::swap(delta_y_, other->delta_y_);
+    std::swap(delta_theta_, other->delta_theta_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata SupplyOffset::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SupplyOffset_descriptor_;
+  metadata.reflection = SupplyOffset_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int ArmorDetectionAlgorithms::kNameFieldNumber;
 const int ArmorDetectionAlgorithms::kSelectedAlgorithmFieldNumber;
 const int ArmorDetectionAlgorithms::kUndetectedArmorDelayFieldNumber;
 const int ArmorDetectionAlgorithms::kCameraNameFieldNumber;
 const int ArmorDetectionAlgorithms::kCameraGimbalTransformFieldNumber;
 const int ArmorDetectionAlgorithms::kProjectileModelInfoFieldNumber;
+const int ArmorDetectionAlgorithms::kSupplyOffsetFieldNumber;
 #endif  // !_MSC_VER
 
 ArmorDetectionAlgorithms::ArmorDetectionAlgorithms()
@@ -834,6 +1172,7 @@ ArmorDetectionAlgorithms::ArmorDetectionAlgorithms()
 void ArmorDetectionAlgorithms::InitAsDefaultInstance() {
   camera_gimbal_transform_ = const_cast< ::roborts_detection::CameraGimbalTransform*>(&::roborts_detection::CameraGimbalTransform::default_instance());
   projectile_model_info_ = const_cast< ::roborts_detection::ProjectileModelInfo*>(&::roborts_detection::ProjectileModelInfo::default_instance());
+  supply_offset_ = const_cast< ::roborts_detection::SupplyOffset*>(&::roborts_detection::SupplyOffset::default_instance());
 }
 
 ArmorDetectionAlgorithms::ArmorDetectionAlgorithms(const ArmorDetectionAlgorithms& from)
@@ -851,6 +1190,7 @@ void ArmorDetectionAlgorithms::SharedCtor() {
   camera_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   camera_gimbal_transform_ = NULL;
   projectile_model_info_ = NULL;
+  supply_offset_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -869,6 +1209,7 @@ void ArmorDetectionAlgorithms::SharedDtor() {
   if (this != default_instance_) {
     delete camera_gimbal_transform_;
     delete projectile_model_info_;
+    delete supply_offset_;
   }
 }
 
@@ -894,7 +1235,7 @@ ArmorDetectionAlgorithms* ArmorDetectionAlgorithms::New() const {
 }
 
 void ArmorDetectionAlgorithms::Clear() {
-  if (_has_bits_[0 / 32] & 62) {
+  if (_has_bits_[0 / 32] & 126) {
     if (has_selected_algorithm()) {
       if (selected_algorithm_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         selected_algorithm_->clear();
@@ -911,6 +1252,9 @@ void ArmorDetectionAlgorithms::Clear() {
     }
     if (has_projectile_model_info()) {
       if (projectile_model_info_ != NULL) projectile_model_info_->::roborts_detection::ProjectileModelInfo::Clear();
+    }
+    if (has_supply_offset()) {
+      if (supply_offset_ != NULL) supply_offset_->::roborts_detection::SupplyOffset::Clear();
     }
   }
   name_.Clear();
@@ -1018,6 +1362,19 @@ bool ArmorDetectionAlgorithms::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(58)) goto parse_supply_offset;
+        break;
+      }
+
+      // required .roborts_detection.SupplyOffset supply_offset = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_supply_offset:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_supply_offset()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1094,6 +1451,12 @@ void ArmorDetectionAlgorithms::SerializeWithCachedSizes(
       6, this->projectile_model_info(), output);
   }
 
+  // required .roborts_detection.SupplyOffset supply_offset = 7;
+  if (has_supply_offset()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, this->supply_offset(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1155,6 +1518,13 @@ void ArmorDetectionAlgorithms::SerializeWithCachedSizes(
         6, this->projectile_model_info(), target);
   }
 
+  // required .roborts_detection.SupplyOffset supply_offset = 7;
+  if (has_supply_offset()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        7, this->supply_offset(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1200,6 +1570,13 @@ int ArmorDetectionAlgorithms::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->projectile_model_info());
+    }
+
+    // required .roborts_detection.SupplyOffset supply_offset = 7;
+    if (has_supply_offset()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->supply_offset());
     }
 
   }
@@ -1252,6 +1629,9 @@ void ArmorDetectionAlgorithms::MergeFrom(const ArmorDetectionAlgorithms& from) {
     if (from.has_projectile_model_info()) {
       mutable_projectile_model_info()->::roborts_detection::ProjectileModelInfo::MergeFrom(from.projectile_model_info());
     }
+    if (from.has_supply_offset()) {
+      mutable_supply_offset()->::roborts_detection::SupplyOffset::MergeFrom(from.supply_offset());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1269,10 +1649,13 @@ void ArmorDetectionAlgorithms::CopyFrom(const ArmorDetectionAlgorithms& from) {
 }
 
 bool ArmorDetectionAlgorithms::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000010) != 0x00000010) return false;
+  if ((_has_bits_[0] & 0x00000050) != 0x00000050) return false;
 
   if (has_camera_gimbal_transform()) {
     if (!this->camera_gimbal_transform().IsInitialized()) return false;
+  }
+  if (has_supply_offset()) {
+    if (!this->supply_offset().IsInitialized()) return false;
   }
   return true;
 }
@@ -1285,6 +1668,7 @@ void ArmorDetectionAlgorithms::Swap(ArmorDetectionAlgorithms* other) {
     std::swap(camera_name_, other->camera_name_);
     std::swap(camera_gimbal_transform_, other->camera_gimbal_transform_);
     std::swap(projectile_model_info_, other->projectile_model_info_);
+    std::swap(supply_offset_, other->supply_offset_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

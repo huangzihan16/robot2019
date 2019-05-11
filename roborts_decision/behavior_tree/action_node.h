@@ -611,6 +611,7 @@ class SupportAction : public ActionNode {
  private:
   virtual void OnInitialize() {
     //  std::cout << "SupportAction OnInitialize" << std::endl;
+    support_behavior_.have_good_goal_ = false;
   };
 
   virtual BehaviorState Update() {

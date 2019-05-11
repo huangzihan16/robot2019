@@ -87,6 +87,8 @@ class ArmorDetectionNode {
   double GetGimbalYaw();
   void UpdateGimbalPose();
   void CalcMembership(float value, float *membership, float *bound);
+  float GetPatrolAngle(int mode, int patrol_count, float angle);
+  int FindNearestAngle(int mode, float angle);
 
   ~ArmorDetectionNode();
 
@@ -95,6 +97,7 @@ class ArmorDetectionNode {
   float last_yaw_;
   float MembershipKy[6];
   float MembershipKs[6];
+  int patrol_dir_;
 
 protected:
  private:

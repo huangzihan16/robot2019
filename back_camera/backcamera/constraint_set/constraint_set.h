@@ -136,6 +136,7 @@ class ConstraintSet : public ArmorDetectionBase {
    */
  // ErrorInfo DetectArmor(bool &detected, cv::Point3f &target_3d) override;
    ErrorInfo DetectArmor(bool &detected) override;
+
   /**
    * @brief Detecting lights on the armors.
    * @param src Input image

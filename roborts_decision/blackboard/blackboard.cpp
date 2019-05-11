@@ -282,8 +282,18 @@ namespace roborts_decision {
         // std::cout <<"camera_pose_msg:" << camera_pose_msg << std::endl;
 
         poseStampedMsgToTF(camera_pose_msg, tf_pose);
-  
-        tf_pose.stamp_ = ros::Time(0);
+
+        ros::Time transform_time = ros::Time();
+        std::string tf_error;
+
+        tf_pose.stamp_ = transform_time;
+
+        if (!tf_ptr_->waitForTransform("map", "base_link", transform_time, ros::Duration(0.3),
+                            ros::Duration(0.005), &tf_error)) {
+          ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+          return;
+        }
+        
         try
         {
           tf_ptr_->transformPose("map", tf_pose, global_tf_pose);
@@ -600,7 +610,8 @@ namespace roborts_decision {
 
   bool Blackboard::IsMasterCondition() {
     ros::Duration time_past = ros::Time::now() - start_time_;
-	  if (time_past.toSec() >= 60 * identity_number_) {
+    float time = 180 - remaining_time_;
+	  if (time >= 60 * identity_number_) {
       if (self_identity_ == Identity::MASTER) {
         self_identity_ = Identity::SLAVE;
       } else {
@@ -662,7 +673,7 @@ namespace roborts_decision {
     robot_tf_pose.stamp_ = transform_time;
 
     if (!tf_ptr_->waitForTransform("map", "base_link", transform_time, ros::Duration(0.3),
-                            ros::Duration(0.01), &tf_error)) {
+                            ros::Duration(0.005), &tf_error)) {
       ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
       return;
     }
@@ -680,8 +691,17 @@ namespace roborts_decision {
     tf::Stamped<tf::Pose> gimbal_tf_pose;
     gimbal_tf_pose.setIdentity();
 
+    ros::Time transform_time = ros::Time();
+    std::string tf_error;
+
     gimbal_tf_pose.frame_id_ = "gimbal";
-    gimbal_tf_pose.stamp_ = ros::Time();
+    gimbal_tf_pose.stamp_ = transform_time;
+
+    if (!tf_ptr_->waitForTransform("base_link", "gimbal", transform_time, ros::Duration(0.3),
+                            ros::Duration(0.005), &tf_error)) {
+      ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+      return;
+    }
     try {
       geometry_msgs::PoseStamped gimbal_pose;
       tf::poseStampedTFToMsg(gimbal_tf_pose, gimbal_pose);
@@ -694,8 +714,14 @@ namespace roborts_decision {
 
   /*******************Functions Used in Behavior Tree*******************/
   bool Blackboard::IsSupplyCondition() {
-		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * supply_number_){
+		// ros::Duration time_past = ros::Time::now() - start_time_;
+		// if (time_past.toSec() >= 60 * supply_number_){
+    //   return true;
+    // }
+		// else
+		// 	return false;
+    float time = 180 - remaining_time_;
+		if (time >= 60 * supply_number_){
       return true;
     }
 		else
@@ -703,16 +729,22 @@ namespace roborts_decision {
 	}
 
   bool Blackboard::IsGainBuffCondition() {
-		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * gain_buff_number_)
-			return true;
+    float time = 180 - remaining_time_;
+		if (time >= 60 * supply_number_){
+      return true;
+    }
 		else
 			return false;
+
+		// ros::Duration time_past = ros::Time::now() - start_time_;
+		// if (time_past.toSec() >= 60 * gain_buff_number_)
+		// 	return true;
+		// else
+		// 	return false;
 	}
 
   bool Blackboard::IsBulletLeft() const{
-    // ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
-    //return true;
+    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
     if (bullet_num_ > 5){
       return true;
     } else{

@@ -40,6 +40,8 @@
 #include "armor_detection_algorithms.h"
 #include "gimbal_control.h"
 
+#include "apriltag_detector.h"
+
 namespace roborts_detection {
 
 using roborts_common::NodeState;
@@ -73,7 +75,7 @@ class ArmorDetectionNode {
   /**
    * @brief start tag detection
    */
-  //void tagDetection();
+  void tagDetection();
 
   /**
    * @brief Executing the armor detection algorithm.
@@ -83,6 +85,7 @@ class ArmorDetectionNode {
    * @brief Publishing enemy pose information that been calculated by the armor detection algorithm.
    */
   void PublishMsgs();
+
   ~ArmorDetectionNode();
  protected:
  private:
@@ -108,18 +111,18 @@ class ArmorDetectionNode {
   bool detected_enemy_;
   unsigned long demensions_;
 
-  //ROS
-  // ros::NodeHandle nh;
-  // ros::NodeHandle pnh("~");
-
   ros::NodeHandle nh_;
   ros::NodeHandle enemy_nh_;
+  ros::NodeHandle  tag_nh_;
   ros::Publisher enemy_info_pub_;
   std::shared_ptr<CVToolbox> cv_toolbox_;
   actionlib::SimpleActionServer<roborts_msgs::BackCameraAction> as_;
   roborts_msgs::GimbalAngle gimbal_angle_;
   //! control model
   GimbalContrl gimbal_control_;
+
+  //apriltags
+  boost::shared_ptr<apriltags_ros::AprilTagDetector> tag_detect_;
 
 };
 } //namespace roborts_detection
