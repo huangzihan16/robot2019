@@ -417,6 +417,8 @@ namespace roborts_decision {
     speed_ = robot_shoot->speed;
     if (speed_ > 12){
       bullet_num_ -= 1;
+      if(bullet_num_ <= 0)
+        bullet_num_ = 0;
     }
   }
 
@@ -690,42 +692,46 @@ namespace roborts_decision {
 	}
 
   bool Blackboard::IsGoToSupplyCondition() {
+    static int status = 0;
 		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * supply_number_){
-      return true;
-      // supplier_status_
-    }
-		else
-			return false;
-
-    ros::Duration time_past = ros::Time::now() - start_time_;
     //每分钟更新一次
 	  if (time_past.toSec() >= 60 * identity_number_) {
 
-      // partner_remain_hp_ remain_hp_
-      // partner_bullet_num_ bullet_num_
-
-      //双方都没弹
-      // TODO：获取队友血量
-      if(bullet_num_ < 5 && partner_bullet_num_ <5){
-        //血量高的补
-        if(remain_hp_ > partner_remain_hp_){
-          return true;
+      int delta_bullet = bullet_num_ - partner_bullet_num_;
+      if(delta_bullet >= 35){
+        status = 4;   //我弹量很多，不补
+        supply_number_++;
+      }else if(delta_bullet > 0){
+        status = 3;   //我略多于队友，后补50
+      }else if(delta_bullet == 0){   //血量高的补
+        if(remain_hp_ >= partner_remain_hp_){
+          status = 2;
         }else{
-          return false;
+          status = 3;
         }
-      //仅我没弹
-      }else if(bullet_num_ < 5){
-        return true;
-      //都有弹，弹量少于队友
-      }else if(bullet_num_ < partner_bullet_num_){
-        return true;
+      }else if(delta_bullet >-35){
+        status = 2;   //队友略多于我，先补50
       }else{
-        return false;
+        status = 1;   //远远少于队友，补100
       }
 
       identity_number_++;
+    } 
+
+    if(status ==1 || status == 2){
+      if (time_past.toSec() >= 60 * supply_number_)
+        return true;
+      else
+        return false;
+    }else if (status == 3){
+      if (time_past.toSec() >= (60 * supply_number_ + 20))
+        return true;
+      else
+        return false;      
+    }else{
+      return false;
     }
+
 	}
 
   bool Blackboard::IsGainBuffCondition() {
