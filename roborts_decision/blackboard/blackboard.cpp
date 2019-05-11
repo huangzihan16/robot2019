@@ -736,49 +736,6 @@ namespace roborts_decision {
 			return false;
 	}
 
-  bool Blackboard::IsGoToSupplyCondition() {
-    static int status = 0;
-		ros::Duration time_past = ros::Time::now() - start_time_;
-    //每分钟更新一次
-	  if (time_past.toSec() >= 60 * identity_number_) {
-
-      int delta_bullet = bullet_num_ - partner_bullet_num_;
-      if(delta_bullet >= 35){
-        status = 4;   //我弹量很多，不补
-        supply_number_++;
-      }else if(delta_bullet > 0){
-        status = 3;   //我略多于队友，后补50
-      }else if(delta_bullet == 0){   //血量高的补
-        if(remain_hp_ >= partner_remain_hp_){
-          status = 2;
-        }else{
-          status = 3;
-        }
-      }else if(delta_bullet >-35){
-        status = 2;   //队友略多于我，先补50
-      }else{
-        status = 1;   //远远少于队友，补100
-      }
-
-      identity_number_++;
-    } 
-
-    if(status ==1 || status == 2){
-      if (time_past.toSec() >= 60 * supply_number_)
-        return true;
-      else
-        return false;
-    }else if (status == 3){
-      if (time_past.toSec() >= (60 * supply_number_ + 20))
-        return true;
-      else
-        return false;      
-    }else{
-      return false;
-    }
-
-	}
-
   bool Blackboard::IsGainBuffCondition() {
     float time = 180 - remaining_time_;
 		if (time >= 60 * supply_number_){
