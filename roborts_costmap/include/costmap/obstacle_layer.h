@@ -215,6 +215,7 @@ class ObstacleLayer : public CostmapLayer {
 	int enemy_inflation_grid_; 
 
   bool map_is_global_;
+  int reset_thre;
 };
 
 } //namespace roborts_costmap
