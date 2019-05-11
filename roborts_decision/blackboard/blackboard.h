@@ -155,6 +155,8 @@ public:
 
     start_time_ = ros::Time::now();
 
+    projectilesupply_.number = 100;
+
     tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
 
     std::string map_path = ros::package::getPath("roborts_costmap") + \
@@ -215,9 +217,11 @@ public:
     std::string partner_topic_sub = "/" + partner_name + "/partner_msg";
 		partner_sub_ = nh.subscribe<roborts_msgs::PartnerInformation>(partner_topic_sub, 1, &Blackboard::PartnerCallback, this);
 		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
+    std::string partner_status_topic = "/" + partner_name + "/robot_status";
+    partner_robot_status_sub_ = nh.subscribe<roborts_msgs::RobotStatus>(partner_status_topic, 30, &Blackboard::PartnerRobotStatusCallback, this);
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
-    if (decision_config_.master())
+    if (partner_name == "robot2" )
       self_identity_ = Identity::MASTER;
     else
       self_identity_ = Identity::SLAVE;
@@ -250,6 +254,8 @@ public:
   void SupplierStatusCallback(const roborts_msgs::SupplierStatus::ConstPtr& supplier_status);
   //Robot Status
   void RobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& robot_status);
+  //partner robot status
+  void PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status);
   //Robot Heat
   void RobotHeatCallback(const roborts_msgs::RobotHeat::ConstPtr& robot_heat);
   //Robot Bonus
@@ -259,8 +265,7 @@ public:
   //Robot Shoot
   void RobotShootCallback(const roborts_msgs::RobotShoot::ConstPtr& robot_shoot);
   //Send Supply Cmd
-  void SendSupply50Cmd();
-  void SendSupply100Cmd();
+  void SendSupplyCmd();
   
   GameStatus GetGameStatus() const{
     // ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
@@ -426,6 +431,8 @@ public:
 
   /*******************Functions Used in Behavior Tree*******************/
   bool IsSupplyCondition();
+  bool IsGoToSupplyCondition();
+
   bool IsGainBuffCondition();
   bool IsEnemyDetected() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);
@@ -476,6 +483,7 @@ public:
 	int partner_patrol_count_;                      //友方巡逻位置相关
   int partner_bullet_num_;              //队友弹量
   unsigned int partner_remain_hp_;               //队友血量
+  ros::Time last_rec_partner_hp_time_;
 
   roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
 
@@ -565,6 +573,7 @@ private:
   ros::Subscriber bonus_status_sub_;
   ros::Subscriber supplier_status_sub_;
   ros::Subscriber robot_status_sub_;
+  ros::Subscriber partner_robot_status_sub_;
   ros::Subscriber robot_heat_sub_;
   ros::Subscriber robot_bonus_sub_;
   ros::Subscriber robot_damage_sub_;
