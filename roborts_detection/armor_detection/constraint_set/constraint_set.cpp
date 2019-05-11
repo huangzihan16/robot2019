@@ -166,11 +166,11 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     //FilterLights(lights);
     PossibleArmors(lights, armors);
     FilterArmors(armors);
-	//svm load
+ //svm load
     vector<Point2f> ones, twos;  
     std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
     detect12FromImage(src_img_, ones, twos);//svm
-    std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
+   std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
     Add12Label(armors, ones, twos);
     std::cout<<"ccccccccccccccccccccccc"<<std::endl;
     
@@ -342,20 +342,20 @@ void ConstraintSet::PossibleArmors(const std::vector<cv::RotatedRect> &lights, s
 
       float light1_angle = light1.angle; //light1.size.width < light1.size.height ? -light1.angle : light1.angle + 90
       float light2_angle = light2.angle; //light2.size.width < light2.size.height ? -light2.angle : light2.angle + 90
-      std::cout << "light1_angle: " << light1_angle << std::endl;
-      std::cout << "light2_angle: " << light2_angle << std::endl;
+      // std::cout << "light1_angle: " << light1_angle << std::endl;
+      // std::cout << "light2_angle: " << light2_angle << std::endl;
 
-      if (enable_debug_) {
-        std::cout << "*******************************" << std::endl;
-        std::cout << "light_angle_diff_: " << std::abs(light1_angle - light2_angle) << std::endl;
-        std::cout << "radio: " << std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) << std::endl;
-        std::cout << "armor_angle_: " << std::abs(center_angle) << std::endl;
-       std::cout << "armor_aspect_ratio_: " << rect.size.width / (float) (rect.size.height) << std::endl;
-        std::cout << "armor_area_: " << std::abs(rect.size.area()) << std::endl;
-        std::cout << "armor_pixel_val_: " << (float)(gray_img_.at<uchar>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))) << std::endl;
-        std::cout << "pixel_y" << static_cast<int>(rect.center.y) << std::endl;
-        std::cout << "pixel_x" << static_cast<int>(rect.center.x) << std::endl;
-      }
+      // if (enable_debug_) {
+      //   std::cout << "*******************************" << std::endl;
+      //   std::cout << "light_angle_diff_: " << std::abs(light1_angle - light2_angle) << std::endl;
+      //   std::cout << "radio: " << std::max<float>(edge1.second, edge2.second)/std::min<float>(edge1.second, edge2.second) << std::endl;
+      //   std::cout << "armor_angle_: " << std::abs(center_angle) << std::endl;
+      //  std::cout << "armor_aspect_ratio_: " << rect.size.width / (float) (rect.size.height) << std::endl;
+      //   std::cout << "armor_area_: " << std::abs(rect.size.area()) << std::endl;
+      //   std::cout << "armor_pixel_val_: " << (float)(gray_img_.at<uchar>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))) << std::endl;
+      //   std::cout << "pixel_y" << static_cast<int>(rect.center.y) << std::endl;
+      //   std::cout << "pixel_x" << static_cast<int>(rect.center.x) << std::endl;
+      // }
       
       auto angle_diff = std::abs(light1_angle - light2_angle);
       // Avoid incorrect calculation at 180 and 0.
@@ -497,7 +497,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
     if (stddev > armor_max_stddev_ || mean > armor_max_mean_) {
       armor_iter = armors.erase(armor_iter);
-      std::cout<<"filter fot stddev or mean"<<std::endl;
+     // std::cout<<"filter fot stddev or mean"<<std::endl;
     } else {
       armor_iter++;
     }
@@ -958,9 +958,9 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   armor.target_3d.y=depthy;
   armor.target_3d.x=depthx;
   // std::cout<<"==========from depth map=========="<<std::endl;
-  // std::cout<<"x-"<<armor.target_3d.x<<std::endl;
-  // std::cout<<"y-"<<armor.target_3d.y<<std::endl;
-  // std::cout<<"z-"<<armor.target_3d.z<<std::endl;
+  std::cout<<"x-"<<armor.target_3d.x<<std::endl;
+  std::cout<<"y-"<<armor.target_3d.y<<std::endl;
+  std::cout<<"z-"<<armor.target_3d.z<<std::endl;
   }else{
   for (unsigned int i = 0; i < 4; i++) {
       armor.vertex[i].y=armor.vertex[i].y+roiy_;

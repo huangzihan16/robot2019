@@ -97,16 +97,16 @@ int main(int argc, char **argv) {
   //game_start_selector
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
-																																															[&]() {/*if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}*/
-                                                                                                if (!blackboard_ptr_->IsBulletLeft()) {
+																																															[&]() {if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
+                                                                                                // if (!blackboard_ptr_->IsBulletLeft()) {
+																																																// 	return true;
+																																																// } else {
+																																																// 	return false;
+																																																// }
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
   game_start_selector->AddChildren(no_bullet_left_condition_);
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
   obtain_buff_condition_->SetChild(offensive_selector);  
   std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->HurtedPerSecond() > 400) {
+																																																if (blackboard_ptr_->HurtedPerSecond() > 200) {
                                                                                                   ROS_INFO("DMP: %f",blackboard_ptr_->dmp_);
 																																																	return true;
 																																																} else {
@@ -233,21 +233,21 @@ int main(int argc, char **argv) {
   // std::shared_ptr<roborts_decision::SelectorNode> without_buff_selector(new roborts_decision::SelectorNode("without_buff_selector", blackboard_ptr_));          
   // bullet_left_selector->AddChildren(without_buff_selector);
   // std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
-	// 																																														[&]() {return true;
-	// 																																															/*if (blackboard_ptr_->GetBonusStatus()
+	// 																																														[&]() {//return true;
+	// 																																															if (blackboard_ptr_->GetBonusStatus()
   //                                                                                               == roborts_decision::BonusStatus::UNOCCUPIED) {
 	// 																																																return true;
 	// 																																															} else {
 	// 																																																return false;
-	// 																																															}*/
+	// 																																															}
 	// 																																														} , roborts_decision::AbortType::BOTH));
  	// std::shared_ptr<roborts_decision::SequenceNode> gain_buff_sequence(new roborts_decision::SequenceNode("gain_buff", blackboard_ptr_));
   // without_buff_selector->AddChildren(buff_ready_condition_);
   // buff_ready_condition_->SetChild(gain_buff_sequence);
   // gain_buff_sequence->AddChildren(gain_buff_goal_action_);
-	// //gain_buff_sequence->AddChildren(gain_buff_action_);
+	// gain_buff_sequence->AddChildren(gain_buff_action_);
 
-  // //need detailed information if rfid is not detected  
+  // // //need detailed information if rfid is not detected  
 
 
   // // enemy buff condition //enemy_buff_selector
@@ -264,10 +264,9 @@ int main(int argc, char **argv) {
 	// 																																																return false;
 	// 																																															}
 	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-
   // std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_dmp_condition_(new roborts_decision::PreconditionNode("emy_buff_dmp_condition",blackboard_ptr_,
 	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->HurtedPerSecond() > 600 ) {
+	// 																																															if (blackboard_ptr_->HurtedPerSecond() > 200 ) {
 	// 																																																return true;
 	// 																																															} else {
 	// 																																																return false;

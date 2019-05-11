@@ -36,7 +36,7 @@ public:
 		else 
 			return BehaviorState::RUNNING;
 
-        // if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) {
+        // if (blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::PREPARING) {
 		// 	blackboard_->AddSupplyNum();
 		// 	std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
 		// 	return BehaviorState::SUCCESS;

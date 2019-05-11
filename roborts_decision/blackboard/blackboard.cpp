@@ -113,6 +113,11 @@ namespace roborts_decision {
     double y_self = self_pose.pose.position.y;
 		double distance_enemy_partner = sqrt((x_enemy - x_partner) * (x_enemy - x_partner) + (y_enemy - y_partner) * (y_enemy - y_partner));
 		
+		double dx_enemy_partner = x_partner - x_enemy, dy_enemy_partner = y_partner- y_enemy;//vector from enemy to partner
+		double dx_enemy_self = x_self - x_enemy, dy_enemy_self = y_self - y_enemy;					//vector from enemy to self
+		double dx_self_enemy = -dx_enemy_self, dy_self_enemy = -dy_enemy_self;							//vector from self to enemy
+		double dx_self_partner = x_partner - x_self, dy_self_partner = y_partner - y_self;	//vector from self to partner
+		
 		int map_x_enemy, map_y_enemy, map_x_partner, map_y_partner;
 		costmap2d_->World2MapWithBoundary(x_enemy, y_enemy, map_x_enemy, map_y_enemy);
 		costmap2d_->World2MapWithBoundary(x_partner, y_partner, map_x_partner, map_y_partner);
@@ -141,15 +146,27 @@ namespace roborts_decision {
 				cached_cost.push_back(255);
 				continue;
 			}
+			
+			double x_candidate, y_candidate;
+			costmap2d_->Map2World(cached_map_x_cell, cached_map_y_cell, x_candidate, y_candidate);
+			
+			//Check the line of goal and self is not intersect with the line of partner and enemy
+			double dx_enemy_candidate = x_candidate - x_enemy, dy_enemy_candidate = y_candidate - y_enemy;
+			double dx_self_candidate = x_candidate - x_self, dy_self_candidate = y_candidate - y_self;
+			if (VectorCrossProduct(dx_enemy_partner, dy_enemy_partner, dx_enemy_self, dy_enemy_self)
+				* VectorCrossProduct(dx_enemy_partner, dy_enemy_partner, dx_enemy_candidate, dy_enemy_candidate) > 0 
+			|| VectorCrossProduct(dx_self_candidate, dy_self_candidate, dx_self_partner, dy_self_partner)
+				* VectorCrossProduct(dx_self_candidate, dy_self_candidate, dx_self_enemy, dy_self_enemy) > 0) {
+				cached_cost.push_back(255);
+				continue;
+			}
+			
 			//Select goal which is good for support, if not, set highest cost
-			double dx_enemy_partner = x_partner - x_enemy, dy_enemy_partner = y_partner- y_enemy;//vector from enemy to partner
 			double angle_goal_enemy_partner = 
 				GetAngleBetweenNonZeroVectorandCachedVector(dx_enemy_partner, dy_enemy_partner, i);
 			if (angle_goal_enemy_partner <= 0)
 				cached_cost.push_back(cached_cell_cost);
 			else {
-				double x_candidate, y_candidate;
-				costmap2d_->Map2World(cached_map_x_cell, cached_map_y_cell, x_candidate, y_candidate);
 				double distance_partner_to_line_enemy_goal, distance_goal_to_line_enemy_partner;
 				distance_partner_to_line_enemy_goal =
 					GetDistanceBetweenPointandLineWithBottomLength(x_partner, y_partner, x_enemy, y_enemy, x_candidate, y_candidate, cached_distance_[i]);
@@ -170,7 +187,7 @@ namespace roborts_decision {
 				double x_candidate, y_candidate;
 				costmap2d_->Map2World(cached_map_x_cell, cached_map_y_cell, x_candidate, y_candidate);
 
-        double dx_self_candidate = x_self - x_candidate, dy_self_candidate = y_self - y_candidate;
+        double dx_self_candidate = x_candidate - x_self, dy_self_candidate = y_candidate - y_self;
         double loss = fabs(cached_distance_[i] - best_distance_goal_enemy_) / best_distance_goal_enemy_
                     + sqrt(dx_self_candidate * dx_self_candidate + dy_self_candidate * dy_self_candidate) / around_area_radius_;
 				if (loss < min_loss) {
@@ -435,14 +452,14 @@ namespace roborts_decision {
 		UpdateRobotPose();
 		double delta_x = robot_map_pose_.pose.position.x - 6.3;
 		double delta_y = robot_map_pose_.pose.position.y - 1.75;
-		// if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
-    //   return true;
-    // else 
-    //   return false;
-		if (delta_x * delta_x + delta_y * delta_y < 0.01) 
-			return true;
-		else 
-			return false;
+		if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
+      return true;
+    else 
+      return false;
+		// if (delta_x * delta_x + delta_y * delta_y < 0.01) 
+		// 	return true;
+		// else 
+		// 	return false;
 	}
 
   geometry_msgs::PoseStamped Blackboard::GetSupplyGoal() {
@@ -560,6 +577,8 @@ namespace roborts_decision {
       bool success = cachedmapforchaseandsupport_ptr_->FindSupportGoal(partner_enemy_pose_, partner_info->partner_pose, robot_map_pose_, goal_pose);
       if (success)
         test_support_publisher_.publish(goal_pose);
+      else
+        test_support_publisher_.publish(partner_enemy_pose_);
     }
 		partner_pose_ = partner_info->partner_pose;
 		partner_patrol_count_ = partner_info->patrol_count;
