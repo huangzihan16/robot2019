@@ -16,7 +16,7 @@ projectile_model_info {
 }
 
 supply_offset{
-    delta_x :1314
+    delta_x :0
     delta_y :0
     delta_theta :0
 }
