@@ -153,6 +153,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
 
   auto detection_begin = std::chrono::high_resolution_clock::now();
 
+    
     cv::cvtColor(src_img_, gray_img_, CV_BGR2GRAY);
     if (enable_debug_) {
       show_lights_before_filter_ = src_img_.clone();
@@ -161,14 +162,15 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       show_armors_after_filter_ = src_img_.clone();
       cv::waitKey(1);
     }
-    armors.clear();  
-    std::cout<<"11111111111111111111"<<std::endl; 
+    armors.clear();
+
+    std::cout<<"1111111111111"<<std::endl;
     DetectLights(src_img_, lights);
-    std::cout<<"2222222222222222222222222"<<std::endl; 
+    std::cout<<"22222222222222222"<<std::endl;
     //FilterLights(lights);
-    PossibleArmors(lights, armors);  
-    std::cout<<"3333333333333333333333333"<<std::endl; 
-    FilterArmors(armors);
+    PossibleArmors(lights, armors);
+    std::cout<<"333333333333333333333333333"<<std::endl;
+    FilterArmors(armors); 
  //svm load
     vector<Point2f> ones, twos;  
     std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
@@ -221,9 +223,8 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
   std::cout<<"gggggggggggggggggggggggggggg"<<std::endl;
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
-  // detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
-  //     (std::chrono::high_resolution_clock::now() - detection_begin).count();
-
+  detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
+      (std::chrono::high_resolution_clock::now() - detection_begin).count();
 
   return error_info_;
 }

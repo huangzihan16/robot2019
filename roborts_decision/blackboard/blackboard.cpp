@@ -236,13 +236,6 @@ namespace roborts_decision {
 		return true;
 	}
 
-	/*******************Suggest Gimbal Patrol*******************/
-	int SuggestGimbalPatrol();
-
-	ros::ServiceClient static_map_srv_;
-	StaticGridMap::Ptr staticmap_ptr_;
-
-
 	int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
 		return mx + my * size_x_;
 	}
