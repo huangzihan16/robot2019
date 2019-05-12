@@ -145,7 +145,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected) {
     FilterLights(lights);
     //PossibleArmors(lights, armors);
     //FilterArmors(armors);
-    if(!lights.empty()) {
+    if(lights.size()>2) {
       detected = true;
       std::cout<<"set info detected!!!!!"<<std::endl;
       //ArmorInfo final_armor = SlectFinalArmor(armors);
