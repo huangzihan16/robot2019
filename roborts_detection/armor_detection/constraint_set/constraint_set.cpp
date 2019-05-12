@@ -153,6 +153,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
 
   auto detection_begin = std::chrono::high_resolution_clock::now();
 
+    
     cv::cvtColor(src_img_, gray_img_, CV_BGR2GRAY);
     if (enable_debug_) {
       show_lights_before_filter_ = src_img_.clone();
@@ -162,10 +163,14 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       cv::waitKey(1);
     }
     armors.clear();
+
+    std::cout<<"1111111111111"<<std::endl;
     DetectLights(src_img_, lights);
+    std::cout<<"22222222222222222"<<std::endl;
     //FilterLights(lights);
     PossibleArmors(lights, armors);
-    FilterArmors(armors);
+    std::cout<<"333333333333333333333333333"<<std::endl;
+    FilterArmors(armors); 
  //svm load
     vector<Point2f> ones, twos;  
     std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
