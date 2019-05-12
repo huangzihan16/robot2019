@@ -236,7 +236,14 @@ namespace roborts_decision {
 		return true;
 	}
 
-  int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
+	/*******************Suggest Gimbal Patrol*******************/
+	int SuggestGimbalPatrol();
+
+	ros::ServiceClient static_map_srv_;
+	StaticGridMap::Ptr staticmap_ptr_;
+
+
+	int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
 		return mx + my * size_x_;
 	}
 	
@@ -247,6 +254,79 @@ namespace roborts_decision {
 	
 	bool StaticGridMap::IsGridFreeWithMap(const int mx, const int my) {
 		return gridmapfree_[ComputeIndexByMapCoor(mx, my)];
+	}
+	
+	bool StaticGridMap::IsMapCoorInArea(int mx, int my) {
+		if (mx < 0 || mx >= size_x_ || my < 0 || my >= size_y_)
+			return false;
+		else
+			return true;
+	}
+
+  /*******************Suggest Gimbal Patrol*******************/
+	void Blackboard::SuggestGimbalPatrol() {
+		double chassis_yaw = GetChassisYaw();
+		double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
+		double x_left = x_self + 0.9 * cos(chassis_yaw + M_PI / 4), y_left = y_self + 0.9 * sin(chassis_yaw + M_PI / 4),
+			x_right = x_self + 0.9 * cos(chassis_yaw - M_PI / 4), y_right = y_self + 0.9 * sin(chassis_yaw - M_PI / 4),
+			x_front = x_self + 0.71 * cos(chassis_yaw), y_front = y_self + 0.71 * sin(chassis_yaw);
+		int map_x_self, map_y_self, map_x_left, map_y_left, map_x_right, map_y_right, map_x_front, map_y_front;
+		staticmap_ptr_->ConvertWorldToMap(x_self, y_self, map_x_self, map_y_self);
+		staticmap_ptr_->ConvertWorldToMap(x_left, y_left, map_x_left, map_y_left);
+		staticmap_ptr_->ConvertWorldToMap(x_right, y_right, map_x_right, map_y_right);
+		staticmap_ptr_->ConvertWorldToMap(x_front, y_front, map_x_front, map_y_front);
+		
+		bool left_free = true, right_free = true, front_free = true;
+		left_free = staticmap_ptr_->IsMapCoorInArea(map_x_left, map_y_left);
+		right_free = staticmap_ptr_->IsMapCoorInArea(map_x_right, map_y_right);
+		front_free = staticmap_ptr_->IsMapCoorInArea(map_x_front, map_y_front);
+		
+		if (left_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_left, map_y_left); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					left_free = false;
+					break;
+				}
+			}
+		}
+		if (right_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_right, map_y_right); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					right_free = false;
+					break;
+				}
+			}
+		}
+		if (front_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_front, map_y_front); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					front_free = false;
+					break;
+				}
+			}
+		}
+		
+		std_msgs::Int32 state;
+		if (front_free) {
+			if (left_free && right_free) 
+				state.data = 0;
+			else if (left_free && !right_free)
+				state.data = 1;
+			else if (!left_free && right_free)
+				state.data = 3;
+			else
+				state.data = 2;
+		} else {
+			if (left_free && right_free)
+				state.data = 4;
+			else if (left_free && !right_free)
+				state.data = 5;
+			else if (!left_free && right_free)
+				state.data = 6;
+			else
+				state.data = 0;
+		}
+		patrol_suggest_publisher_.publish(state);
 	}
 
   /*******************Enemy Information from roborts_detection*******************/
@@ -382,7 +462,7 @@ namespace roborts_decision {
     last_hp_ = 2000;
     dmp_ = 0;
 		supply_number_ = 0;
-    identity_number_ = 0;
+    identity_number_ = 1;
  		gain_buff_number_ = 0;
     partner_detect_enemy_ = false;
     start_time_ = ros::Time::now();
@@ -399,7 +479,7 @@ namespace roborts_decision {
     game_status_ = (GameStatus)game_status->game_status;
     remaining_time_ = game_status->remaining_time;
 
-    if (game_status_ != GameStatus::ROUND)
+    if (game_status_ == GameStatus::FIVE_SEC_CD)
       InitParameter();
   }
 
@@ -529,15 +609,15 @@ namespace roborts_decision {
 
   /*******************Referee System Information Preliminarily Process(Not Used directly in Behavior Tree)*******************/
   double Blackboard::HurtedPerSecond() {
-    if (ros::Time::now()-last_get_hp_time_ > ros::Duration(0.5)) {
-        auto reduce_hp = last_hp_ - remain_hp_;
-        dmp_ = reduce_hp / (ros::Time::now()-last_get_hp_time_).toSec();
-        last_hp_ = remain_hp_;
-        last_get_hp_time_ = ros::Time::now();
-        return dmp_;
-    } else {
-        return dmp_;
-    }
+    ros::Duration last_get_hp_duration = ros::Time::now() - last_get_hp_time_;
+    if (last_get_hp_duration.toSec() > 0.5) {
+      auto reduce_hp = last_hp_ - remain_hp_;
+      dmp_ = reduce_hp / last_get_hp_duration.toSec();
+      last_hp_ = remain_hp_;
+      last_get_hp_time_ = ros::Time::now();
+      return dmp_;
+    } else
+      return dmp_;
   }
 
   DamageSource Blackboard::GetDamageSource() const{
@@ -637,6 +717,7 @@ namespace roborts_decision {
 	  if (time >= 60 * identity_number_) {
       if (self_identity_ == Identity::MASTER) {
         self_identity_ = Identity::SLAVE;
+        supply_number_++;
       } else {
         self_identity_ = Identity::MASTER;
       }

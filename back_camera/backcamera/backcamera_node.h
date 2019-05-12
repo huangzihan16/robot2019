@@ -123,7 +123,8 @@ class ArmorDetectionNode {
 
   //apriltags
   boost::shared_ptr<apriltags_ros::AprilTagDetector> tag_detect_;
-
+  int tag_id_;
+  bool tag_start_;
 };
 } //namespace roborts_detection
 

@@ -30,6 +30,8 @@ class AprilTagDetector{
   ros::Publisher initialpose_pub_;
   image_transport::ImageTransport it_;
   void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);
+  int tag_id;
+  int tag_detect_amount_;
  
  private:
  // void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);

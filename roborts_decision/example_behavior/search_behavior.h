@@ -47,6 +47,8 @@ class SearchBehavior {
     double x_diff;
     double y_diff;
 
+    blackboard_->SuggestGimbalPatrol();
+    
     if (executor_state != BehaviorState::RUNNING) {
       auto robot_map_pose = blackboard_->GetRobotMapPose();
       last_position_ = blackboard_->GetEnemy();
