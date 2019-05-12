@@ -144,6 +144,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected) {
     DetectLights(src_img_, lights);
     FilterLights(lights);
     //PossibleArmors(lights, armors);
+
     //FilterArmors(armors);
     if(lights.size()>2) {
       detected = true;
@@ -246,9 +247,9 @@ void ConstraintSet::FilterLights(std::vector<cv::RotatedRect> &lights) {
       angle = light.angle; // -light.angle
     } else
       angle = light.angle; // light.angle + 90
-    //std::cout << "light angle: " << angle << std::endl;
-    //std::cout << "light_aspect_ratio: " << light_aspect_ratio << std::endl;
-    //std::cout << "light_area: " << light.size.area() << std::endl;
+    std::cout << "light angle: " << angle << std::endl;
+    std::cout << "light_aspect_ratio: " << light_aspect_ratio << std::endl;
+    std::cout << "light_area: " << light.size.area() << std::endl;
     if (light_aspect_ratio < light_max_aspect_ratio_ &&
         light.size.area() >= light_min_area_) { //angle < light_max_angle_ &&
           rects.push_back(light);

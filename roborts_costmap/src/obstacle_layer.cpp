@@ -313,7 +313,8 @@ void ObstacleLayer::OnInitialize() {
                                                                                             *tf_,
                                                                                             global_frame_,
                                                                                             sensor_frame,
-                                                                                            transform_tolerance)));
+                                                                                            transform_tolerance,
+                                                                                            has_virtual_layer_)));
   if (marking) {
     marking_buffers_.push_back(observation_buffers_.back());
   }
@@ -347,10 +348,14 @@ void ObstacleLayer::OnInitialize() {
 	
 	enemy_inflation_ = para_obstacle.enemy_inflation();	
 
-  if (strstr(global_frame_.c_str(), "map") == NULL)
+  if (strstr(global_frame_.c_str(), "map") == NULL) {
     map_is_global_ = false;
-  else 
+    reset_thre = 15;
+  }
+  else {
     map_is_global_ = true;
+    reset_thre = 8;
+  }
   
 }
 
@@ -424,7 +429,14 @@ void ObstacleLayer::UpdateBounds(double robot_x,
   }
 
   // reset obstacle layer each time
-  memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+  static int reset_cnt = 0;
+  if (!has_virtual_layer_) {
+    reset_cnt++;
+    if (reset_cnt > reset_thre) {
+      reset_cnt = 0;
+      memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+    }
+  }
 
   double resolution = layered_costmap_->GetCostMap()->GetResolution();
 	enemy_inflation_grid_ = (int)std::ceil(enemy_inflation_ / resolution);
@@ -472,21 +484,21 @@ void ObstacleLayer::UpdateBounds(double robot_x,
 
         // transform from odom to map
         bool is_transform = true;
-        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(3.0));
+        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(0.05));
         try {
           tf_->transformPoint("map", ros::Time(0), ps, ps.header.frame_id, ps_map);
         } catch (tf::ExtrapolationException &ex) {
-          ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+          // ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
           is_transform = false;
         } catch (tf::TransformException &tfe) {
-          ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", ps.header.frame_id.c_str(),
-                "map", tfe.what());
+          // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", ps.header.frame_id.c_str(),
+          //       "map", tfe.what());
           is_transform = false;
         } catch (const std::exception &e) {
-          std::cerr << e.what() << '\n';
+          // std::cerr << e.what() << '\n';
           is_transform = false;
         } catch (...) {
-          ROS_ERROR("Unknown exception when transforming stamped point");
+          // ROS_ERROR("Unknown exception when transforming stamped point");
           is_transform = false;
         }
 

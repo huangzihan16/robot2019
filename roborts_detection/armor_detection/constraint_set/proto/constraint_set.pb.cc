@@ -29,6 +29,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* SignalRecognization_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SignalRecognization_reflection_ = NULL;
+const ::google::protobuf::Descriptor* CameraMatrix_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  CameraMatrix_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ConstraintSetConfig_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ConstraintSetConfig_reflection_ = NULL;
@@ -103,8 +106,26 @@ void protobuf_AssignDesc_constraint_5fset_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SignalRecognization));
-  ConstraintSetConfig_descriptor_ = file->message_type(3);
-  static const int ConstraintSetConfig_offsets_[7] = {
+  CameraMatrix_descriptor_ = file->message_type(3);
+  static const int CameraMatrix_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, fx_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, cx_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, fy_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, cy_),
+  };
+  CameraMatrix_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      CameraMatrix_descriptor_,
+      CameraMatrix::default_instance_,
+      CameraMatrix_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(CameraMatrix));
+  ConstraintSetConfig_descriptor_ = file->message_type(4);
+  static const int ConstraintSetConfig_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, enable_debug_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, enable_neon_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, using_hsv_),
@@ -112,6 +133,7 @@ void protobuf_AssignDesc_constraint_5fset_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, armor_size_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, enemy_color_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, signal_recognization_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConstraintSetConfig, camera_matrix_),
   };
   ConstraintSetConfig_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -144,6 +166,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     SignalRecognization_descriptor_, &SignalRecognization::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    CameraMatrix_descriptor_, &CameraMatrix::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ConstraintSetConfig_descriptor_, &ConstraintSetConfig::default_instance());
 }
 
@@ -156,6 +180,8 @@ void protobuf_ShutdownFile_constraint_5fset_2eproto() {
   delete ArmorSize_reflection_;
   delete SignalRecognization::default_instance_;
   delete SignalRecognization_reflection_;
+  delete CameraMatrix::default_instance_;
+  delete CameraMatrix_reflection_;
   delete ConstraintSetConfig::default_instance_;
   delete ConstraintSetConfig_reflection_;
 }
@@ -180,24 +206,29 @@ void protobuf_AddDesc_constraint_5fset_2eproto() {
     "ze\022\r\n\005width\030\001 \002(\002\022\016\n\006height\030\002 \002(\002\"U\n\023Sig"
     "nalRecognization\022\024\n\014max_wait_fps\030\001 \002(\r\022\027"
     "\n\017min_pulse_angle\030\002 \002(\002\022\017\n\007min_num\030\003 \002(\r"
-    "\"\260\002\n\023ConstraintSetConfig\022\024\n\014enable_debug"
-    "\030\001 \002(\010\022\023\n\013enable_neon\030\002 \002(\010\022\021\n\tusing_hsv"
-    "\030\003 \002(\010\022/\n\tthreshold\030\004 \002(\0132\034.roborts_dete"
-    "ction.Threshold\0220\n\narmor_size\030\005 \002(\0132\034.ro"
-    "borts_detection.ArmorSize\0222\n\013enemy_color"
-    "\030\006 \002(\0162\035.roborts_detection.EnemyColor\022D\n"
-    "\024signal_recognization\030\007 \002(\0132&.roborts_de"
-    "tection.SignalRecognization*\037\n\nEnemyColo"
-    "r\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001", 860);
+    "\">\n\014CameraMatrix\022\n\n\002fx\030\001 \002(\002\022\n\n\002cx\030\002 \002(\002"
+    "\022\n\n\002fy\030\003 \002(\002\022\n\n\002cy\030\004 \002(\002\"\350\002\n\023ConstraintS"
+    "etConfig\022\024\n\014enable_debug\030\001 \002(\010\022\023\n\013enable"
+    "_neon\030\002 \002(\010\022\021\n\tusing_hsv\030\003 \002(\010\022/\n\tthresh"
+    "old\030\004 \002(\0132\034.roborts_detection.Threshold\022"
+    "0\n\narmor_size\030\005 \002(\0132\034.roborts_detection."
+    "ArmorSize\0222\n\013enemy_color\030\006 \002(\0162\035.roborts"
+    "_detection.EnemyColor\022D\n\024signal_recogniz"
+    "ation\030\007 \002(\0132&.roborts_detection.SignalRe"
+    "cognization\0226\n\rcamera_matrix\030\010 \002(\0132\037.rob"
+    "orts_detection.CameraMatrix*\037\n\nEnemyColo"
+    "r\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001", 980);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "constraint_set.proto", &protobuf_RegisterTypes);
   Threshold::default_instance_ = new Threshold();
   ArmorSize::default_instance_ = new ArmorSize();
   SignalRecognization::default_instance_ = new SignalRecognization();
+  CameraMatrix::default_instance_ = new CameraMatrix();
   ConstraintSetConfig::default_instance_ = new ConstraintSetConfig();
   Threshold::default_instance_->InitAsDefaultInstance();
   ArmorSize::default_instance_->InitAsDefaultInstance();
   SignalRecognization::default_instance_->InitAsDefaultInstance();
+  CameraMatrix::default_instance_->InitAsDefaultInstance();
   ConstraintSetConfig::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_constraint_5fset_2eproto);
 }
@@ -1484,6 +1515,349 @@ void SignalRecognization::Swap(SignalRecognization* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int CameraMatrix::kFxFieldNumber;
+const int CameraMatrix::kCxFieldNumber;
+const int CameraMatrix::kFyFieldNumber;
+const int CameraMatrix::kCyFieldNumber;
+#endif  // !_MSC_VER
+
+CameraMatrix::CameraMatrix()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:roborts_detection.CameraMatrix)
+}
+
+void CameraMatrix::InitAsDefaultInstance() {
+}
+
+CameraMatrix::CameraMatrix(const CameraMatrix& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:roborts_detection.CameraMatrix)
+}
+
+void CameraMatrix::SharedCtor() {
+  _cached_size_ = 0;
+  fx_ = 0;
+  cx_ = 0;
+  fy_ = 0;
+  cy_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+CameraMatrix::~CameraMatrix() {
+  // @@protoc_insertion_point(destructor:roborts_detection.CameraMatrix)
+  SharedDtor();
+}
+
+void CameraMatrix::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void CameraMatrix::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CameraMatrix::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return CameraMatrix_descriptor_;
+}
+
+const CameraMatrix& CameraMatrix::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_constraint_5fset_2eproto();
+  return *default_instance_;
+}
+
+CameraMatrix* CameraMatrix::default_instance_ = NULL;
+
+CameraMatrix* CameraMatrix::New() const {
+  return new CameraMatrix;
+}
+
+void CameraMatrix::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<CameraMatrix*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  ZR_(fx_, cy_);
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool CameraMatrix::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:roborts_detection.CameraMatrix)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required float fx = 1;
+      case 1: {
+        if (tag == 13) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &fx_)));
+          set_has_fx();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(21)) goto parse_cx;
+        break;
+      }
+
+      // required float cx = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_cx:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &cx_)));
+          set_has_cx();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(29)) goto parse_fy;
+        break;
+      }
+
+      // required float fy = 3;
+      case 3: {
+        if (tag == 29) {
+         parse_fy:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &fy_)));
+          set_has_fy();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(37)) goto parse_cy;
+        break;
+      }
+
+      // required float cy = 4;
+      case 4: {
+        if (tag == 37) {
+         parse_cy:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &cy_)));
+          set_has_cy();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:roborts_detection.CameraMatrix)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:roborts_detection.CameraMatrix)
+  return false;
+#undef DO_
+}
+
+void CameraMatrix::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:roborts_detection.CameraMatrix)
+  // required float fx = 1;
+  if (has_fx()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->fx(), output);
+  }
+
+  // required float cx = 2;
+  if (has_cx()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->cx(), output);
+  }
+
+  // required float fy = 3;
+  if (has_fy()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->fy(), output);
+  }
+
+  // required float cy = 4;
+  if (has_cy()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->cy(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:roborts_detection.CameraMatrix)
+}
+
+::google::protobuf::uint8* CameraMatrix::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:roborts_detection.CameraMatrix)
+  // required float fx = 1;
+  if (has_fx()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->fx(), target);
+  }
+
+  // required float cx = 2;
+  if (has_cx()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->cx(), target);
+  }
+
+  // required float fy = 3;
+  if (has_fy()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->fy(), target);
+  }
+
+  // required float cy = 4;
+  if (has_cy()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->cy(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:roborts_detection.CameraMatrix)
+  return target;
+}
+
+int CameraMatrix::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required float fx = 1;
+    if (has_fx()) {
+      total_size += 1 + 4;
+    }
+
+    // required float cx = 2;
+    if (has_cx()) {
+      total_size += 1 + 4;
+    }
+
+    // required float fy = 3;
+    if (has_fy()) {
+      total_size += 1 + 4;
+    }
+
+    // required float cy = 4;
+    if (has_cy()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CameraMatrix::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const CameraMatrix* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const CameraMatrix*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void CameraMatrix::MergeFrom(const CameraMatrix& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_fx()) {
+      set_fx(from.fx());
+    }
+    if (from.has_cx()) {
+      set_cx(from.cx());
+    }
+    if (from.has_fy()) {
+      set_fy(from.fy());
+    }
+    if (from.has_cy()) {
+      set_cy(from.cy());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void CameraMatrix::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CameraMatrix::CopyFrom(const CameraMatrix& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CameraMatrix::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+
+  return true;
+}
+
+void CameraMatrix::Swap(CameraMatrix* other) {
+  if (other != this) {
+    std::swap(fx_, other->fx_);
+    std::swap(cx_, other->cx_);
+    std::swap(fy_, other->fy_);
+    std::swap(cy_, other->cy_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata CameraMatrix::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = CameraMatrix_descriptor_;
+  metadata.reflection = CameraMatrix_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int ConstraintSetConfig::kEnableDebugFieldNumber;
 const int ConstraintSetConfig::kEnableNeonFieldNumber;
 const int ConstraintSetConfig::kUsingHsvFieldNumber;
@@ -1491,6 +1865,7 @@ const int ConstraintSetConfig::kThresholdFieldNumber;
 const int ConstraintSetConfig::kArmorSizeFieldNumber;
 const int ConstraintSetConfig::kEnemyColorFieldNumber;
 const int ConstraintSetConfig::kSignalRecognizationFieldNumber;
+const int ConstraintSetConfig::kCameraMatrixFieldNumber;
 #endif  // !_MSC_VER
 
 ConstraintSetConfig::ConstraintSetConfig()
@@ -1503,6 +1878,7 @@ void ConstraintSetConfig::InitAsDefaultInstance() {
   threshold_ = const_cast< ::roborts_detection::Threshold*>(&::roborts_detection::Threshold::default_instance());
   armor_size_ = const_cast< ::roborts_detection::ArmorSize*>(&::roborts_detection::ArmorSize::default_instance());
   signal_recognization_ = const_cast< ::roborts_detection::SignalRecognization*>(&::roborts_detection::SignalRecognization::default_instance());
+  camera_matrix_ = const_cast< ::roborts_detection::CameraMatrix*>(&::roborts_detection::CameraMatrix::default_instance());
 }
 
 ConstraintSetConfig::ConstraintSetConfig(const ConstraintSetConfig& from)
@@ -1521,6 +1897,7 @@ void ConstraintSetConfig::SharedCtor() {
   armor_size_ = NULL;
   enemy_color_ = 0;
   signal_recognization_ = NULL;
+  camera_matrix_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1534,6 +1911,7 @@ void ConstraintSetConfig::SharedDtor() {
     delete threshold_;
     delete armor_size_;
     delete signal_recognization_;
+    delete camera_matrix_;
   }
 }
 
@@ -1569,7 +1947,7 @@ void ConstraintSetConfig::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 127) {
+  if (_has_bits_[0 / 32] & 255) {
     ZR_(enable_debug_, enemy_color_);
     if (has_threshold()) {
       if (threshold_ != NULL) threshold_->::roborts_detection::Threshold::Clear();
@@ -1579,6 +1957,9 @@ void ConstraintSetConfig::Clear() {
     }
     if (has_signal_recognization()) {
       if (signal_recognization_ != NULL) signal_recognization_->::roborts_detection::SignalRecognization::Clear();
+    }
+    if (has_camera_matrix()) {
+      if (camera_matrix_ != NULL) camera_matrix_->::roborts_detection::CameraMatrix::Clear();
     }
   }
 
@@ -1698,6 +2079,19 @@ bool ConstraintSetConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(66)) goto parse_camera_matrix;
+        break;
+      }
+
+      // required .roborts_detection.CameraMatrix camera_matrix = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_camera_matrix:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_camera_matrix()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1766,6 +2160,12 @@ void ConstraintSetConfig::SerializeWithCachedSizes(
       7, this->signal_recognization(), output);
   }
 
+  // required .roborts_detection.CameraMatrix camera_matrix = 8;
+  if (has_camera_matrix()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->camera_matrix(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1816,6 +2216,13 @@ void ConstraintSetConfig::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         7, this->signal_recognization(), target);
+  }
+
+  // required .roborts_detection.CameraMatrix camera_matrix = 8;
+  if (has_camera_matrix()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->camera_matrix(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1872,6 +2279,13 @@ int ConstraintSetConfig::ByteSize() const {
           this->signal_recognization());
     }
 
+    // required .roborts_detection.CameraMatrix camera_matrix = 8;
+    if (has_camera_matrix()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->camera_matrix());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1920,6 +2334,9 @@ void ConstraintSetConfig::MergeFrom(const ConstraintSetConfig& from) {
     if (from.has_signal_recognization()) {
       mutable_signal_recognization()->::roborts_detection::SignalRecognization::MergeFrom(from.signal_recognization());
     }
+    if (from.has_camera_matrix()) {
+      mutable_camera_matrix()->::roborts_detection::CameraMatrix::MergeFrom(from.camera_matrix());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1937,7 +2354,7 @@ void ConstraintSetConfig::CopyFrom(const ConstraintSetConfig& from) {
 }
 
 bool ConstraintSetConfig::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000007f) != 0x0000007f) return false;
+  if ((_has_bits_[0] & 0x000000ff) != 0x000000ff) return false;
 
   if (has_threshold()) {
     if (!this->threshold().IsInitialized()) return false;
@@ -1947,6 +2364,9 @@ bool ConstraintSetConfig::IsInitialized() const {
   }
   if (has_signal_recognization()) {
     if (!this->signal_recognization().IsInitialized()) return false;
+  }
+  if (has_camera_matrix()) {
+    if (!this->camera_matrix().IsInitialized()) return false;
   }
   return true;
 }
@@ -1960,6 +2380,7 @@ void ConstraintSetConfig::Swap(ConstraintSetConfig* other) {
     std::swap(armor_size_, other->armor_size_);
     std::swap(enemy_color_, other->enemy_color_);
     std::swap(signal_recognization_, other->signal_recognization_);
+    std::swap(camera_matrix_, other->camera_matrix_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -1,3 +1,4 @@
+
 /****************************************************************************
  *  Copyright (C) 2019 RoboMaster.
  *
@@ -7,8 +8,8 @@
  *  (at your option) any later version.
  *
  *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
@@ -17,7 +18,7 @@
 
 #include <unistd.h>
 #include "backcamera_node.h"
-//#include <apriltags_ros/apriltag_detector.h>
+#include "apriltag_detector.h"
 
 namespace roborts_detection {
 
@@ -26,10 +27,12 @@ ArmorDetectionNode::ArmorDetectionNode():
     demensions_(3),
     initialized_(false),
     detected_enemy_(false),
+    tag_start_(false),
     undetected_count_(0),
     as_(nh_, "backcamera_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false) {
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
+  tag_nh_ = ros::NodeHandle();
   if (Init().IsOK()) {
     initialized_ = true;
     node_state_ = roborts_common::IDLE;
@@ -37,7 +40,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     ROS_ERROR("armor_detection_node initalized failed!");
     node_state_ = roborts_common::FAILURE;
   }
-  as_.start();
+       as_.start();
 }
 
 ErrorInfo ArmorDetectionNode::Init() {
@@ -96,16 +99,28 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::BackCameraGoal::ConstPtr &
       StopThread();
       break;
     //-----------------------tag
-    // case 5:
-    //   tagDetection();
-    //   break;
+    case 5:
+      tagDetection();
+      break;
     default:
       break;
 
-
   }
-  ros::Rate rate(25);           //每过25ms发送一次feedback
+  ros::Rate rate(25);           
   while(ros::ok()) {
+     
+      if(tag_start_){ 
+        //  std::cout << "tag_amount = " << tag_detect_->tag_detect_amount_ << std::endl << std::endl;
+        //  std::cout << "tag_id = " << tag_detect_->tag_id << std::endl;
+       if(tag_detect_->tag_detect_amount_ != 0){
+         tag_id_ = tag_detect_->tag_id;
+       }else{
+         tag_id_ = -1;
+       }
+      feedback.tag_id = tag_id_;
+      as_.publishFeedback(feedback); 
+     }
+     
 
     if(as_.isPreemptRequested()) {
       as_.setPreempted();
@@ -113,18 +128,15 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::BackCameraGoal::ConstPtr &
     }
 
     {
-      std::cout<<"AAAAAAAAAAAAAAAAAAAA"<<std::endl;
-      std::lock_guard<std::mutex> guard(mutex_);
+       std::lock_guard<std::mutex> guard(mutex_);
       if (undetected_count_ != 0) {
         feedback.detected = true;
         //undetected_count_--;
-        std::cout<<"node info detected!!!!!!!!!!!!"<<std::endl;
         std::cout<<"undetected_count_ ="<<undetected_count_ <<std::endl;
-        as_.publishFeedback(feedback);                   //发布feedback
+        as_.publishFeedback(feedback);                  
         undetected_msg_published = false;
       } else if(!undetected_msg_published) {
         feedback.detected = false;
-        std::cout<<"node info unununudetected!!!!!!!!!!!!"<<std::endl;
         as_.publishFeedback(feedback);
         undetected_msg_published = true;
       }
@@ -137,47 +149,30 @@ void ArmorDetectionNode::ExecuteLoop() {
   undetected_count_ = 0;
 
   while(running_) {
-    usleep(1);  //将线程挂起1微秒
+    usleep(1);  
     if (node_state_ == NodeState::RUNNING) {
       cv::Point3f target_3d;
       //ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, target_3d);
       ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_);
       {
-        std::lock_guard<std::mutex> guard(mutex_);  //互斥锁，在析构时解锁
-        // x_ = target_3d.x;
-        // y_ = target_3d.y;
-        // z_ = target_3d.z;
+        std::lock_guard<std::mutex> guard(mutex_);  
+  
         error_info_ = error_info;
       }
-
-      
       if(detected_enemy_) {
-        // float pitch, yaw;
-        // gimbal_control_.Transform(target_3d, pitch, yaw);
-
-        // gimbal_angle_.yaw_mode = true;
-        // gimbal_angle_.pitch_mode = false;
-        // gimbal_angle_.yaw_angle = yaw * 0.7;
-        // gimbal_angle_.pitch_angle = pitch;
-
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
         PublishMsgs();
       } else if(undetected_count_ != 0) {
-
-        // gimbal_angle_.yaw_mode = true;
-        // gimbal_angle_.pitch_mode = false;
-        // gimbal_angle_.yaw_angle = 0;
-        // gimbal_angle_.pitch_angle = 0;
-
         undetected_count_--;
         PublishMsgs();
       } 
 
-    } else if (node_state_ == NodeState::PAUSE) {
-      std::unique_lock<std::mutex> lock(mutex_);
-      condition_var_.wait(lock);
-    }
+    } 
+    // else if (node_state_ == NodeState::PAUSE) {
+    //   std::unique_lock<std::mutex> lock(mutex_);
+    //   condition_var_.wait(lock);
+    // }
   }
 }
 
@@ -186,12 +181,24 @@ void ArmorDetectionNode::PublishMsgs() {
 }
 
 //--------------------------tag
-/*
+
 void ArmorDetectionNode::tagDetection(){
-  ROS_INFO("tagDetection started!");
-  apriltags_ros::AprilTagDetector detector(nh, pnh);
+   ROS_INFO("tagDetection started!");
+   //ros::NodeHandle tag_nh_;
+   //ros::NodeHandle pnh_("~");
+   //apriltags_ros::AprilTagDetector detector(tag_nh_, pnh_);
+  tag_detect_ =  boost::shared_ptr<apriltags_ros::AprilTagDetector>(new apriltags_ros::AprilTagDetector(tag_nh_));
+  tag_start_ = true;
+  //tag_detect_->image_sub_ = tag_detect_->it_.subscribeCamera("/back_camera/image_raw", 1, &apriltags_ros::AprilTagDetector::imageCb, this);
 }
-*/
+
+void ArmorDetectionNode::PauseThread() {
+  ROS_INFO("Armor detection thread paused!");
+ // node_state_ = NodeState::PAUSE;
+  tag_detect_->image_sub_.shutdown();
+  tag_start_ = false;
+
+}
 
 
 void ArmorDetectionNode::StartThread() {
@@ -203,11 +210,6 @@ void ArmorDetectionNode::StartThread() {
   }
   node_state_ = NodeState::RUNNING;
   condition_var_.notify_one();
-}
-
-void ArmorDetectionNode::PauseThread() {
-  ROS_INFO("Armor detection thread paused!");
-  node_state_ = NodeState::PAUSE;
 }
 
 void ArmorDetectionNode::StopThread() {
@@ -238,11 +240,10 @@ int main(int argc, char **argv) {
 
   roborts_detection::ArmorDetectionNode armor_detection;
   
-  ros::AsyncSpinner async_spinner(1);
+  ros::AsyncSpinner async_spinner(2);
   async_spinner.start();
   ros::waitForShutdown();
   armor_detection.StopThread();
   return 0;
 }
-
 

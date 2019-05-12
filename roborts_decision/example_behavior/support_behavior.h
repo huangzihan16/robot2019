@@ -16,18 +16,22 @@ class SupportBehavior {
   SupportBehavior(ChassisExecutor* &chassis_executor, GimbalExecutor* &gimbal_executor,
                Blackboard* &blackboard) :
       chassis_executor_(chassis_executor), gimbal_executor_(gimbal_executor),
-      blackboard_(blackboard) { }
+      blackboard_(blackboard), have_good_goal_(false) { }
 
   void Run() {
     //gimbal_executor_->WhirlScan();
-    geometry_msgs::PoseStamped enemy_pose, self_pose, goal_pose;
+    geometry_msgs::PoseStamped enemy_pose, self_pose;
     enemy_pose = blackboard_->GetPartnerEnemyPose();
     self_pose = blackboard_->GetRobotMapPose();
-    bool find_good_position =
-      blackboard_->cachedmapforchaseandsupport_ptr_->FindSupportGoal(enemy_pose, blackboard_->partner_pose_, self_pose, goal_pose);
 
-    if (find_good_position)
-      chassis_executor_->Execute(goal_pose);
+    if (have_good_goal_)
+      have_good_goal_ = blackboard_->cachedmapforchaseandsupport_ptr_->IsGoalStillAvailable(enemy_pose, goal_pose_);
+    if (!have_good_goal_)
+      have_good_goal_ =
+        blackboard_->cachedmapforchaseandsupport_ptr_->FindSupportGoal(enemy_pose, blackboard_->partner_pose_, self_pose, goal_pose_);
+
+    if (have_good_goal_)
+      chassis_executor_->Execute(goal_pose_);
     else 
       chassis_executor_->Execute(enemy_pose);
   }
@@ -42,6 +46,9 @@ class SupportBehavior {
 
   ~SupportBehavior() = default;
 
+ public:
+  bool have_good_goal_;
+  geometry_msgs::PoseStamped goal_pose_;
  private:
   //! executor
   ChassisExecutor* const chassis_executor_;
@@ -51,7 +58,6 @@ class SupportBehavior {
   Blackboard* const blackboard_;
 
   //geometry_msgs::PoseStamped planning_goal_;
-
 };
 
 

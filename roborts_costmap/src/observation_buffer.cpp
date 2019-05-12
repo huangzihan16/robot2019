@@ -63,11 +63,11 @@ namespace roborts_costmap {
 ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_time, double expected_update_rate,
                                      double min_obstacle_height, double max_obstacle_height, double obstacle_range,
                                      double raytrace_range, TransformListener& tf, string global_frame,
-                                     string sensor_frame, double tf_tolerance) :
+                                     string sensor_frame, double tf_tolerance, bool has_virtual_layer) :
     tf_(tf), observation_keep_time_(observation_keep_time), expected_update_rate_(expected_update_rate),
     last_updated_(ros::Time::now()), global_frame_(global_frame), sensor_frame_(sensor_frame), topic_name_(topic_name),
     min_obstacle_height_(min_obstacle_height), max_obstacle_height_(max_obstacle_height),
-    obstacle_range_(obstacle_range), raytrace_range_(raytrace_range), tf_tolerance_(tf_tolerance)
+    obstacle_range_(obstacle_range), raytrace_range_(raytrace_range), tf_tolerance_(tf_tolerance), has_virtual_layer_(has_virtual_layer)
 {
   printf("Initializing ObservationBuffer...\n");
   ros::NodeHandle nh;
@@ -92,7 +92,9 @@ ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_
   infile.close();
 
   string partner_topic_sub = "/" + partner_name + "/partner_msg";
-  partner_info_sub_ = nh.subscribe(partner_topic_sub, 1, &ObservationBuffer::PartnerCallback, this);
+  if (!has_virtual_layer_) {
+    partner_info_sub_ = nh.subscribe(partner_topic_sub, 1, &ObservationBuffer::PartnerCallback, this);
+  }
   printf("ObservationBuffer initilized\n");
 }
 
@@ -103,10 +105,6 @@ void ObservationBuffer::PartnerCallback(const roborts_msgs::PartnerInformationCo
     enemy_poses_from_partner_.clear();
     for (int i = 0; i < partner_info->enemy_info.size(); i++)
       enemy_poses_from_partner_.push_back(partner_info->enemy_info[i].enemy_pos);
-    // double x = enemy_pose_from_partner_.pose.position.x;
-    // double y = enemy_pose_from_partner_.pose.position.y;
-    // double z = enemy_pose_from_partner_.pose.position.z;
-    // printf("enemy pose from my partner: (%lf, %lf, %lf)\n", x, y, z);
   }
 }
 
@@ -183,21 +181,21 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
       // Transform partner_pose_ to partner_pose_tmp_
       geometry_msgs::PoseStamped partner_pose_tmp_;
       bool is_transform = true;
-      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+      tf_.waitForTransform(partner_pose_.header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(0.1));
       try {
         tf_.transformPose(cloud.header.frame_id, ros::Time(0), partner_pose_, partner_pose_.header.frame_id, partner_pose_tmp_);
       } catch (tf::ExtrapolationException &ex) {
-        ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+        // ROS_ERROR("Extrapolation Error looking up partner pose: %s", ex.what());
         is_transform = false;
       } catch (TransformException &tfe) {
-        ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", partner_pose_.header.frame_id.c_str(),
-              cloud.header.frame_id.c_str(), tfe.what());
+        // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", partner_pose_.header.frame_id.c_str(),
+              // cloud.header.frame_id.c_str(), tfe.what());
         is_transform = false;
       } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
+        // std::cerr << e.what() << '\n';
         is_transform = false;
       } catch (...) {
-        ROS_ERROR("Unknown exception when transforming partner pose");
+        // ROS_ERROR("Unknown exception when transforming partner pose");
         is_transform = false;
       }
       if (is_transform) {
@@ -220,21 +218,21 @@ void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
 					if (!enemy_poses_from_partner_[i].header.frame_id.empty()) {
 						geometry_msgs::PoseStamped enemy_pose_tmp_;
             bool is_transform = true;
-            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(3.0));
+            tf_.waitForTransform(enemy_poses_from_partner_[i].header.frame_id, cloud.header.frame_id, ros::Time(0), ros::Duration(0.1));
             try {
               tf_.transformPose(cloud.header.frame_id, ros::Time(0), enemy_poses_from_partner_[i], enemy_poses_from_partner_[i].header.frame_id, enemy_pose_tmp_);
             } catch (tf::ExtrapolationException &ex) {
-              ROS_ERROR("Extrapolation Error looking up stamped point: %s", ex.what());
+              // ROS_ERROR("Extrapolation Error looking up enemy pose from partner: %s", ex.what());
               is_transform = false;
             } catch (TransformException &tfe) {
-              ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", enemy_poses_from_partner_[i].header.frame_id.c_str(),
-                    cloud.header.frame_id.c_str(), tfe.what());
+              // ROS_ERROR("TF Exception that should never happen from frame [%s] to [%s], %s", enemy_poses_from_partner_[i].header.frame_id.c_str(),
+              //       cloud.header.frame_id.c_str(), tfe.what());
               is_transform = false;
             } catch (const std::exception &e) {
-              std::cerr << e.what() << '\n';
+              // std::cerr << e.what() << '\n';
               is_transform = false;
             } catch (...) {
-              ROS_ERROR("Unknown exception when transforming enemy pose from partner");
+              // ROS_ERROR("Unknown exception when transforming enemy pose from partner");
               is_transform = false;
             }
             if (is_transform) {
@@ -356,6 +354,11 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
   //   clear_observation_list_.front().cloud_->points.pop();
   // }
 }
+
+// void ObservationBuffer::BufferPartnerInfo(const sensor_msgs::PartnerInformation &partner_info)
+// {
+  
+// }
 
 // returns a copy of the observations
 void ObservationBuffer::GetObservations(vector<Observation>& observations, bool is_clear)

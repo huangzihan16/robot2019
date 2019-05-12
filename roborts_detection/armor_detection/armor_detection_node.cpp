@@ -32,7 +32,8 @@ ArmorDetectionNode::ArmorDetectionNode():
     as_(nh_, "armor_detection_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false){
           tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
 
-
+  patrol_dir_ = 1;
+  patrol_mode_ = 0;
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
   if (Init().IsOK()) {
@@ -49,6 +50,7 @@ ArmorDetectionNode::ArmorDetectionNode():
 ErrorInfo ArmorDetectionNode::Init() {
   enemy_info_pub_ = enemy_nh_.advertise<roborts_msgs::GimbalAngle>("cmd_gimbal_angle", 100);
   ArmorDetectionAlgorithms armor_detection_param;
+  patrol_suggest_sub_ = enemy_nh_.subscribe<std_msgs::Int32>("patrol_suggest", 1, &ArmorDetectionNode::PatrolSuggestCallback, this);
 
   std::string file_name = ros::package::getPath("roborts_detection") + "/armor_detection/config/armor_detection.prototxt";
   bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &armor_detection_param);
@@ -112,6 +114,9 @@ ErrorInfo ArmorDetectionNode::Init() {
     return ErrorInfo(ErrorCode::OK);
 }
 
+void ArmorDetectionNode::PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode){
+  patrol_mode_ = mode->data;
+}
 void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstPtr &data) {
   roborts_msgs::ArmorDetectionFeedback feedback;
   roborts_msgs::ArmorDetectionResult result;
@@ -190,20 +195,17 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
 }
 
 #define MAX_MIN_WHIRL_ANGLE     60*3.1415926/180
-#define WHIRL_SCAN_DELTA_ANGLE  6*3.1415926/180
+#define WHIRL_SCAN_DELTA_ANGLE  3*3.1415926/180
 void ArmorDetectionNode::ExecuteLoop() {
   undetected_count_ = 0;
-                   static float direction = 1;
+        static float direction = 1;
         static ros::Time last_time = ros::Time::now();
-        ros::Duration duration, enemy_duration;
+        ros::Duration duration, enemy_duration, enemy_disappear_duration;
         float delta_time;
-        // float BoundKy[6] = {-0.5,-0.05,0,0.05,0.2,0.75};
-        // float BoundKs[6] = {-0.5,-0.1,0,0.1,0.2,0.75};
-        // float Ky_[6] = {0.3,0.35,0.7,0.35,0.35,0.3};
-        // float Ks_[6] = {1,20,5000,20,10,1};
         float Ky, Ks;
-        float enemy_duration_time,gimbal_control_time;
-        static ros::Time last_enemy_time = ros::Time::now(),last_time_ = ros::Time::now();
+        int patrol_count = 1;
+        float enemy_duration_time, gimbal_control_time;
+        static ros::Time last_enemy_time = ros::Time::now(),last_time_ = ros::Time::now(), enemy_disappear_time = ros::Time::now();
         char yawArray[20],speedArray[20];
   FILE *file_fd = fopen("filter.txt","a+"); 
     if(file_fd == NULL) {  
@@ -213,7 +215,7 @@ void ArmorDetectionNode::ExecuteLoop() {
     } 
   while(running_) {
     usleep(1);
-    if (node_state_ == NodeState::RUNNING) {
+    if (node_state_ == NodeState::RUNNING/* && shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND*/) {
       std::vector<ArmorInfo> armors;
       ErrorInfo error_info = armor_detector_->DetectArmor(detected_enemy_, armors);
       {
@@ -223,9 +225,10 @@ void ArmorDetectionNode::ExecuteLoop() {
 
       if(detected_enemy_) {
         float pitch, yaw, speed, delta_yaw, all_yaw;
+        float speed_estimate;
         enemy_duration = ros::Time::now() - last_enemy_time;
         enemy_duration_time = enemy_duration.toSec();
-        ROS_INFO("enemy_duration_time:%f",enemy_duration_time);
+        // ROS_INFO("enemy_duration_time:%f",enemy_duration_time);
         gimbal_control_.Transform(armors[0].target_3d, pitch, yaw);
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
@@ -233,9 +236,9 @@ void ArmorDetectionNode::ExecuteLoop() {
         double gimbal_yaw = GetGimbalYaw();
         delta_yaw = yaw;
         all_yaw = gimbal_yaw + delta_yaw;
-        sprintf(yawArray,"%.10lf",all_yaw);
-        ROS_INFO("yawArray:%s",yawArray);
-        fwrite(yawArray,sizeof(yawArray),1,file_fd);
+        // sprintf(yawArray,"%.10lf",all_yaw);
+        // ROS_INFO("yawArray:%s",yawArray);
+        // fwrite(yawArray,sizeof(yawArray),1,file_fd);
         // fwrite("\n",sizeof("\n"),1,file_fd);
         duration = ros::Time::now() - last_time_;
         gimbal_control_time = duration.toSec();
@@ -243,7 +246,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         last_yaw_ = all_yaw;
         last_time_ = ros::Time::now();
 
-        if (enemy_duration_time > 2 && yaw < 0.1){
+        if (enemy_duration_time > 2 && yaw < 0.2){
           CalcMembership(yaw, MembershipKy, BoundKy_);
           CalcMembership(yaw, MembershipKs, BoundKs_);
           Ky = 0;
@@ -254,17 +257,18 @@ void ArmorDetectionNode::ExecuteLoop() {
                 Ks += Ks_[i] * MembershipKs[i] / 100;
   		        }
           }
-          float speed_estimate = kalmanfilter_.Update(all_yaw, speed);
-          if (speed_estimate > 1 || speed_estimate < -1)
+          speed_estimate = kalmanfilter_.Update(all_yaw, speed);
+          if (speed_estimate > 2 || speed_estimate < -1)
              speed_estimate = 0;
-          // gimbal_angle_.yaw_angle =  0.3 * yaw + 0.00 * speed_estimate;
+          // gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
           // PublishMsgs();
         } else {
-          // speed = 0;
+          speed_estimate = 0;
           // gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
           // PublishMsgs();
         }
-        gimbal_angle_.yaw_angle =  0.3 * yaw;
+        // speed_estimate = kalmanfilter_.Update(all_yaw, speed);
+        gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
         PublishMsgs();
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
@@ -274,39 +278,45 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
         // ROS_INFO("enemy_x_shooter:%f",enemy_x_shooter);
-		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 4000) {
+		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
           shoot_executor_.Execute();
         }
       } else if(undetected_count_ != 0) {
 
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = true;
-        gimbal_angle_.yaw_angle = 0;//kalmanfilter_.UpdateNoMesurement();
+        gimbal_angle_.yaw_angle = 0.05 * kalmanfilter_.UpdateNoMesurement();
         gimbal_angle_.pitch_angle = 0;
 
         undetected_count_--;
         PublishMsgs();
+        //patrol_count = 0;
+        enemy_disappear_time = ros::Time::now();
       } else {
         last_enemy_time = ros::Time::now();
         last_yaw_ = GetGimbalYaw();
         duration = ros::Time::now() - last_time;
+        enemy_disappear_duration = ros::Time::now() - enemy_disappear_time;
         delta_time = duration.toSec();
         double yaw = GetGimbalYaw();
-        // if(delta_time > 0.2)  {
-          gimbal_angle_.yaw_mode = true;
+        int mode = 4;
+        if(delta_time > 0.4 && enemy_disappear_duration.toSec() > 0.5)  {
+          gimbal_angle_.yaw_mode = false;
           gimbal_angle_.pitch_mode = true;
           gimbal_angle_.pitch_angle = 0;
-
-          if(yaw > MAX_MIN_WHIRL_ANGLE){
-            direction = -1.0;
-          }
-          if(yaw < -MAX_MIN_WHIRL_ANGLE){
-            direction = 1.0;
-          }
-          gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
+          gimbal_angle_.yaw_angle = GetPatrolAngle(patrol_mode_, patrol_count, yaw);
+          ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
+          patrol_count += patrol_dir_;
+          // if(yaw > MAX_MIN_WHIRL_ANGLE){
+          //   direction = -1.0;
+          // }
+          // if(yaw < -MAX_MIN_WHIRL_ANGLE){
+          //   direction = 1.0;
+          // }
+          // gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
           last_time = ros::Time::now();
           PublishMsgs();
-        // }
+        }
       }
     } else if (node_state_ == NodeState::PAUSE) {
       std::unique_lock<std::mutex> lock(mutex_);
@@ -314,6 +324,154 @@ void ArmorDetectionNode::ExecuteLoop() {
     }
   }
 }
+
+int ArmorDetectionNode::FindNearestAngle(int mode, float angle){
+  // switch(mode){
+  //   case 0:
+  //     patrol_angle = mode0_angle[patrol_count % 6];
+  //     if (patrol_count >= 5 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //   case 1:
+  //     patrol_angle = mode1_angle[patrol_count % 4];
+  //     if (patrol_count >= 3 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   case 2:
+  //     patrol_angle = mode2_angle[patrol_count % 2];
+  //     if (patrol_count >= 1 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   case 3:
+  //     patrol_angle = mode3_angle[patrol_count % 4];
+  //     if (patrol_count >= 3 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   case 4:
+  //     patrol_angle = mode4_angle[patrol_count % 4];
+  //     if (patrol_count >= 3 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   case 5:
+  //     patrol_angle = mode5_angle[patrol_count % 2];
+  //     if (patrol_count >= 1 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   case 6:
+  //     patrol_angle = mode6_angle[patrol_count % 2];
+  //     if (patrol_count >= 1 || patrol_count <= 0){
+  //       patrol_dir_ *= -1;
+  //     }
+  //     break;
+  //   default:
+  //     break;
+  // }
+  // return patrol_angle / 180 * 3.1415926;
+
+
+
+}
+
+
+
+float ArmorDetectionNode::GetPatrolAngle(int mode, int patrol_count, float angle){
+  float patrol_angle;
+  float mode0_angle[6] = {70, 45, 20, -20, -45, -70};
+  float mode1_angle[4] = {70, 45, 20, -20};
+  float mode2_angle[2] = {20, -20};
+  float mode3_angle[4] = {20, -20, -45, -70};
+  float mode4_angle[4] = {70, 45, -45, -70};
+  float mode5_angle[2] = {70, 45};
+  float mode6_angle[2] = {-45, -70};
+  switch(mode){
+    case 0:
+      if (patrol_count >= 5 ){
+         patrol_count=5;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode0_angle[patrol_count % 6];
+      break;
+    case 1:
+      if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode1_angle[patrol_count % 4];
+      break;
+    case 2:
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode2_angle[patrol_count % 2];
+      break;
+    case 3:
+       if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+     patrol_angle = mode3_angle[patrol_count % 4];
+      break;
+    case 4:
+      if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode4_angle[patrol_count % 4];
+      break;
+    case 5:
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode5_angle[patrol_count % 2];
+      break;
+    case 6:
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
+      }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode6_angle[patrol_count % 2];
+      break;
+    default:
+      break;
+  }
+  return patrol_angle / 180 * 3.1415926;
+}
+
 
 void ArmorDetectionNode::CalcMembership(float value, float *membership, float *bound)
 {

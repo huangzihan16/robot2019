@@ -45,8 +45,7 @@ public:
   float UpdateNoMesurement(){
     //2.kalman prediction
 	kalmanfilter_.predict(); //返回的是下一时刻的状态值KF.statePost (k+1) 
-  yaw_ = kalmanfilter_.statePost.at<float>(0) + speed_ * 3;
-  return yaw_;
+  return kalmanfilter_.statePost.at<float>(1);
   }
 
 

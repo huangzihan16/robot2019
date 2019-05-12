@@ -1,0 +1,18 @@
+syntax = "proto2";
+package roborts_costmap;
+message ParaVirtualLayer {
+    required double observation_keep_time = 1;
+    required double expected_update_rate = 2;
+    required double min_virtual_height = 3;
+    required double max_virtual_height = 4;
+    required double virtual_range = 5;
+    required double raytrace_range = 6;
+    required double transform_tolerance = 7;
+    required string sensor_frame = 8;
+    required bool inf_is_valid = 9;
+    required bool clearing = 10;
+    required bool marking = 11;
+    required bool footprint_clearing_enabled = 12;
+    required bool is_debug = 13;
+    required double enemy_inflation = 14;
+}

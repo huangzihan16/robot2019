@@ -235,6 +235,100 @@ namespace roborts_decision {
 			return false;
 		return true;
 	}
+
+	/*******************Suggest Gimbal Patrol*******************/
+	int SuggestGimbalPatrol();
+
+	ros::ServiceClient static_map_srv_;
+	StaticGridMap::Ptr staticmap_ptr_;
+
+
+	int StaticGridMap::ComputeIndexByMapCoor(const int mx, const int my) {
+		return mx + my * size_x_;
+	}
+	
+	void StaticGridMap::ConvertWorldToMap(const double wx, const double wy, int& mx, int& my) {
+		mx = std::floor(wx / scale_ + 0.5);
+		my = std::floor(wy / scale_ + 0.5);
+	}
+	
+	bool StaticGridMap::IsGridFreeWithMap(const int mx, const int my) {
+		return gridmapfree_[ComputeIndexByMapCoor(mx, my)];
+	}
+	
+	bool StaticGridMap::IsMapCoorInArea(int mx, int my) {
+		if (mx < 0 || mx >= size_x_ || my < 0 || my >= size_y_)
+			return false;
+		else
+			return true;
+	}
+
+  /*******************Suggest Gimbal Patrol*******************/
+	void Blackboard::SuggestGimbalPatrol() {
+		double chassis_yaw = GetChassisYaw();
+		double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
+		double x_left = x_self + 0.9 * cos(chassis_yaw + M_PI / 4), y_left = y_self + 0.9 * sin(chassis_yaw + M_PI / 4),
+			x_right = x_self + 0.9 * cos(chassis_yaw - M_PI / 4), y_right = y_self + 0.9 * sin(chassis_yaw - M_PI / 4),
+			x_front = x_self + 0.71 * cos(chassis_yaw), y_front = y_self + 0.71 * sin(chassis_yaw);
+		int map_x_self, map_y_self, map_x_left, map_y_left, map_x_right, map_y_right, map_x_front, map_y_front;
+		staticmap_ptr_->ConvertWorldToMap(x_self, y_self, map_x_self, map_y_self);
+		staticmap_ptr_->ConvertWorldToMap(x_left, y_left, map_x_left, map_y_left);
+		staticmap_ptr_->ConvertWorldToMap(x_right, y_right, map_x_right, map_y_right);
+		staticmap_ptr_->ConvertWorldToMap(x_front, y_front, map_x_front, map_y_front);
+		
+		bool left_free = true, right_free = true, front_free = true;
+		left_free = staticmap_ptr_->IsMapCoorInArea(map_x_left, map_y_left);
+		right_free = staticmap_ptr_->IsMapCoorInArea(map_x_right, map_y_right);
+		front_free = staticmap_ptr_->IsMapCoorInArea(map_x_front, map_y_front);
+		
+		if (left_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_left, map_y_left); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					left_free = false;
+					break;
+				}
+			}
+		}
+		if (right_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_right, map_y_right); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					right_free = false;
+					break;
+				}
+			}
+		}
+		if (front_free) {
+			for (FastLineIterator line(map_x_self, map_y_self, map_x_front, map_y_front); line.IsValid(); line.Advance()) {
+				if (!staticmap_ptr_->IsGridFreeWithMap(line.GetX(), line.GetY())) {
+					front_free = false;
+					break;
+				}
+			}
+		}
+		
+		std_msgs::Int32 state;
+		if (front_free) {
+			if (left_free && right_free) 
+				state.data = 0;
+			else if (left_free && !right_free)
+				state.data = 1;
+			else if (!left_free && right_free)
+				state.data = 3;
+			else
+				state.data = 2;
+		} else {
+			if (left_free && right_free)
+				state.data = 4;
+			else if (left_free && !right_free)
+				state.data = 5;
+			else if (!left_free && right_free)
+				state.data = 6;
+			else
+				state.data = 0;
+		}
+		patrol_suggest_publisher_.publish(state);
+	}
+
   /*******************Enemy Information from roborts_detection*******************/
   void Blackboard::ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback) {
     if (feedback->detected){
@@ -282,8 +376,18 @@ namespace roborts_decision {
         // std::cout <<"camera_pose_msg:" << camera_pose_msg << std::endl;
 
         poseStampedMsgToTF(camera_pose_msg, tf_pose);
-  
-        tf_pose.stamp_ = ros::Time(0);
+
+        ros::Time transform_time = ros::Time();
+        std::string tf_error;
+
+        tf_pose.stamp_ = transform_time;
+
+        if (!tf_ptr_->waitForTransform("map", "base_link", transform_time, ros::Duration(0.3),
+                            ros::Duration(0.005), &tf_error)) {
+          ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+          return;
+        }
+        
         try
         {
           tf_ptr_->transformPose("map", tf_pose, global_tf_pose);
@@ -360,6 +464,8 @@ namespace roborts_decision {
 		supply_number_ = 0;
     identity_number_ = 1;
  		gain_buff_number_ = 0;
+    partner_detect_enemy_ = false;
+    start_time_ = ros::Time::now();
 
     bullet_num_ = decision_config_.initial_bullet_num();
     if (decision_config_.master())
@@ -373,7 +479,7 @@ namespace roborts_decision {
     game_status_ = (GameStatus)game_status->game_status;
     remaining_time_ = game_status->remaining_time;
 
-    if (game_status_ == GameStatus::FIVE_SEC_CD && remaining_time_ > 4)
+    if (game_status_ == GameStatus::FIVE_SEC_CD)
       InitParameter();
   }
 
@@ -408,7 +514,10 @@ namespace roborts_decision {
     chassis_output_ = robot_status->chassis_output;
     shooter_output_ = robot_status->shooter_output;
   }
-
+  void Blackboard::PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status) {
+    partner_remain_hp_ = partner_robot_status->remain_hp;
+    last_rec_partner_hp_time_ = ros::Time::now();
+  }
   void Blackboard::RobotHeatCallback(const roborts_msgs::RobotHeat::ConstPtr& robot_heat) {
     chassis_volt_ = robot_heat->chassis_volt;
     chassis_current_ = robot_heat->chassis_current;
@@ -433,11 +542,13 @@ namespace roborts_decision {
     speed_ = robot_shoot->speed;
     if (speed_ > 12){
       bullet_num_ -= 1;
+      if(bullet_num_ <= 0)
+        bullet_num_ = 0;
     }
   }
 
   void Blackboard::SendSupplyCmd() {
-    projectilesupply_.number = 100;
+    // projectilesupply_.number = 50;
     projectile_supply_pub_.publish(projectilesupply_);
   }
 
@@ -498,15 +609,15 @@ namespace roborts_decision {
 
   /*******************Referee System Information Preliminarily Process(Not Used directly in Behavior Tree)*******************/
   double Blackboard::HurtedPerSecond() {
-    if (ros::Time::now()-last_get_hp_time_ > ros::Duration(0.5)) {
-        auto reduce_hp = last_hp_ - remain_hp_;
-        dmp_ = reduce_hp / (ros::Time::now()-last_get_hp_time_).toSec();
-        last_hp_ = remain_hp_;
-        last_get_hp_time_ = ros::Time::now();
-        return dmp_;
-    } else {
-        return dmp_;
-    }
+    ros::Duration last_get_hp_duration = ros::Time::now() - last_get_hp_time_;
+    if (last_get_hp_duration.toSec() > 0.5) {
+      auto reduce_hp = last_hp_ - remain_hp_;
+      dmp_ = reduce_hp / last_get_hp_duration.toSec();
+      last_hp_ = remain_hp_;
+      last_get_hp_time_ = ros::Time::now();
+      return dmp_;
+    } else
+      return dmp_;
   }
 
   DamageSource Blackboard::GetDamageSource() const{
@@ -576,6 +687,7 @@ namespace roborts_decision {
     }
 		partner_pose_ = partner_info->partner_pose;
 		partner_patrol_count_ = partner_info->patrol_count;
+    partner_bullet_num_ = partner_info->bullet_num;
 	}
 
   void Blackboard::PublishPartnerInformation() {
@@ -583,6 +695,7 @@ namespace roborts_decision {
     partner_msg_pub_.enemy_info = enemy_info_;
     UpdateRobotPose();
     partner_msg_pub_.partner_pose = robot_map_pose_;
+    partner_msg_pub_.bullet_num = bullet_num_;
     partner_msg_pub_.header.stamp = ros::Time::now();
     partner_pub_.publish(partner_msg_pub_);
   }
@@ -600,9 +713,11 @@ namespace roborts_decision {
 
   bool Blackboard::IsMasterCondition() {
     ros::Duration time_past = ros::Time::now() - start_time_;
-	  if (time_past.toSec() >= 60 * identity_number_) {
+    float time = 180 - remaining_time_;
+	  if (time >= 60 * identity_number_) {
       if (self_identity_ == Identity::MASTER) {
         self_identity_ = Identity::SLAVE;
+        supply_number_++;
       } else {
         self_identity_ = Identity::MASTER;
       }
@@ -662,7 +777,7 @@ namespace roborts_decision {
     robot_tf_pose.stamp_ = transform_time;
 
     if (!tf_ptr_->waitForTransform("map", "base_link", transform_time, ros::Duration(0.3),
-                            ros::Duration(0.01), &tf_error)) {
+                            ros::Duration(0.005), &tf_error)) {
       ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
       return;
     }
@@ -680,8 +795,17 @@ namespace roborts_decision {
     tf::Stamped<tf::Pose> gimbal_tf_pose;
     gimbal_tf_pose.setIdentity();
 
+    ros::Time transform_time = ros::Time();
+    std::string tf_error;
+
     gimbal_tf_pose.frame_id_ = "gimbal";
-    gimbal_tf_pose.stamp_ = ros::Time();
+    gimbal_tf_pose.stamp_ = transform_time;
+
+    if (!tf_ptr_->waitForTransform("base_link", "gimbal", transform_time, ros::Duration(0.3),
+                            ros::Duration(0.005), &tf_error)) {
+      ROS_ERROR("Transform with tolerance 0.3s failed: %s.", tf_error.c_str());
+      return;
+    }
     try {
       geometry_msgs::PoseStamped gimbal_pose;
       tf::poseStampedTFToMsg(gimbal_tf_pose, gimbal_pose);
@@ -694,25 +818,106 @@ namespace roborts_decision {
 
   /*******************Functions Used in Behavior Tree*******************/
   bool Blackboard::IsSupplyCondition() {
-		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * supply_number_){
+		// ros::Duration time_past = ros::Time::now() - start_time_;
+		// if (time_past.toSec() >= 60 * supply_number_){
+    //   return true;
+    // }
+		// else
+		// 	return false;
+    float time = 180 - remaining_time_;
+		if (time >= 60 * supply_number_){
       return true;
     }
 		else
 			return false;
 	}
 
-  bool Blackboard::IsGainBuffCondition() {
+  bool Blackboard::IsGoToSupplyCondition() {
+    static int status = 0;
 		ros::Duration time_past = ros::Time::now() - start_time_;
-		if (time_past.toSec() >= 60 * gain_buff_number_)
-			return true;
+    ros::Duration partner_hp_time = ros::Time::now() - last_rec_partner_hp_time_;
+
+    //TODO:未考虑是否正在攻击状态
+    //通信正常且队友存活
+    if(partner_hp_time.toSec() < 0.3 && partner_remain_hp_ >= 50)
+    {
+      //每分钟更新一次
+      if (time_past.toSec() >= 60 * identity_number_) {
+
+        projectilesupply_.number = 50;
+        int delta_bullet = bullet_num_ - partner_bullet_num_;
+        if(delta_bullet >= 35){
+          status = 4;   //我弹量很多，不补
+          supply_number_++;
+        }else if(delta_bullet > 0){
+          status = 3;   //我略多于队友，后补50
+        }else if(delta_bullet == 0){   //血量高的补
+          if(remain_hp_ >= partner_remain_hp_){
+            status = 2;
+          }else{
+            status = 3;
+          }
+        }else if(delta_bullet >-35){
+          status = 2;   //队友略多于我，先补50
+        }else{
+          status = 1;   //远远少于队友，补100
+          projectilesupply_.number = 100;
+        }
+
+        identity_number_++;
+      } 
+
+      if(status ==1 || status == 2){
+        if (time_past.toSec() >= 60 * supply_number_)
+          return true;
+        else
+          return false;
+      }else if (status == 3){
+        if (time_past.toSec() >= (60 * supply_number_ + 20))
+          return true;
+        else
+          return false;      
+      }else{
+        return false;
+      }
+
+    }else{
+      //补给站开放40s后，强制补弹
+      projectilesupply_.number = 100;
+      if(time_past.toSec() >= (60 * supply_number_ +40)){
+        return true;  
+      }else if (time_past.toSec() >= 60 * supply_number_){
+        //0--40s检测到敌人或弹量不足，去补弹
+        if(bullet_num_ < 10)
+          return true;
+
+        if(enemy_detected_)
+          return false;
+        else
+          return true;
+      }else{
+        return false;
+      }
+    }
+	}
+
+  bool Blackboard::IsGainBuffCondition() {
+    float time = 180 - remaining_time_;
+		if (time >= 60 * supply_number_){
+      return true;
+    }
 		else
 			return false;
+
+		// ros::Duration time_past = ros::Time::now() - start_time_;
+		// if (time_past.toSec() >= 60 * gain_buff_number_)
+		// 	return true;
+		// else
+		// 	return false;
 	}
 
   bool Blackboard::IsBulletLeft() const{
-    // ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
-    //return true;
+    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
     if (bullet_num_ > 5){
       return true;
     } else{

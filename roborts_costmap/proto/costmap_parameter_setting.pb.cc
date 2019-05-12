@@ -62,7 +62,7 @@ void protobuf_AssignDesc_costmap_5fparameter_5fsetting_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ParaBasic));
   ParaCostmapInterface_descriptor_ = file->message_type(1);
-  static const int ParaCostmapInterface_offsets_[16] = {
+  static const int ParaCostmapInterface_offsets_[17] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, global_frame_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, robot_base_frame_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, footprint_padding_),
@@ -77,6 +77,7 @@ void protobuf_AssignDesc_costmap_5fparameter_5fsetting_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, is_rolling_window_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, has_obstacle_layer_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, has_static_layer_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, has_virtual_layer_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, inflation_file_path_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ParaCostmapInterface, map_update_frequency_),
   };
@@ -187,7 +188,7 @@ void protobuf_AddDesc_costmap_5fparameter_5fsetting_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\037costmap_parameter_setting.proto\022\017robor"
     "ts_costmap\"8\n\tParaBasic\022\031\n\021is_raw_rosmes"
-    "sage\030\001 \002(\010\022\020\n\010is_debug\030\002 \001(\010\"\256\003\n\024ParaCos"
+    "sage\030\001 \002(\010\022\020\n\010is_debug\030\002 \001(\010\"\311\003\n\024ParaCos"
     "tmapInterface\022\024\n\014global_frame\030\001 \002(\t\022\030\n\020r"
     "obot_base_frame\030\002 \002(\t\022\031\n\021footprint_paddi"
     "ng\030\003 \002(\001\022\033\n\023transform_tolerance\030\004 \002(\001\022\032\n"
@@ -197,15 +198,15 @@ void protobuf_AddDesc_costmap_5fparameter_5fsetting_2eproto() {
     "lution\030\n \002(\001\022\033\n\023is_tracking_unknown\030\013 \002("
     "\010\022\031\n\021is_rolling_window\030\014 \002(\010\022\032\n\022has_obst"
     "acle_layer\030\r \002(\010\022\030\n\020has_static_layer\030\016 \002"
-    "(\010\022\033\n\023inflation_file_path\030\017 \002(\t\022\034\n\024map_u"
-    "pdate_frequency\030\020 \002(\001\"\035\n\005Point\022\t\n\001x\030\001 \002("
-    "\001\022\t\n\001y\030\002 \002(\001\"2\n\tFootprint\022%\n\005point\030\001 \003(\013"
-    "2\026.roborts_costmap.Point\"\266\001\n\016ParaCollect"
-    "ion\022E\n\026para_costmap_interface\030\001 \002(\0132%.ro"
-    "borts_costmap.ParaCostmapInterface\022-\n\tfo"
-    "otprint\030\002 \002(\0132\032.roborts_costmap.Footprin"
-    "t\022.\n\npara_basic\030\003 \002(\0132\032.roborts_costmap."
-    "ParaBasic", 809);
+    "(\010\022\031\n\021has_virtual_layer\030\017 \002(\010\022\033\n\023inflati"
+    "on_file_path\030\020 \002(\t\022\034\n\024map_update_frequen"
+    "cy\030\021 \002(\001\"\035\n\005Point\022\t\n\001x\030\001 \002(\001\022\t\n\001y\030\002 \002(\001\""
+    "2\n\tFootprint\022%\n\005point\030\001 \003(\0132\026.roborts_co"
+    "stmap.Point\"\266\001\n\016ParaCollection\022E\n\026para_c"
+    "ostmap_interface\030\001 \002(\0132%.roborts_costmap"
+    ".ParaCostmapInterface\022-\n\tfootprint\030\002 \002(\013"
+    "2\032.roborts_costmap.Footprint\022.\n\npara_bas"
+    "ic\030\003 \002(\0132\032.roborts_costmap.ParaBasic", 836);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "costmap_parameter_setting.proto", &protobuf_RegisterTypes);
   ParaBasic::default_instance_ = new ParaBasic();
@@ -516,6 +517,7 @@ const int ParaCostmapInterface::kIsTrackingUnknownFieldNumber;
 const int ParaCostmapInterface::kIsRollingWindowFieldNumber;
 const int ParaCostmapInterface::kHasObstacleLayerFieldNumber;
 const int ParaCostmapInterface::kHasStaticLayerFieldNumber;
+const int ParaCostmapInterface::kHasVirtualLayerFieldNumber;
 const int ParaCostmapInterface::kInflationFilePathFieldNumber;
 const int ParaCostmapInterface::kMapUpdateFrequencyFieldNumber;
 #endif  // !_MSC_VER
@@ -553,6 +555,7 @@ void ParaCostmapInterface::SharedCtor() {
   is_rolling_window_ = false;
   has_obstacle_layer_ = false;
   has_static_layer_ = false;
+  has_virtual_layer_ = false;
   inflation_file_path_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   map_update_frequency_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -623,14 +626,14 @@ void ParaCostmapInterface::Clear() {
     }
   }
   if (_has_bits_[8 / 32] & 65280) {
-    ZR_(map_origin_y_, map_resolution_);
-    ZR_(map_update_frequency_, has_static_layer_);
+    ZR_(map_origin_y_, has_virtual_layer_);
     if (has_inflation_file_path()) {
       if (inflation_file_path_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         inflation_file_path_->clear();
       }
     }
   }
+  map_update_frequency_ = 0;
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -858,13 +861,28 @@ bool ParaCostmapInterface::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(122)) goto parse_inflation_file_path;
+        if (input->ExpectTag(120)) goto parse_has_virtual_layer;
         break;
       }
 
-      // required string inflation_file_path = 15;
+      // required bool has_virtual_layer = 15;
       case 15: {
-        if (tag == 122) {
+        if (tag == 120) {
+         parse_has_virtual_layer:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &has_virtual_layer_)));
+          set_has_has_virtual_layer();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(130)) goto parse_inflation_file_path;
+        break;
+      }
+
+      // required string inflation_file_path = 16;
+      case 16: {
+        if (tag == 130) {
          parse_inflation_file_path:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_inflation_file_path()));
@@ -875,13 +893,13 @@ bool ParaCostmapInterface::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(129)) goto parse_map_update_frequency;
+        if (input->ExpectTag(137)) goto parse_map_update_frequency;
         break;
       }
 
-      // required double map_update_frequency = 16;
-      case 16: {
-        if (tag == 129) {
+      // required double map_update_frequency = 17;
+      case 17: {
+        if (tag == 137) {
          parse_map_update_frequency:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
@@ -999,19 +1017,24 @@ void ParaCostmapInterface::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(14, this->has_static_layer(), output);
   }
 
-  // required string inflation_file_path = 15;
+  // required bool has_virtual_layer = 15;
+  if (has_has_virtual_layer()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(15, this->has_virtual_layer(), output);
+  }
+
+  // required string inflation_file_path = 16;
   if (has_inflation_file_path()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->inflation_file_path().data(), this->inflation_file_path().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "inflation_file_path");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      15, this->inflation_file_path(), output);
+      16, this->inflation_file_path(), output);
   }
 
-  // required double map_update_frequency = 16;
+  // required double map_update_frequency = 17;
   if (has_map_update_frequency()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(16, this->map_update_frequency(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(17, this->map_update_frequency(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1106,7 +1129,12 @@ void ParaCostmapInterface::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(14, this->has_static_layer(), target);
   }
 
-  // required string inflation_file_path = 15;
+  // required bool has_virtual_layer = 15;
+  if (has_has_virtual_layer()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(15, this->has_virtual_layer(), target);
+  }
+
+  // required string inflation_file_path = 16;
   if (has_inflation_file_path()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->inflation_file_path().data(), this->inflation_file_path().length(),
@@ -1114,12 +1142,12 @@ void ParaCostmapInterface::SerializeWithCachedSizes(
       "inflation_file_path");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        15, this->inflation_file_path(), target);
+        16, this->inflation_file_path(), target);
   }
 
-  // required double map_update_frequency = 16;
+  // required double map_update_frequency = 17;
   if (has_map_update_frequency()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(16, this->map_update_frequency(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(17, this->map_update_frequency(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1210,14 +1238,21 @@ int ParaCostmapInterface::ByteSize() const {
       total_size += 1 + 1;
     }
 
-    // required string inflation_file_path = 15;
+    // required bool has_virtual_layer = 15;
+    if (has_has_virtual_layer()) {
+      total_size += 1 + 1;
+    }
+
+    // required string inflation_file_path = 16;
     if (has_inflation_file_path()) {
-      total_size += 1 +
+      total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->inflation_file_path());
     }
 
-    // required double map_update_frequency = 16;
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    // required double map_update_frequency = 17;
     if (has_map_update_frequency()) {
       total_size += 2 + 8;
     }
@@ -1293,9 +1328,14 @@ void ParaCostmapInterface::MergeFrom(const ParaCostmapInterface& from) {
     if (from.has_has_static_layer()) {
       set_has_static_layer(from.has_static_layer());
     }
+    if (from.has_has_virtual_layer()) {
+      set_has_virtual_layer(from.has_virtual_layer());
+    }
     if (from.has_inflation_file_path()) {
       set_inflation_file_path(from.inflation_file_path());
     }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_map_update_frequency()) {
       set_map_update_frequency(from.map_update_frequency());
     }
@@ -1316,7 +1356,7 @@ void ParaCostmapInterface::CopyFrom(const ParaCostmapInterface& from) {
 }
 
 bool ParaCostmapInterface::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000ffff) != 0x0000ffff) return false;
+  if ((_has_bits_[0] & 0x0001ffff) != 0x0001ffff) return false;
 
   return true;
 }
@@ -1337,6 +1377,7 @@ void ParaCostmapInterface::Swap(ParaCostmapInterface* other) {
     std::swap(is_rolling_window_, other->is_rolling_window_);
     std::swap(has_obstacle_layer_, other->has_obstacle_layer_);
     std::swap(has_static_layer_, other->has_static_layer_);
+    std::swap(has_virtual_layer_, other->has_virtual_layer_);
     std::swap(inflation_file_path_, other->inflation_file_path_);
     std::swap(map_update_frequency_, other->map_update_frequency_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
