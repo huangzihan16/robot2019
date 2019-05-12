@@ -320,7 +320,8 @@ int main(int argc, char **argv) {
   enemy_obtain_buff_selector->AddChildren(inferior_detected_condition_);
   enemy_obtain_buff_selector->AddChildren(emy_buff_attack_condition_);
   enemy_obtain_buff_selector->AddChildren(master_inferior_receive_condition_);
-  enemy_obtain_buff_selector->AddChildren(guard_action_);
+  // enemy_obtain_buff_selector->AddChildren(guard_action_);
+  enemy_obtain_buff_selector->AddChildren(patrol_action_);
   emy_buff_condition_->SetChild(guard_action_);
   emy_buff_dmp_condition_->SetChild(escape_action_);
   inferior_detect_enemy_condition_->SetChild(chase_action_);
