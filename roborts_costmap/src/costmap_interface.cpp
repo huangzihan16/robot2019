@@ -93,7 +93,12 @@ CostmapInterface::CostmapInterface(std::string map_name,
   if (has_obstacle_layer_) {
     Layer *plugin_obstacle_layer = new ObstacleLayer;
     layered_costmap_->AddPlugin(plugin_obstacle_layer);
-    plugin_obstacle_layer->Initialize(layered_costmap_, map_name + "/" + "obstacle_layer", &tf_);
+    plugin_obstacle_layer->Initialize(layered_costmap_, map_name + "/" + "obstacle_layer", &tf_, has_virtual_layer_);
+  }
+  if (has_virtual_layer_) {
+    Layer *plugin_virtual_layer = new VirtualLayer;
+    layered_costmap_->AddPlugin(plugin_virtual_layer);
+    plugin_virtual_layer->Initialize(layered_costmap_, map_name + "/" + "virtual_layer", &tf_);
   }
   Layer *plugin_inflation_layer = new InflationLayer;
   layered_costmap_->AddPlugin(plugin_inflation_layer);
@@ -149,6 +154,7 @@ void CostmapInterface::LoadParameter() {
   is_track_unknown_ = ParaCollectionConfig.para_costmap_interface().is_tracking_unknown();
   has_obstacle_layer_ = ParaCollectionConfig.para_costmap_interface().has_obstacle_layer();
   has_static_layer_ = ParaCollectionConfig.para_costmap_interface().has_static_layer();
+  has_virtual_layer_ = ParaCollectionConfig.para_costmap_interface().has_virtual_layer();
   map_width_ = ParaCollectionConfig.para_costmap_interface().map_width();
   map_height_ = ParaCollectionConfig.para_costmap_interface().map_height();
   map_origin_x_ = ParaCollectionConfig.para_costmap_interface().map_origin_x();
