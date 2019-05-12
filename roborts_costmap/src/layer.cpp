@@ -56,10 +56,11 @@ namespace roborts_costmap {
 Layer::Layer()
     : layered_costmap_(NULL), is_current_(false), is_enabled_(false), name_(), tf_(NULL) {}
 
-void Layer::Initialize(CostmapLayers *parent, std::string name, tf::TransformListener *tf) {
+void Layer::Initialize(CostmapLayers *parent, std::string name, tf::TransformListener *tf, bool has_virtual_layer) {
   layered_costmap_ = parent;
   name_ = name;
   tf_ = tf;
+  has_virtual_layer_ = has_virtual_layer;
   OnInitialize();
 }
 

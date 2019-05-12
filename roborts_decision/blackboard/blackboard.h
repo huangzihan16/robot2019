@@ -379,8 +379,6 @@ public:
 	//测试，给固定目标点
   geometry_msgs::PoseStamped GetFixedGoal();
 	
-	
-  
   /*******************Referee System Information Preliminarily Process(Not Used directly in Behavior Tree)*******************/
   double HurtedPerSecond();
 

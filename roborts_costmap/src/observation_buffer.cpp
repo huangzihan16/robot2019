@@ -63,11 +63,11 @@ namespace roborts_costmap {
 ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_time, double expected_update_rate,
                                      double min_obstacle_height, double max_obstacle_height, double obstacle_range,
                                      double raytrace_range, TransformListener& tf, string global_frame,
-                                     string sensor_frame, double tf_tolerance) :
+                                     string sensor_frame, double tf_tolerance, bool has_virtual_layer) :
     tf_(tf), observation_keep_time_(observation_keep_time), expected_update_rate_(expected_update_rate),
     last_updated_(ros::Time::now()), global_frame_(global_frame), sensor_frame_(sensor_frame), topic_name_(topic_name),
     min_obstacle_height_(min_obstacle_height), max_obstacle_height_(max_obstacle_height),
-    obstacle_range_(obstacle_range), raytrace_range_(raytrace_range), tf_tolerance_(tf_tolerance)
+    obstacle_range_(obstacle_range), raytrace_range_(raytrace_range), tf_tolerance_(tf_tolerance), has_virtual_layer_(has_virtual_layer)
 {
   printf("Initializing ObservationBuffer...\n");
   ros::NodeHandle nh;
@@ -92,7 +92,9 @@ ObservationBuffer::ObservationBuffer(string topic_name, double observation_keep_
   infile.close();
 
   string partner_topic_sub = "/" + partner_name + "/partner_msg";
-  partner_info_sub_ = nh.subscribe(partner_topic_sub, 1, &ObservationBuffer::PartnerCallback, this);
+  if (!has_virtual_layer_) {
+    partner_info_sub_ = nh.subscribe(partner_topic_sub, 1, &ObservationBuffer::PartnerCallback, this);
+  }
   printf("ObservationBuffer initilized\n");
 }
 
@@ -103,10 +105,6 @@ void ObservationBuffer::PartnerCallback(const roborts_msgs::PartnerInformationCo
     enemy_poses_from_partner_.clear();
     for (int i = 0; i < partner_info->enemy_info.size(); i++)
       enemy_poses_from_partner_.push_back(partner_info->enemy_info[i].enemy_pos);
-    // double x = enemy_pose_from_partner_.pose.position.x;
-    // double y = enemy_pose_from_partner_.pose.position.y;
-    // double z = enemy_pose_from_partner_.pose.position.z;
-    // printf("enemy pose from my partner: (%lf, %lf, %lf)\n", x, y, z);
   }
 }
 
@@ -356,6 +354,11 @@ void ObservationBuffer::BufferCloud(const pcl::PointCloud<pcl::PointXYZ>& cloud)
   //   clear_observation_list_.front().cloud_->points.pop();
   // }
 }
+
+// void ObservationBuffer::BufferPartnerInfo(const sensor_msgs::PartnerInformation &partner_info)
+// {
+  
+// }
 
 // returns a copy of the observations
 void ObservationBuffer::GetObservations(vector<Observation>& observations, bool is_clear)

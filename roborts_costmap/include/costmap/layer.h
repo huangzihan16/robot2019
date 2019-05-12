@@ -75,7 +75,7 @@ class Layer {
  * @param name this layer name
  * @param tf a tf listener providing transforms
  */
-  void Initialize(CostmapLayers *parent, std::string name, tf::TransformListener *tf);
+  void Initialize(CostmapLayers *parent, std::string name, tf::TransformListener *tf, bool has_virtual_layer = true);
 
 /**
  * @brief This is called by the LayeredCostmap to poll this plugin as to how
@@ -154,6 +154,7 @@ class Layer {
   bool is_current_, is_enabled_, is_debug_;
   std::string name_;
   tf::TransformListener *tf_;
+  bool has_virtual_layer_;
 
  private:
   std::vector<geometry_msgs::Point> footprint_spec_;
