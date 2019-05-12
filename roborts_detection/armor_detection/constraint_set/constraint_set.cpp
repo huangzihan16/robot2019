@@ -153,6 +153,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
 
   auto detection_begin = std::chrono::high_resolution_clock::now();
 
+    
     cv::cvtColor(src_img_, gray_img_, CV_BGR2GRAY);
     if (enable_debug_) {
       show_lights_before_filter_ = src_img_.clone();
@@ -162,9 +163,13 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       cv::waitKey(1);
     }
     armors.clear();
+
+    std::cout<<"1111111111111"<<std::endl;
     DetectLights(src_img_, lights);
+    std::cout<<"22222222222222222"<<std::endl;
     //FilterLights(lights);
     PossibleArmors(lights, armors);
+    std::cout<<"333333333333333333333333333"<<std::endl;
     FilterArmors(armors);
  //svm load
     vector<Point2f> ones, twos;  
@@ -948,9 +953,9 @@ void ConstraintSet::CalcControlInfo( ArmorInfo & armor) {
   int yd=armor.rect.center.y+roiy_;
   int xd=armor.rect.center.x;
   float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-  float depthy=(yd-240)*depthz/387.4;
+  float depthy=(yd-240)*depthz/615;
   if(depthy!=0){
-  float depthx=(xd-320)*depthz/387.4;
+  float depthx=(xd-320)*depthz/615;
   // cv::line(depth_img_,cv::Point(xd-10,yd),cv::Point(xd+10,yd),cv::Scalar(255),3);
   // cv::line(depth_img_,cv::Point(xd,yd-10),cv::Point(xd,yd+10),cv::Scalar(255),3);
   // cv::imshow("depth",depth_img_*20);
