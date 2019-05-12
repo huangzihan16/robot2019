@@ -22,6 +22,9 @@
 #include <tf/transform_listener.h>
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/GetMap.h>
+#include <std_msgs/Int32.h>
+
 #include <roborts_msgs/GimbalAngle.h>
 
 #include "roborts_msgs/ArmorDetectionAction.h"
@@ -144,8 +147,9 @@ public:
 	int ComputeIndexByMapCoor(const int mx, const int my);
 	void ConvertWorldToMap(const double wx, const double wy, int& mx, int& my);
 	bool IsGridFreeWithMap(const int mx, const int my);
+	bool IsMapCoorInArea(int mx, int my);
 	
-private:
+public:
 	std::vector<bool> gridmapfree_;
 	int size_x_;
 	int size_y_;
@@ -256,6 +260,17 @@ public:
 
     cachedmapforchaseandsupport_ptr_ =
 			std::shared_ptr<CachedMapCell>(new CachedMapCell(100, 2.0, 2.0, 1.4, costmap_2d_));
+    static_map_srv_ = nh.serviceClient<nav_msgs::GetMap>("static_map");
+		ros::service::waitForService("static_map", -1);
+		nav_msgs::GetMap::Request req;
+		nav_msgs::GetMap::Response res;
+		if(static_map_srv_.call(req,res)) {
+			std::cout << "Received Static Map" << std::endl;
+			staticmap_ptr_ = std::make_shared<StaticGridMap>(res.map);
+		} else
+			std::cout << "Get static map failed!" << std::endl;
+
+    patrol_suggest_publisher_ = nh.advertise<std_msgs::Int32>("patrol_suggest", 1);
   }
 
   ~Blackboard() = default;
@@ -408,8 +423,8 @@ public:
     return charmap_;
   }
   
-  /*******************Gimbal Suggest Through Static Map*******************/
-
+	/*******************Suggest Gimbal Patrol*******************/
+	void SuggestGimbalPatrol();
 
   /*******************Partner Interaction*******************/
   void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
@@ -494,7 +509,6 @@ public:
   std::shared_ptr<CostMap> costmap_ptr_;
   CostMap2D* costmap_2d_;
   unsigned char* charmap_;
-  StaticGridMap::Ptr staticmap_ptr_;
 
   /*******************Variable for Supply Condition and Gain Buff Condition*******************/
   int identity_number_;     //补弹和占Buff所需的身份信息
@@ -503,6 +517,10 @@ public:
   
   /*******************Variable for Chase and Support*******************/
 	CachedMapCell::Ptr cachedmapforchaseandsupport_ptr_;
+
+  ros::ServiceClient static_map_srv_;
+	StaticGridMap::Ptr staticmap_ptr_;
+  ros::Publisher patrol_suggest_publisher_;
 
   /*******************Variable for Gimbal when Patrol*******************/
   int gimbal_suggest_;

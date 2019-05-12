@@ -33,23 +33,25 @@ public:
 			return BehaviorState::IDLE;
 		}
 
-		// ros::Duration time_past = ros::Time::now() - application_time_;
-		// if (time_past.toSec() >= 2) {
-		// 	blackboard_->AddSupplyNum();
-		// 	std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
-		// 	return BehaviorState::SUCCESS;
-		// }
-		// else 
-		// 	return BehaviorState::RUNNING;
-
-        if (status_ == 2 && blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) {
+		ros::Duration time_past = ros::Time::now() - application_time_;
+		if (time_past.toSec() >= 5) {
 			blackboard_->AddSupplyNum();
 			status_ = 0;
 			have_applicated_ = false;
+			std::cout << "supply_number " << blackboard_->supply_number_ << std::endl;
 			return BehaviorState::SUCCESS;
 		}
-		else
+		else 
 			return BehaviorState::RUNNING;
+
+        // if (status_ == 2 && blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) {
+		// 	blackboard_->AddSupplyNum();
+		// 	status_ = 0;
+		// 	have_applicated_ = false;
+		// 	return BehaviorState::SUCCESS;
+		// }
+		// else
+		// 	return BehaviorState::RUNNING;
   }
 
   ~SupplyBehavior() = default;

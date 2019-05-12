@@ -31,7 +31,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PoseStamped.h>
-
+#include <std_msgs/Int32.h>
 #include "alg_factory/algorithm_factory.h"
 #include "io/io.h"
 #include "state/node_state.h"
@@ -89,6 +89,7 @@ class ArmorDetectionNode {
   void CalcMembership(float value, float *membership, float *bound);
   float GetPatrolAngle(int mode, int patrol_count, float angle);
   int FindNearestAngle(int mode, float angle);
+  void PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode);
 
   ~ArmorDetectionNode();
 
@@ -98,7 +99,7 @@ class ArmorDetectionNode {
   float MembershipKy[6];
   float MembershipKs[6];
   int patrol_dir_;
-
+  int patrol_mode_;
 protected:
  private:
   std::shared_ptr<ArmorDetectionBase> armor_detector_;
@@ -129,6 +130,7 @@ protected:
   std::shared_ptr<CVToolbox> cv_toolbox_;
   actionlib::SimpleActionServer<roborts_msgs::ArmorDetectionAction> as_;
   roborts_msgs::GimbalAngle gimbal_angle_;
+  ros::Subscriber patrol_suggest_sub_;
     //! tf
   std::shared_ptr<tf::TransformListener> tf_ptr_;
   //云台相对底盘位姿  
