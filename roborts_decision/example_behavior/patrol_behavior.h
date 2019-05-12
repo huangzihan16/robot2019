@@ -33,6 +33,8 @@ class PatrolBehavior {
 
     std::cout << "state: " << (int)(executor_state) << std::endl;
 
+    blackboard_->SuggestGimbalPatrol();
+
     if (executor_state != BehaviorState::RUNNING) {
 
       if (patrol_goals_.empty()) {
