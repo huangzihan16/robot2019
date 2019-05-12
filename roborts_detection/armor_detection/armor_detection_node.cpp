@@ -33,6 +33,7 @@ ArmorDetectionNode::ArmorDetectionNode():
           tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
 
   patrol_dir_ = 1;
+  patrol_mode_ = 0;
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
   if (Init().IsOK()) {
