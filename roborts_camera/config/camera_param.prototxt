@@ -33,7 +33,7 @@ camera: {
 
   fps: 60
   auto_exposure: 1
-  exposure_value:200
+  exposure_value:100
   exposure_time: 10
   auto_white_balance: 1
   auto_gain: 0

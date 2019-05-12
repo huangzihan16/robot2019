@@ -95,9 +95,6 @@ AprilTagDetector::AprilTagDetector(ros::NodeHandle& nh): it_(nh){
   delta_y = offset_param.supply_offset().delta_y();
   delta_theta = offset_param.supply_offset().delta_theta();
 
-
- ROS_INFO_STREAM("delta_x:"<< delta_x << std::endl);
-
   tag_detector_= boost::shared_ptr<AprilTags::TagDetector>(new AprilTags::TagDetector(*tag_codes));
   image_sub_ = it_.subscribeCamera("/back_camera/image_raw", 1, &AprilTagDetector::imageCb, this);   
   image_pub_ = it_.advertise("tag_detections_image", 1);
@@ -125,6 +122,8 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
   std::vector<AprilTags::TagDetection>	detections = tag_detector_->extractTags(gray);
   ROS_DEBUG("%d tag detected", (int)detections.size());
 
+  tag_detect_amount_ = (int)detections.size();
+ // std::cout << "tag_detect_amount = " << tag_detect_amount_ << std::endl;
 
 /*相机数据读不进来，手动初始化相机内参，还需修改TagDetection.cc文件的畸变参数distParam*/ 
    double fx = cam_info->K[0];
@@ -133,8 +132,8 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
    double py = cam_info->K[5];
    double k1 = cam_info->D[0];
    double k2 = cam_info->D[1];
-   double k3 = cam_info->D[2];
-   double k4 = cam_info->D[3];
+   double k3 = cam_info->D[3];
+   double k4 = cam_info->D[4];
   //std::cout << "fx=" << fx << std::endl;
  
   if(!sensor_frame_id_.empty())
@@ -142,7 +141,7 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
 
   //AprilTagDetectionArray tag_detection_array;      //apriltags标签坐标
   geometry_msgs::PoseArray tag_pose_array;
-  tag_pose_array.header = cv_ptr->header;
+  tag_pose_array.header = cv_ptr->header; 
   geometry_msgs::PoseWithCovarianceStamped initialpose_with_covariance;
 
   BOOST_FOREACH(AprilTags::TagDetection detection, detections)
@@ -156,23 +155,41 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     double tag_size = description.size();
 
     detection.draw(cv_ptr->image);
-    ROS_INFO_STREAM("tag_size "<< tag_size <<"fx "<< fx <<"fy"<< fy);     //输出相机内参矩阵
+    tag_id = detection.id;
+   // std::cout << "tag_id = " << detection.id << std::endl; 
+
     Eigen::Matrix4d transform = detection.getRelativeTransform(tag_size, fx, fy, px, py,k1,k2,k3,k4);  //计算标签坐标
     Eigen::Matrix3d rot = transform.block(0, 0, 3, 3);           //旋转矩阵R
     Eigen::Vector3d p_oc;
     Eigen::Vector3d T = transform.col(3).head(3);
-    p_oc = -rot.inverse()*T;     //二维码坐标系x朝右，y朝外，z朝下
-
     Eigen::Matrix3d rot_inverse = rot.inverse();
+    
+    //场地长边为x,短边为y
+    //p_oc(0)为x,p_oc(2)为y
+
+    p_oc = -rot_inverse*T;     //二维码坐标系y朝下
+    //std::cout << "camera center = " << p_oc << std::endl;
+
     double theta_x = atan2(rot_inverse(2, 1), rot_inverse(2, 2));    
     double theta_y = atan2(-rot_inverse(2, 0),
     sqrt(rot_inverse(2, 1)*rot_inverse(2, 1) + rot_inverse(2, 2)*rot_inverse(2, 2)));
     double theta_z = atan2(rot_inverse(1, 0), rot_inverse(0, 0));
-                
+
+    // std::cout << "theta_x = " << theta_x/PI*180 << std::endl
+    //           << "theta_y = " << theta_y/PI*180 << std::endl
+    //           << "theta_z = " << theta_z/PI*180 << std::endl;
+
+
+    float l = 0.15;  //相机中心到机器人中心距离
+    double alfa = theta_y;
+    double beta = atan2(p_oc(0),p_oc(2));
+
     Eigen::Vector3d robot_pose;  //  x,y,yaw
-    robot_pose(0) = 4 - p_oc(0);
-    robot_pose(1) = 5 - p_oc(1);
-    robot_pose(2) = -PI/2 - theta_z;  
+    // robot_pose(0) = 4 + p_oc(0) + l*sin(alfa+beta);
+    // robot_pose(1) = 5 - p_oc(2) + l*cos(alfa+beta);
+     robot_pose(0) = 4 + p_oc(0);
+     robot_pose(1) = 5 - p_oc(2) ;
+    robot_pose(2) = -PI/2 + alfa + beta;       //从相机旋转轴转到机器人中心
                
     /*计算camera_frame到map的tf*/
    
@@ -182,13 +199,17 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     robot_pose(0) = robot_pose(0) + delta_x;
     robot_pose(1) = robot_pose(1) + delta_y;
     robot_pose(2) = robot_pose(2) + delta_theta;
+    
+    // std::cout << "delta_x = "  << delta_x << std::endl
+    //           << "delta_y = "  << delta_y << std::endl;
+              
 
-    ROS_INFO_STREAM("delta_x:"<< delta_x << std::endl);
+    // std::cout << "robot_pose = " << std::endl << robot_pose << std::endl;
 
 		 initialpose_with_covariance.header.stamp = msg->header.stamp;
 		 initialpose_with_covariance.header.frame_id = "map";
-     initialpose_with_covariance.pose.pose.position.x = robot_pose(0) + delta_x;
-     initialpose_with_covariance.pose.pose.position.y = robot_pose(1) + delta_y;
+     initialpose_with_covariance.pose.pose.position.x = robot_pose(0) ;
+     initialpose_with_covariance.pose.pose.position.y = robot_pose(1) ;
      initialpose_with_covariance.pose.pose.orientation = tf::createQuaternionMsgFromYaw(robot_pose(2));     
      boost::array<double, 36> covariance = {
 			0.0001, 0, 0, 0, 0, 0,
