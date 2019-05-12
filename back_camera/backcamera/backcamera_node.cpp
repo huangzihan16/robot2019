@@ -27,6 +27,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     demensions_(3),
     initialized_(false),
     detected_enemy_(false),
+    tag_start_(false),
     undetected_count_(0),
     as_(nh_, "backcamera_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false) {
   initialized_ = false;
@@ -39,8 +40,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     ROS_ERROR("armor_detection_node initalized failed!");
     node_state_ = roborts_common::FAILURE;
   }
-   
-    as_.start();
+       as_.start();
 }
 
 ErrorInfo ArmorDetectionNode::Init() {
@@ -105,10 +105,22 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::BackCameraGoal::ConstPtr &
     default:
       break;
 
-
   }
   ros::Rate rate(25);           
   while(ros::ok()) {
+     
+      if(tag_start_){ 
+        //  std::cout << "tag_amount = " << tag_detect_->tag_detect_amount_ << std::endl << std::endl;
+        //  std::cout << "tag_id = " << tag_detect_->tag_id << std::endl;
+       if(tag_detect_->tag_detect_amount_ != 0){
+         tag_id_ = tag_detect_->tag_id;
+       }else{
+         tag_id_ = -1;
+       }
+      feedback.tag_id = tag_id_;
+      as_.publishFeedback(feedback); 
+     }
+     
 
     if(as_.isPreemptRequested()) {
       as_.setPreempted();
@@ -116,13 +128,12 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::BackCameraGoal::ConstPtr &
     }
 
     {
-     
-      std::lock_guard<std::mutex> guard(mutex_);
+       std::lock_guard<std::mutex> guard(mutex_);
       if (undetected_count_ != 0) {
         feedback.detected = true;
         //undetected_count_--;
         std::cout<<"undetected_count_ ="<<undetected_count_ <<std::endl;
-        as_.publishFeedback(feedback);                   //发布feedback
+        as_.publishFeedback(feedback);                  
         undetected_msg_published = false;
       } else if(!undetected_msg_published) {
         feedback.detected = false;
@@ -177,6 +188,7 @@ void ArmorDetectionNode::tagDetection(){
    //ros::NodeHandle pnh_("~");
    //apriltags_ros::AprilTagDetector detector(tag_nh_, pnh_);
   tag_detect_ =  boost::shared_ptr<apriltags_ros::AprilTagDetector>(new apriltags_ros::AprilTagDetector(tag_nh_));
+  tag_start_ = true;
   //tag_detect_->image_sub_ = tag_detect_->it_.subscribeCamera("/back_camera/image_raw", 1, &apriltags_ros::AprilTagDetector::imageCb, this);
 }
 
@@ -184,6 +196,7 @@ void ArmorDetectionNode::PauseThread() {
   ROS_INFO("Armor detection thread paused!");
  // node_state_ = NodeState::PAUSE;
   tag_detect_->image_sub_.shutdown();
+  tag_start_ = false;
 
 }
 

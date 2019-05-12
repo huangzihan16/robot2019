@@ -33,6 +33,7 @@ ArmorDetectionNode::ArmorDetectionNode():
           tf_ptr_ = std::make_shared<tf::TransformListener>(ros::Duration(10));
 
   patrol_dir_ = 1;
+  patrol_mode_ = 0;
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
   if (Init().IsOK()) {
@@ -49,6 +50,7 @@ ArmorDetectionNode::ArmorDetectionNode():
 ErrorInfo ArmorDetectionNode::Init() {
   enemy_info_pub_ = enemy_nh_.advertise<roborts_msgs::GimbalAngle>("cmd_gimbal_angle", 100);
   ArmorDetectionAlgorithms armor_detection_param;
+  patrol_suggest_sub_ = enemy_nh_.subscribe<std_msgs::Int32>("patrol_suggest", 1, &ArmorDetectionNode::PatrolSuggestCallback, this);
 
   std::string file_name = ros::package::getPath("roborts_detection") + "/armor_detection/config/armor_detection.prototxt";
   bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &armor_detection_param);
@@ -112,6 +114,9 @@ ErrorInfo ArmorDetectionNode::Init() {
     return ErrorInfo(ErrorCode::OK);
 }
 
+void ArmorDetectionNode::PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode){
+  patrol_mode_ = mode->data;
+}
 void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstPtr &data) {
   roborts_msgs::ArmorDetectionFeedback feedback;
   roborts_msgs::ArmorDetectionResult result;
@@ -253,8 +258,8 @@ void ArmorDetectionNode::ExecuteLoop() {
   		        }
           }
           speed_estimate = kalmanfilter_.Update(all_yaw, speed);
-          // if (speed_estimate > 2 || speed_estimate < -1)
-          //    speed_estimate = 0;
+          if (speed_estimate > 2 || speed_estimate < -1)
+             speed_estimate = 0;
           // gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
           // PublishMsgs();
         } else {
@@ -285,7 +290,7 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         undetected_count_--;
         PublishMsgs();
-        patrol_count = 0;
+        //patrol_count = 0;
         enemy_disappear_time = ros::Time::now();
       } else {
         last_enemy_time = ros::Time::now();
@@ -294,24 +299,24 @@ void ArmorDetectionNode::ExecuteLoop() {
         enemy_disappear_duration = ros::Time::now() - enemy_disappear_time;
         delta_time = duration.toSec();
         double yaw = GetGimbalYaw();
-        int mode = 0;
-        // if(delta_time > 0.3 && enemy_disappear_duration.toSec() > 1)  {
-          gimbal_angle_.yaw_mode = true;
+        int mode = 4;
+        if(delta_time > 0.4 && enemy_disappear_duration.toSec() > 0.5)  {
+          gimbal_angle_.yaw_mode = false;
           gimbal_angle_.pitch_mode = true;
           gimbal_angle_.pitch_angle = 0;
-        //   gimbal_angle_.yaw_angle = GetPatrolAngle(mode, patrol_count, yaw);
-        //   ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
-        //   patrol_count += patrol_dir_;
-          if(yaw > MAX_MIN_WHIRL_ANGLE){
-            direction = -1.0;
-          }
-          if(yaw < -MAX_MIN_WHIRL_ANGLE){
-            direction = 1.0;
-          }
-          gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
+          gimbal_angle_.yaw_angle = GetPatrolAngle(patrol_mode_, patrol_count, yaw);
+          ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
+          patrol_count += patrol_dir_;
+          // if(yaw > MAX_MIN_WHIRL_ANGLE){
+          //   direction = -1.0;
+          // }
+          // if(yaw < -MAX_MIN_WHIRL_ANGLE){
+          //   direction = 1.0;
+          // }
+          // gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
           last_time = ros::Time::now();
           PublishMsgs();
-        // }
+        }
       }
     } else if (node_state_ == NodeState::PAUSE) {
       std::unique_lock<std::mutex> lock(mutex_);
@@ -385,46 +390,81 @@ float ArmorDetectionNode::GetPatrolAngle(int mode, int patrol_count, float angle
   float mode6_angle[2] = {-45, -70};
   switch(mode){
     case 0:
-      patrol_angle = mode0_angle[patrol_count % 6];
-      if (patrol_count >= 5 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 5 ){
+         patrol_count=5;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode0_angle[patrol_count % 6];
       break;
     case 1:
-      patrol_angle = mode1_angle[patrol_count % 4];
-      if (patrol_count >= 3 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode1_angle[patrol_count % 4];
       break;
     case 2:
-      patrol_angle = mode2_angle[patrol_count % 2];
-      if (patrol_count >= 1 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode2_angle[patrol_count % 2];
       break;
     case 3:
-      patrol_angle = mode3_angle[patrol_count % 4];
-      if (patrol_count >= 3 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+       if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+     patrol_angle = mode3_angle[patrol_count % 4];
       break;
     case 4:
-      patrol_angle = mode4_angle[patrol_count % 4];
-      if (patrol_count >= 3 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 3 ){
+         patrol_count = 3;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode4_angle[patrol_count % 4];
       break;
     case 5:
-      patrol_angle = mode5_angle[patrol_count % 2];
-      if (patrol_count >= 1 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode5_angle[patrol_count % 2];
       break;
     case 6:
-      patrol_angle = mode6_angle[patrol_count % 2];
-      if (patrol_count >= 1 || patrol_count <= 0){
-        patrol_dir_ *= -1;
+      if (patrol_count >= 1 ){
+         patrol_count = 1;
+         patrol_dir_ = -1;
       }
+      if( patrol_count <= 0){
+        patrol_count=0;
+        patrol_dir_ = 1;
+      }
+      patrol_angle = mode6_angle[patrol_count % 2];
       break;
     default:
       break;

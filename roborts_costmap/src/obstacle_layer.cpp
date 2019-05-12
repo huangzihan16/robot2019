@@ -313,7 +313,8 @@ void ObstacleLayer::OnInitialize() {
                                                                                             *tf_,
                                                                                             global_frame_,
                                                                                             sensor_frame,
-                                                                                            transform_tolerance)));
+                                                                                            transform_tolerance,
+                                                                                            has_virtual_layer_)));
   if (marking) {
     marking_buffers_.push_back(observation_buffers_.back());
   }
@@ -429,10 +430,12 @@ void ObstacleLayer::UpdateBounds(double robot_x,
 
   // reset obstacle layer each time
   static int reset_cnt = 0;
-  reset_cnt++;
-  if (reset_cnt > reset_thre) {
-    reset_cnt = 0;
-    memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+  if (!has_virtual_layer_) {
+    reset_cnt++;
+    if (reset_cnt > reset_thre) {
+      reset_cnt = 0;
+      memset(costmap_, FREE_SPACE, size_x_ * size_y_ * sizeof(unsigned char));
+    }
   }
 
   double resolution = layered_costmap_->GetCostMap()->GetResolution();

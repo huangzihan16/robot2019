@@ -93,7 +93,7 @@ class ObservationBuffer {
   ObservationBuffer(std::string topic_name, double observation_keep_time, double expected_update_rate,
                     double min_obstacle_height, double max_obstacle_height, double obstacle_range,
                     double raytrace_range, tf::TransformListener &tf, std::string global_frame,
-                    std::string sensor_frame, double tf_tolerance);
+                    std::string sensor_frame, double tf_tolerance, bool has_virtual_layer);
 
   void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
 
@@ -176,7 +176,10 @@ class ObservationBuffer {
   std::recursive_mutex lock_;
   double obstacle_range_, raytrace_range_;
   double tf_tolerance_;
+  bool has_virtual_layer_;
   ros::Subscriber partner_info_sub_;
+
+public:
   geometry_msgs::PoseStamped partner_pose_;
   std::vector<geometry_msgs::PoseStamped> enemy_poses_from_partner_;
   bool is_enemy_detected;

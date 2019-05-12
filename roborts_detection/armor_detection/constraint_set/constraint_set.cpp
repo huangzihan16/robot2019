@@ -170,7 +170,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     //FilterLights(lights);
     PossibleArmors(lights, armors);
     std::cout<<"333333333333333333333333333"<<std::endl;
-    FilterArmors(armors);
+    FilterArmors(armors); 
  //svm load
     vector<Point2f> ones, twos;  
     std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         

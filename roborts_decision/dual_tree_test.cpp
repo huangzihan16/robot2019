@@ -79,7 +79,8 @@ int main(int argc, char **argv) {
   //game stop
   std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
 																																															[&]() {//return false;
-																																																if (blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::ROUND) {
+																																																if (blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::SETUP 
+                                                                                                && blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::ROUND) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -97,8 +98,8 @@ int main(int argc, char **argv) {
   // no bullet left
   std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
 																																															[&]() {
-                                                                                                // if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
-																																																if(blackboard_ptr_->IsGoToSupplyCondition()){
+                                                                                                if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
+																																																// if(blackboard_ptr_->IsGoToSupplyCondition()){
                                                                                                 	return true;
 																																																} else {
 																																																	return false;
@@ -115,9 +116,8 @@ int main(int argc, char **argv) {
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
-																																																// if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition() /*&& blackboard_ptr_->GetSupplierStatus()
-                                                                                                // == roborts_decision::SupplierStatus::PREPARING*/) {
-																																																if(blackboard_ptr_->IsGoToSupplyCondition()){
+																																																if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition() ) {
+																																																// if(blackboard_ptr_->IsGoToSupplyCondition()){
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -239,7 +239,7 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
 																																															[&]() {//return true;
 																																																if (blackboard_ptr_->GetBonusStatus()
-                                                                                                == roborts_decision::BonusStatus::UNOCCUPIED) {
+                                                                                                != roborts_decision::BonusStatus::OCCUPIED && !blackboard_ptr_->IsMasterCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -320,7 +320,8 @@ int main(int argc, char **argv) {
   enemy_obtain_buff_selector->AddChildren(inferior_detected_condition_);
   enemy_obtain_buff_selector->AddChildren(emy_buff_attack_condition_);
   enemy_obtain_buff_selector->AddChildren(master_inferior_receive_condition_);
-  enemy_obtain_buff_selector->AddChildren(guard_action_);
+  // enemy_obtain_buff_selector->AddChildren(guard_action_);
+  enemy_obtain_buff_selector->AddChildren(patrol_action_);
   emy_buff_condition_->SetChild(guard_action_);
   emy_buff_dmp_condition_->SetChild(escape_action_);
   inferior_detect_enemy_condition_->SetChild(chase_action_);
