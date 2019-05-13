@@ -512,48 +512,48 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
     //========depth filter============
 
-  for (int i = 0; i < armors.size() ; i++) {
+  // for (int i = 0; i < armors.size() ; i++) {
      
-    cv::Point2f corners[4];
-    armors[i].rect.points(corners);//0为左下角，1为左上，2为右上角
+  //   cv::Point2f corners[4];
+  //   armors[i].rect.points(corners);//0为左下角，1为左上，2为右上角
 
-    int yd=armors[i].rect.center.y+roiy_ ;
-    int xd=armors[i].rect.center.x;
-    float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-    float depthy=(yd-240)*depthz/387.4;
-    int thresh=130;  //参数
-    int sumvertex=0;
-    int nflag=0;
-    if(depthz>4500){
-      is_armor[i] = false;
-    }
-    if(depthz!=0){
-      sumvertex=sumvertex/nflag;
-      int diff =abs(sumvertex-depthz);
-      if(depthy<thresh){//225,307   中间大框115
-        is_armor[i] = false;
-        continue;
-      }
-      for(int k=0;k<4;k++){
-          for(int kk=0;kk<4;kk++){
-              float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
-              float depth3y=(yd+k-240)*depth3z/387.4;
-              if(depth3y!=0){
-                if(depth3y<thresh){
-                  is_armor[i] = false;
-                  break;
-                }
-              }
-          }
-          if(!is_armor[i]){
-            break;
-          }
-    }
-    }else{
-      is_armor[i] = false;
+  //   int yd=armors[i].rect.center.y+roiy_ ;
+  //   int xd=armors[i].rect.center.x;
+  //   float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
+  //   float depthy=(yd-240)*depthz/387.4;
+  //   int thresh=130;  //参数
+  //   int sumvertex=0;
+  //   int nflag=0;
+  //   if(depthz>4500){
+  //     is_armor[i] = false;
+  //   }
+  //   if(depthz!=0){
+  //     sumvertex=sumvertex/nflag;
+  //     int diff =abs(sumvertex-depthz);
+  //     if(depthy<thresh){//225,307   中间大框115
+  //       is_armor[i] = false;
+  //       continue;
+  //     }
+  //     for(int k=0;k<4;k++){
+  //         for(int kk=0;kk<4;kk++){
+  //             float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
+  //             float depth3y=(yd+k-240)*depth3z/387.4;
+  //             if(depth3y!=0){
+  //               if(depth3y<thresh){
+  //                 is_armor[i] = false;
+  //                 break;
+  //               }
+  //             }
+  //         }
+  //         if(!is_armor[i]){
+  //           break;
+  //         }
+  //   }
+  //   }else{
+  //     is_armor[i] = false;
        
-    }
-  }
+  //   }
+  //}
   
   //     }else{
   //           int dewidth=corners[2].x-corners[0].x;//最小24
