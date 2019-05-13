@@ -8,7 +8,7 @@ transform_tolerance: 0.3
 sensor_frame: "base_laser_link"
 inf_is_valid: false
 clearing: false
-footprint_clearing_enabled: false
+footprint_clearing_enabled: true
 marking: true
 is_debug: true
 enemy_inflation: 0.2
