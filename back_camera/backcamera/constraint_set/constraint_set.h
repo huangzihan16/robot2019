@@ -208,6 +208,7 @@ class ConstraintSet : public ArmorDetectionBase {
 
   cv::Mat src_img_;
   cv::Mat gray_img_;
+  int roiy_=200;
   //!  Camera intrinsic matrix
   cv::Mat intrinsic_matrix_;
   //! Camera distortion Coefficient

@@ -99,7 +99,10 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected) {
       ErrorInfo error_info(ErrorCode::STOP_DETECTION);
       return error_info;
     }
+    
     read_index_ = cv_toolbox_->NextImage(src_img_);
+    
+
     if (read_index_ < 0) {
       // Reducing lock and unlock when accessing function 'NextImage'
       if (detection_time_ == 0) {

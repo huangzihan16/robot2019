@@ -350,11 +350,11 @@ void ObstacleLayer::OnInitialize() {
 
   if (strstr(global_frame_.c_str(), "map") == NULL) {
     map_is_global_ = false;
-    reset_thre = 15;
+    reset_thre = -1;
   }
   else {
     map_is_global_ = true;
-    reset_thre = 8;
+    reset_thre = -1;
   }
   
 }
@@ -441,6 +441,9 @@ void ObstacleLayer::UpdateBounds(double robot_x,
   double resolution = layered_costmap_->GetCostMap()->GetResolution();
 	enemy_inflation_grid_ = (int)std::ceil(enemy_inflation_ / resolution);
 
+  if (!map_is_global_) {
+    tf_->waitForTransform("odom", "map", ros::Time(0), ros::Duration(0.1));
+  }
   for (std::vector<Observation>::const_iterator it = observations.begin(); it != observations.end(); it++) {
     const Observation obs = *it;
     const pcl::PointCloud<pcl::PointXYZ> &cloud = *(obs.cloud_);
@@ -484,7 +487,7 @@ void ObstacleLayer::UpdateBounds(double robot_x,
 
         // transform from odom to map
         bool is_transform = true;
-        tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(0.05));
+        // tf_->waitForTransform(ps.header.frame_id, "map", ros::Time(0), ros::Duration(0.05));
         try {
           tf_->transformPoint("map", ros::Time(0), ps, ps.header.frame_id, ps_map);
         } catch (tf::ExtrapolationException &ex) {

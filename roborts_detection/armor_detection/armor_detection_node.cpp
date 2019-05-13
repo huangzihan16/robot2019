@@ -36,6 +36,17 @@ ArmorDetectionNode::ArmorDetectionNode():
   patrol_mode_ = 0;
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
+
+    mode_angle.push_back(mode0_angle);
+   mode_angle.push_back(mode1_angle);
+   mode_angle.push_back(mode2_angle);
+   mode_angle.push_back(mode3_angle);
+   mode_angle.push_back(mode4_angle);
+   mode_angle.push_back(mode5_angle);
+   mode_angle.push_back(mode6_angle);
+
+
+
   if (Init().IsOK()) {
     initialized_ = true;
     node_state_ = roborts_common::IDLE;
@@ -115,7 +126,8 @@ ErrorInfo ArmorDetectionNode::Init() {
 }
 
 void ArmorDetectionNode::PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode){
-  patrol_mode_ = mode->data;
+  if (mode->data <= 6)
+    patrol_mode_ = mode->data;
 }
 void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstPtr &data) {
   roborts_msgs::ArmorDetectionFeedback feedback;
@@ -198,21 +210,21 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
 #define WHIRL_SCAN_DELTA_ANGLE  3*3.1415926/180
 void ArmorDetectionNode::ExecuteLoop() {
   undetected_count_ = 0;
-        static float direction = 1;
-        static ros::Time last_time = ros::Time::now();
-        ros::Duration duration, enemy_duration, enemy_disappear_duration;
-        float delta_time;
-        float Ky, Ks;
-        int patrol_count = 1;
-        float enemy_duration_time, gimbal_control_time;
-        static ros::Time last_enemy_time = ros::Time::now(),last_time_ = ros::Time::now(), enemy_disappear_time = ros::Time::now();
-        char yawArray[20],speedArray[20];
-  FILE *file_fd = fopen("filter.txt","a+"); 
-    if(file_fd == NULL) {  
-       ROS_ERROR("File Open failed!"); 
-    } else {  
-       ROS_INFO("File Open successed!");  
-    } 
+  static float direction = 1;
+  static ros::Time last_time = ros::Time::now();
+  ros::Duration duration, enemy_duration, enemy_disappear_duration;
+  float delta_time;
+  float Ky, Ks;
+  int patrol_count = 1;
+  float enemy_duration_time, gimbal_control_time;
+  static ros::Time last_enemy_time = ros::Time::now(),last_time_ = ros::Time::now(), enemy_disappear_time = ros::Time::now();
+  char yawArray[20],speedArray[20];
+    // FILE *file_fd = fopen("filter.txt","a+"); 
+    // if(file_fd == NULL) {  
+    //    ROS_ERROR("File Open failed!"); 
+    // } else {  
+    //    ROS_INFO("File Open successed!");  
+    // } 
   while(running_) {
     usleep(1);
     if (node_state_ == NodeState::RUNNING/* && shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND*/) {
@@ -224,11 +236,11 @@ void ArmorDetectionNode::ExecuteLoop() {
       }
 
       if(detected_enemy_) {
+        start_patrol_=false;
         float pitch, yaw, speed, delta_yaw, all_yaw;
         float speed_estimate;
         enemy_duration = ros::Time::now() - last_enemy_time;
         enemy_duration_time = enemy_duration.toSec();
-        // ROS_INFO("enemy_duration_time:%f",enemy_duration_time);
         gimbal_control_.Transform(armors[0].target_3d, pitch, yaw);
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = false;
@@ -260,14 +272,9 @@ void ArmorDetectionNode::ExecuteLoop() {
           speed_estimate = kalmanfilter_.Update(all_yaw, speed);
           if (speed_estimate > 2 || speed_estimate < -1)
              speed_estimate = 0;
-          // gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
-          // PublishMsgs();
         } else {
           speed_estimate = 0;
-          // gimbal_angle_.yaw_angle = 0.3 * yaw + 0 * speed;//0.3 0.6
-          // PublishMsgs();
         }
-        // speed_estimate = kalmanfilter_.Update(all_yaw, speed);
         gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
         PublishMsgs();
         std::lock_guard<std::mutex> guard(mutex_);
@@ -277,7 +284,6 @@ void ArmorDetectionNode::ExecuteLoop() {
         //TODO ff
 
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
-        // ROS_INFO("enemy_x_shooter:%f",enemy_x_shooter);
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
           shoot_executor_.Execute();
         }
@@ -290,7 +296,6 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         undetected_count_--;
         PublishMsgs();
-        //patrol_count = 0;
         enemy_disappear_time = ros::Time::now();
       } else {
         last_enemy_time = ros::Time::now();
@@ -299,21 +304,16 @@ void ArmorDetectionNode::ExecuteLoop() {
         enemy_disappear_duration = ros::Time::now() - enemy_disappear_time;
         delta_time = duration.toSec();
         double yaw = GetGimbalYaw();
-        int mode = 4;
+        if(!start_patrol_){
+          patrol_count=FindNearestAngle(patrol_mode_, patrol_count, yaw);
+            start_patrol_=true;
+        }
         if(delta_time > 0.4 && enemy_disappear_duration.toSec() > 0.5)  {
           gimbal_angle_.yaw_mode = false;
           gimbal_angle_.pitch_mode = true;
           gimbal_angle_.pitch_angle = 0;
           gimbal_angle_.yaw_angle = GetPatrolAngle(patrol_mode_, patrol_count, yaw);
-          ROS_INFO("gimbal_angle_.yaw_angle:%f, patrol_count:%d",gimbal_angle_.yaw_angle, patrol_count);
           patrol_count += patrol_dir_;
-          // if(yaw > MAX_MIN_WHIRL_ANGLE){
-          //   direction = -1.0;
-          // }
-          // if(yaw < -MAX_MIN_WHIRL_ANGLE){
-          //   direction = 1.0;
-          // }
-          // gimbal_angle_.yaw_angle = direction * WHIRL_SCAN_DELTA_ANGLE;
           last_time = ros::Time::now();
           PublishMsgs();
         }
@@ -325,71 +325,8 @@ void ArmorDetectionNode::ExecuteLoop() {
   }
 }
 
-int ArmorDetectionNode::FindNearestAngle(int mode, float angle){
-  // switch(mode){
-  //   case 0:
-  //     patrol_angle = mode0_angle[patrol_count % 6];
-  //     if (patrol_count >= 5 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //   case 1:
-  //     patrol_angle = mode1_angle[patrol_count % 4];
-  //     if (patrol_count >= 3 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   case 2:
-  //     patrol_angle = mode2_angle[patrol_count % 2];
-  //     if (patrol_count >= 1 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   case 3:
-  //     patrol_angle = mode3_angle[patrol_count % 4];
-  //     if (patrol_count >= 3 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   case 4:
-  //     patrol_angle = mode4_angle[patrol_count % 4];
-  //     if (patrol_count >= 3 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   case 5:
-  //     patrol_angle = mode5_angle[patrol_count % 2];
-  //     if (patrol_count >= 1 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   case 6:
-  //     patrol_angle = mode6_angle[patrol_count % 2];
-  //     if (patrol_count >= 1 || patrol_count <= 0){
-  //       patrol_dir_ *= -1;
-  //     }
-  //     break;
-  //   default:
-  //     break;
-  // }
-  // return patrol_angle / 180 * 3.1415926;
-
-
-
-}
-
-
-
-float ArmorDetectionNode::GetPatrolAngle(int mode, int patrol_count, float angle){
-  float patrol_angle;
-  float mode0_angle[6] = {70, 45, 20, -20, -45, -70};
-  float mode1_angle[4] = {70, 45, 20, -20};
-  float mode2_angle[2] = {20, -20};
-  float mode3_angle[4] = {20, -20, -45, -70};
-  float mode4_angle[4] = {70, 45, -45, -70};
-  float mode5_angle[2] = {70, 45};
-  float mode6_angle[2] = {-45, -70};
-  switch(mode){
-    case 0:
+int ArmorDetectionNode::FindNearestAngle(int mode, int &patrol_count,float angle){
+      int nearcount=0;
       if (patrol_count >= 5 ){
          patrol_count=5;
          patrol_dir_ = -1;
@@ -398,77 +335,128 @@ float ArmorDetectionNode::GetPatrolAngle(int mode, int patrol_count, float angle
         patrol_count=0;
         patrol_dir_ = 1;
       }
-      patrol_angle = mode0_angle[patrol_count % 6];
-      break;
-    case 1:
-      if (patrol_count >= 3 ){
-         patrol_count = 3;
+      int diff_angle=1000;
+      for(int i=0;i<mode_angle[mode].size();++i){
+        int diff_temp=abs(mode_angle[mode][i]-angle);
+        if(diff_temp<diff_angle){
+          nearcount=i;
+          diff_angle=diff_temp;
+        }
+      }
+
+
+
+
+      // patrol_angle = mode0_angle[patrol_count % 6];
+      // if (patrol_count >= 5 || patrol_count <= 0){
+      //   patrol_dir_ *= -1;
+      // }
+    // std::cout<<"shuzuchangdu:"<<sizeof( mode0_angle)/sizeof( mode0_angle[0])<<std::endl;
+  return nearcount;
+
+
+
+}
+
+
+float ArmorDetectionNode::GetPatrolAngle(int mode, int &patrol_count, float angle){
+  float patrol_angle;
+  // float mode0_angle[6] = {70, 45, 20, -20, -45, -70};
+  // float mode1_angle[4] = {70, 45, 20, -20};
+  // float mode2_angle[2] = {20, -20};
+  // float mode3_angle[4] = {20, -20, -45, -70};
+  // float mode4_angle[4] = {70, 45, -45, -70};
+  // float mode5_angle[2] = {70, 45};
+  // float mode6_angle[2] = {-45, -70};
+
+     if (patrol_count >= mode_angle[mode].size()-1 ){
+         patrol_count = mode_angle[mode].size() -1;
          patrol_dir_ = -1;
       }
       if( patrol_count <= 0){
         patrol_count=0;
         patrol_dir_ = 1;
       }
-      patrol_angle = mode1_angle[patrol_count % 4];
-      break;
-    case 2:
-      if (patrol_count >= 1 ){
-         patrol_count = 1;
-         patrol_dir_ = -1;
-      }
-      if( patrol_count <= 0){
-        patrol_count=0;
-        patrol_dir_ = 1;
-      }
-      patrol_angle = mode2_angle[patrol_count % 2];
-      break;
-    case 3:
-       if (patrol_count >= 3 ){
-         patrol_count = 3;
-         patrol_dir_ = -1;
-      }
-      if( patrol_count <= 0){
-        patrol_count=0;
-        patrol_dir_ = 1;
-      }
-     patrol_angle = mode3_angle[patrol_count % 4];
-      break;
-    case 4:
-      if (patrol_count >= 3 ){
-         patrol_count = 3;
-         patrol_dir_ = -1;
-      }
-      if( patrol_count <= 0){
-        patrol_count=0;
-        patrol_dir_ = 1;
-      }
-      patrol_angle = mode4_angle[patrol_count % 4];
-      break;
-    case 5:
-      if (patrol_count >= 1 ){
-         patrol_count = 1;
-         patrol_dir_ = -1;
-      }
-      if( patrol_count <= 0){
-        patrol_count=0;
-        patrol_dir_ = 1;
-      }
-      patrol_angle = mode5_angle[patrol_count % 2];
-      break;
-    case 6:
-      if (patrol_count >= 1 ){
-         patrol_count = 1;
-         patrol_dir_ = -1;
-      }
-      if( patrol_count <= 0){
-        patrol_count=0;
-        patrol_dir_ = 1;
-      }
-      patrol_angle = mode6_angle[patrol_count % 2];
-      break;
-    default:
-      break;
-  }
+    patrol_angle = mode_angle[mode][patrol_count];
+
+   
+   //std::cout<<"shuzuchangdu:"<<mode_angle.size()<<std::endl;
+  // switch(mode){
+  //   case 0:
+        
+  //     //patrol_count=FindNearestAngle(mode,angle);
+  //     patrol_angle = mode0_angle[patrol_count % 6];
+      
+  //     break;
+  //   case 1:
+  //     if (patrol_count >= 3 ){
+  //        patrol_count = 3;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //     patrol_angle = mode1_angle[patrol_count % 4];
+  //     break;
+  //   case 2:
+  //     if (patrol_count >= 1 ){
+  //        patrol_count = 1;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //     patrol_angle = mode2_angle[patrol_count % 2];
+  //     break;
+  //   case 3:
+  //      if (patrol_count >= 3 ){
+  //        patrol_count = 3;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //    patrol_angle = mode3_angle[patrol_count % 4];
+  //     break;
+  //   case 4:
+  //     if (patrol_count >= 3 ){
+  //        patrol_count = 3;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //     patrol_angle = mode4_angle[patrol_count % 4];
+  //     break;
+  //   case 5:
+  //     if (patrol_count >= 1 ){
+  //        patrol_count = 1;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //     patrol_angle = mode5_angle[patrol_count % 2];
+  //     break;
+  //   case 6:
+  //     if (patrol_count >= 1 ){
+  //        patrol_count = 1;
+  //        patrol_dir_ = -1;
+  //     }
+  //     if( patrol_count <= 0){
+  //       patrol_count=0;
+  //       patrol_dir_ = 1;
+  //     }
+  //     patrol_angle = mode6_angle[patrol_count % 2];
+  //     break;
+  //   default:
+  //     break;
+  // }
   return patrol_angle / 180 * 3.1415926;
 }
 

@@ -10,6 +10,8 @@ public:
 	SupplyBehavior(Blackboard* &blackboard): blackboard_(blackboard), have_applicated_(false), status_(0){}
 	
 	void Run() {
+		blackboard_->SuggestGimbalPatrol();
+		blackboard_->PublishPartnerInformation();
 		if (!have_applicated_){
 			have_applicated_ = true;
 			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) 

@@ -253,7 +253,7 @@ public:
     partner_robot_status_sub_ = nh.subscribe<roborts_msgs::RobotStatus>(partner_status_topic, 30, &Blackboard::PartnerRobotStatusCallback, this);
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
-    if (partner_name == "robot2" )
+    if (decision_config_.master() == true)
       self_identity_ = Identity::MASTER;
     else
       self_identity_ = Identity::SLAVE;
@@ -275,7 +275,7 @@ public:
 
   ~Blackboard() = default;
 
-  /*******************Parameter Setting for Match*******************/
+  /*******************Parameter Setup for Match*******************/
   void InitParameter();
 
   /*******************Enemy Information from roborts_detection*******************/
@@ -284,6 +284,8 @@ public:
   void BackCameraCallback(const roborts_msgs::BackCameraFeedbackConstPtr& feedback);
   void SetBackCameraDetect();
   void SetBackCameraLocalization();
+
+  void ChaseAlertForGimbalControl();
   /*******************Referee System Interaction(Callback and Send Cmd) and Read related Member Variables*******************/
   // Game Status
   void GameStatusCallback(const roborts_msgs::GameStatus::ConstPtr& game_status);
@@ -421,8 +423,10 @@ public:
     return charmap_;
   }
   
-	/*******************Suggest Gimbal Patrol*******************/
+	/*******************Functions Relative to Map*******************/
 	void SuggestGimbalPatrol();
+
+  bool IsStuckedAndCanGetOut();
 
   /*******************Partner Interaction*******************/
   void PartnerCallback(const roborts_msgs::PartnerInformationConstPtr& partner_info);
@@ -520,8 +524,12 @@ public:
 	StaticGridMap::Ptr staticmap_ptr_;
   ros::Publisher patrol_suggest_publisher_;
 
-  /*******************Variable for Gimbal when Patrol*******************/
+  /*******************Variable for Functions Relative to Map*******************/
   int gimbal_suggest_;
+  unsigned char left_cell_cost_;
+  unsigned char right_cell_cost_;
+  unsigned char front_cell_cost_;
+  unsigned char back_cell_cost_;
 
   /*******************Partner Interaciton Information*******************/
 	Identity self_identity_;        //机器人身份

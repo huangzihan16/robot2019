@@ -23,6 +23,8 @@ class RoundBehavior {
   }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
     std::cout << "state: " << (int)(executor_state) << std::endl;
     chassis_executor_->Execute(round_vel_);

@@ -18,6 +18,8 @@ class GoalBehavior {
       blackboard_(blackboard) { }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     if(blackboard_->IsNewGoal()){
       chassis_executor_->Execute(blackboard_->GetGoal());
     }
@@ -51,6 +53,7 @@ class SupplyGoalBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
     if(!have_execute_){
       chassis_executor_->Execute(blackboard_->GetSupplyGoal());
 			have_execute_ = true;
@@ -87,6 +90,7 @@ class GainBuffGoalBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
     if(!have_execute_){
       chassis_executor_->Execute(blackboard_->GetGuardGoal());
 			have_execute_ = true;

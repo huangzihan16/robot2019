@@ -87,8 +87,21 @@ class ArmorDetectionNode {
   double GetGimbalYaw();
   void UpdateGimbalPose();
   void CalcMembership(float value, float *membership, float *bound);
-  float GetPatrolAngle(int mode, int patrol_count, float angle);
-  int FindNearestAngle(int mode, float angle);
+  float GetPatrolAngle(int mode, int &patrol_count, float angle);
+  int FindNearestAngle(int mode, int &patrol_count, float angle);
+
+  std::vector<float>  mode0_angle{70, 45, 20, -20, -45, -70};
+  std::vector<float>  mode1_angle{70, 45, 20, -20};
+  std::vector<float>  mode2_angle{20, -20};
+  std::vector<float>  mode3_angle{20, -20, -45, -70};
+  std::vector<float>  mode4_angle{70, 45, -45, -70};
+  std::vector<float>  mode5_angle{70, 45};
+  std::vector<float>  mode6_angle{-45, -70};
+  std::vector<std::vector<float>> mode_angle;
+
+  bool start_patrol_=false;
+   
+
   void PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode);
 
   ~ArmorDetectionNode();

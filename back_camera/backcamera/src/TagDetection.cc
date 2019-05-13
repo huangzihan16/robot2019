@@ -86,10 +86,11 @@ Eigen::Matrix4d TagDetection::getRelativeTransform(double tag_size, double fx, d
   std::pair<float, float> p2 = p[1];
   std::pair<float, float> p3 = p[2];
   std::pair<float, float> p4 = p[3];
-  imgPts.push_back(cv::Point2f(p1.first, p1.second));
-  imgPts.push_back(cv::Point2f(p2.first, p2.second));
-  imgPts.push_back(cv::Point2f(p3.first, p3.second));
-  imgPts.push_back(cv::Point2f(p4.first, p4.second));
+  imgPts.push_back(cv::Point2f(p1.first, p1.second + 150));
+  imgPts.push_back(cv::Point2f(p2.first, p2.second + 150));
+  imgPts.push_back(cv::Point2f(p3.first, p3.second + 150));
+  imgPts.push_back(cv::Point2f(p4.first, p4.second + 150));
+
 
   cv::Mat rvec, tvec;
   cv::Matx33d cameraMatrix(

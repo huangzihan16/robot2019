@@ -110,15 +110,6 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
     cv::Rect roirect(0,roiy_,640,480-roiy_);
     src_img_=srcImg(roirect);
-        // std::vector< vector<Point> > contour;
-        // std::vector<Point> pts;
-        // pts.push_back(Point(0,180));
-        // pts.push_back(Point(640,180));
-        // pts.push_back(Point(640,480));
-        // pts.push_back(Point(0,640));
-        // contour.push_back(pts);
-        // cv::drawContours(roi,contour,0,Scalar::all(255),-1);
-        // srcImg.copyTo(src_img_,roi);
 
 
     if (read_index_ < 0) {
@@ -177,7 +168,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     detect12FromImage(src_img_, ones, twos);//svm
     std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
     Add12Label(armors, ones, twos);
-    std::cout<<"ccccccccccccccccccccccc"<<std::endl;
+    // std::cout<<"ccccccccccccccccccccccc"<<std::endl;
     
 
     std::vector<ArmorInfo> final_armor;
@@ -530,7 +521,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     if(depthz!=0){
       sumvertex=sumvertex/nflag;
       int diff =abs(sumvertex-depthz);
-      if(depthy<thresh){//225,307   中间大框115
+      if(depthy<thresh||depthy>270){//225,307   中间大框115
         is_armor[i] = false;
         continue;
       }
@@ -539,7 +530,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
               float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
               float depth3y=(yd+k-240)*depth3z/615;
               if(depth3y!=0){
-                if(depth3y<thresh){
+                if(depth3y<thresh||depth3y>270){
                   is_armor[i] = false;
                   break;
                 }
@@ -553,6 +544,11 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       is_armor[i] = false;
        
     }
+    if(armors[i].rect.size.width>100){
+      is_armor[i] = false;
+    }
+
+
   }
   
   //     }else{
