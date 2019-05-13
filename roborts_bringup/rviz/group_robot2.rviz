@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /LaserScan1
+        - /TF1
         - /TF1/Frames1
         - /Map1
         - /Map2
@@ -37,6 +38,8 @@ Panels:
     Expanded: ~
     Name: Tool Properties
     Splitter Ratio: 0.5
+Toolbars:
+  toolButtonStyle: 2
 Visualization Manager:
   Class: ""
   Displays:
@@ -74,13 +77,37 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         base_laser_link:
-          Value: true
+          Value: false
         base_link:
           Value: true
         camera:
-          Value: true
+          Value: false
+        camera_aligned_depth_to_color_frame:
+          Value: false
+        camera_aligned_depth_to_infra1_frame:
+          Value: false
+        camera_color_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: false
+        camera_depth_frame:
+          Value: false
+        camera_depth_optical_frame:
+          Value: false
+        camera_infra1_frame:
+          Value: false
+        camera_infra1_optical_frame:
+          Value: false
+        camera_infra2_frame:
+          Value: false
+        camera_infra2_optical_frame:
+          Value: false
+        camera_link:
+          Value: false
+        gimbal:
+          Value: false
         map:
           Value: true
         odom:
@@ -98,12 +125,14 @@ Visualization Manager:
                 {}
               camera:
                 {}
+              gimbal:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: map
-      Draw Behind: false
+      Draw Behind: true
       Enabled: true
       Name: Map
       Topic: /robot2/map
@@ -191,7 +220,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 10.0383463
+      Distance: 6.70591354
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -206,10 +235,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.56979632
+      Pitch: 1.49979639
       Target Frame: map
       Value: ThirdPersonFollower (rviz)
-      Yaw: 1.80761385
+      Yaw: 1.59261405
     Saved: ~
 Window Geometry:
   Displays:

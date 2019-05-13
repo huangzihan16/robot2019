@@ -82,6 +82,16 @@ int main(int argc, char **argv) {
 //  
 	
   std::shared_ptr<roborts_decision::SelectorNode> root_node(new roborts_decision::SelectorNode("root_selector", blackboard_ptr_));
+  std::shared_ptr<roborts_decision::PreconditionNode> stuck_in_obstacle_condition_(new roborts_decision::PreconditionNode("stuck_in_obstacle_condition", blackboard_ptr_,
+                                                                                              [&]() {
+																																																if (blackboard_ptr_->IsStuckedAndCanGetOut()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															}, roborts_decision::AbortType::BOTH));
+  root_node->AddChildren(stuck_in_obstacle_condition_);
+  stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
   //game stop
   std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
 																																															[&]() {//return false;
