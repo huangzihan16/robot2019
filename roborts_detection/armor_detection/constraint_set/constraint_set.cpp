@@ -511,7 +511,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     int yd=armors[i].rect.center.y+roiy_ ;
     int xd=armors[i].rect.center.x;
     float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-    float depthy=(yd-240)*depthz/387.4;
+    float depthy=(yd-240)*depthz/615;
     int thresh=130;  //参数
     int sumvertex=0;
     int nflag=0;
@@ -521,16 +521,16 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     if(depthz!=0){
       sumvertex=sumvertex/nflag;
       int diff =abs(sumvertex-depthz);
-      if(depthy<thresh){//225,307   中间大框115
+      if(depthy<thresh||depthy>270){//225,307   中间大框115
         is_armor[i] = false;
         continue;
       }
       for(int k=0;k<4;k++){
           for(int kk=0;kk<4;kk++){
-              float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
-              float depth3y=(yd+k-240)*depth3z/387.4;
+              float depth3z=cv_toolbox_->depthImg.at<ushort>(yd-k,xd+kk);
+              float depth3y=(yd+k-240)*depth3z/615;
               if(depth3y!=0){
-                if(depth3y<thresh){
+                if(depth3y<thresh||depth3y>270){
                   is_armor[i] = false;
                   break;
                 }
@@ -544,6 +544,11 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       is_armor[i] = false;
        
     }
+    if(armors[i].rect.size.width>100){
+      is_armor[i] = false;
+    }
+
+
   }
   
   //     }else{

@@ -36,7 +36,12 @@ void UVCDriver::StartReadCamera(cv::Mat &img) {
     camera_initialized_ = true;
   }
   else {
-    camera_info_.cap_handle >> img;
+    cv::Mat srcImg=cv::Mat::zeros(480,640,CV_8UC3);
+    camera_info_.cap_handle >> srcImg;
+    cv::Mat roi = cv::Mat::zeros(srcImg.size(),CV_8UC1);
+    cv::Rect roirect(0,150,640,480-150);
+    img=srcImg(roirect);
+
   }
 }
 
