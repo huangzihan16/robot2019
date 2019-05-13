@@ -40,14 +40,13 @@ class SearchBehavior {
   }
 
   void Run() {
-
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
 
     double yaw;
     double x_diff;
     double y_diff;
-
-    blackboard_->SuggestGimbalPatrol();
     
     if (executor_state != BehaviorState::RUNNING) {
       auto robot_map_pose = blackboard_->GetRobotMapPose();

@@ -110,15 +110,6 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     cv::Mat roi = Mat::zeros(srcImg.size(),CV_8UC1);
     cv::Rect roirect(0,roiy_,640,480-roiy_);
     src_img_=srcImg(roirect);
-        // std::vector< vector<Point> > contour;
-        // std::vector<Point> pts;
-        // pts.push_back(Point(0,180));
-        // pts.push_back(Point(640,180));
-        // pts.push_back(Point(640,480));
-        // pts.push_back(Point(0,640));
-        // contour.push_back(pts);
-        // cv::drawContours(roi,contour,0,Scalar::all(255),-1);
-        // srcImg.copyTo(src_img_,roi);
 
 
     if (read_index_ < 0) {
@@ -164,27 +155,27 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
     }
     armors.clear();
 
-    std::cout<<"1111111111111"<<std::endl;
+    // std::cout<<"1111111111111"<<std::endl;
     DetectLights(src_img_, lights);
-    std::cout<<"22222222222222222"<<std::endl;
+    // std::cout<<"22222222222222222"<<std::endl;
     //FilterLights(lights);
     PossibleArmors(lights, armors);
-    std::cout<<"333333333333333333333333333"<<std::endl;
+    // std::cout<<"333333333333333333333333333"<<std::endl;
     FilterArmors(armors); 
  //svm load
     vector<Point2f> ones, twos;  
-    std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
+    // std::cout<<"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;         
     detect12FromImage(src_img_, ones, twos);//svm
-   std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
+  //  std::cout<<"bbbbbbbbbbbbbbbbbbbbbbb"<<std::endl;
     Add12Label(armors, ones, twos);
-    std::cout<<"ccccccccccccccccccccccc"<<std::endl;
+    // std::cout<<"ccccccccccccccccccccccc"<<std::endl;
     
 
     std::vector<ArmorInfo> final_armor;
     detected = false;
     if(!armors.empty()) {
       final_armor = SlectFinalArmor(armors);
-      std::cout<<"ddddddddddddddddddddddd"<<std::endl;
+      // std::cout<<"ddddddddddddddddddddddd"<<std::endl;
 
       if(!final_armor.empty()){
       if(final_armor.size()>0) detected = true;
@@ -200,10 +191,10 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
         else if(final_armor[i].num == 0) {
             cv_toolbox_->DrawRotatedRectwithnum(src_img_, final_armor[i].rect, cv::Scalar(255, 0, 0), 2,0);
         }    
-        std::cout<<"eeeeeeeeeeeeeeeeeeeeeeeee"<<std::endl;
+        // std::cout<<"eeeeeeeeeeeeeeeeeeeeeeeee"<<std::endl;
 
         CalcControlInfo(final_armor[i]);
-        std::cout<<"ffffffffffffffffffffff"<<std::endl;
+        // std::cout<<"ffffffffffffffffffffff"<<std::endl;
 
       }
       }
@@ -220,7 +211,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
   //armors.clear();
   armors = final_armor;
   final_armor.clear();
-  std::cout<<"gggggggggggggggggggggggggggg"<<std::endl;
+  // std::cout<<"gggggggggggggggggggggggggggg"<<std::endl;
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>

@@ -28,12 +28,11 @@ class PatrolBehavior {
   }
 
   void Run() {
-
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
 
     std::cout << "state: " << (int)(executor_state) << std::endl;
-
-    blackboard_->SuggestGimbalPatrol();
 
     if (executor_state != BehaviorState::RUNNING) {
 

@@ -36,7 +36,8 @@ class BackBootAreaBehavior {
   }
 
   void Run() {
-
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
 
     if (executor_state != BehaviorState::RUNNING) {
@@ -54,7 +55,6 @@ class BackBootAreaBehavior {
 
       if (std::sqrt(std::pow(dx, 2) + std::pow(dy, 2)) > 0.2 || d_yaw > 0.5) {
         chassis_executor_->Execute(boot_position_);
-
       }
     }
   }

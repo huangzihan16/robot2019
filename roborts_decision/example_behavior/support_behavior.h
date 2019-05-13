@@ -19,7 +19,9 @@ class SupportBehavior {
       blackboard_(blackboard), have_good_goal_(false) { }
 
   void Run() {
-    //gimbal_executor_->WhirlScan();
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
+
     geometry_msgs::PoseStamped enemy_pose, self_pose;
     enemy_pose = blackboard_->GetPartnerEnemyPose();
     self_pose = blackboard_->GetRobotMapPose();
