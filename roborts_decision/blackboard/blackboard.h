@@ -253,7 +253,7 @@ public:
     partner_robot_status_sub_ = nh.subscribe<roborts_msgs::RobotStatus>(partner_status_topic, 30, &Blackboard::PartnerRobotStatusCallback, this);
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
-    if (partner_name == "robot2" )
+    if (decision_config_.master() == true)
       self_identity_ = Identity::MASTER;
     else
       self_identity_ = Identity::SLAVE;

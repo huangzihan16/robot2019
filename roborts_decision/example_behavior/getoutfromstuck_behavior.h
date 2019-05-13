@@ -30,15 +30,15 @@ class GetOutFromStuckBehavior {
 	back_speed_.angular.y = 0;
 	back_speed_.angular.z = 0;
 
-    left_speed_.linear.x = 1;
-    left_speed_.linear.y = 0;
+    left_speed_.linear.x = 0;
+    left_speed_.linear.y = 1;
     left_speed_.linear.z = 0;
 	left_speed_.angular.x = 0;
 	left_speed_.angular.y = 0;
 	left_speed_.angular.z = 0;
 
-    right_speed_.linear.x = -1;
-    right_speed_.linear.y = 0;
+    right_speed_.linear.x = 0;
+    right_speed_.linear.y = -1;
     right_speed_.linear.z = 0;
 	right_speed_.angular.x = 0;
 	right_speed_.angular.y = 0;
@@ -50,17 +50,29 @@ class GetOutFromStuckBehavior {
     blackboard_->PublishPartnerInformation();
     int diff_between_leftright = (int)blackboard_->left_cell_cost_ - (int)blackboard_->right_cell_cost_;
     int diff_between_frontback = (int)blackboard_->front_cell_cost_ - (int)blackboard_->back_cell_cost_;
-    if (abs(diff_between_leftright) > abs(diff_between_frontback)) {
-        if (blackboard_->left_cell_cost_ < blackboard_->right_cell_cost_)
-            chassis_executor_->Execute(left_speed_);
-        else
-            chassis_executor_->Execute(right_speed_);
-    } else {
-        if (blackboard_->front_cell_cost_ < blackboard_->back_cell_cost_)
-            chassis_executor_->Execute(front_speed_);
-        else
-            chassis_executor_->Execute(back_speed_);
+   
+    if (blackboard_->back_cell_cost_ == 254)
+        chassis_executor_->Execute(front_speed_);
+    else if (blackboard_->left_cell_cost_ == 254)
+        chassis_executor_->Execute(right_speed_);
+    else if (blackboard_->right_cell_cost_ == 254)
+        chassis_executor_->Execute(left_speed_);
+    else if (blackboard_->front_cell_cost_ == 254)
+        chassis_executor_->Execute(back_speed_);
+    else {
+        if (abs(diff_between_leftright) > abs(diff_between_frontback)) {
+            if (blackboard_->left_cell_cost_ < blackboard_->right_cell_cost_)
+                chassis_executor_->Execute(left_speed_);
+            else
+                chassis_executor_->Execute(right_speed_);
+        } else {
+            if (blackboard_->front_cell_cost_ < blackboard_->back_cell_cost_)
+                chassis_executor_->Execute(front_speed_);
+            else
+                chassis_executor_->Execute(back_speed_);
+        }
     }
+    
     
   }
 

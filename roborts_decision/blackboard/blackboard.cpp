@@ -172,7 +172,7 @@ namespace roborts_decision {
 					GetDistanceBetweenPointandLineWithBottomLength(x_partner, y_partner, x_enemy, y_enemy, x_candidate, y_candidate, cached_distance_[i]);
 				distance_goal_to_line_enemy_partner =
 					GetDistanceBetweenPointandLineWithBottomLength(x_candidate, y_candidate, x_enemy, y_enemy, x_partner, y_partner, distance_enemy_partner);
-				if (distance_partner_to_line_enemy_goal > 0.3548 && distance_goal_to_line_enemy_partner > 0.3548) //0.3548 is half of diagonal.
+				if (distance_partner_to_line_enemy_goal > 0.71 && distance_goal_to_line_enemy_partner > 0.71) //0.71 is diagonal of robot.
 					cached_cost.push_back(cached_cell_cost);
 				else
 					cached_cost.push_back(255);
