@@ -36,7 +36,8 @@ class ChaseBehavior {
   }
 
   void Run() {
-
+    blackboard_->ChaseAlertForGimbalControl();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
     
     auto robot_map_pose = blackboard_->GetRobotMapPose();

@@ -172,7 +172,7 @@ namespace roborts_decision {
 					GetDistanceBetweenPointandLineWithBottomLength(x_partner, y_partner, x_enemy, y_enemy, x_candidate, y_candidate, cached_distance_[i]);
 				distance_goal_to_line_enemy_partner =
 					GetDistanceBetweenPointandLineWithBottomLength(x_candidate, y_candidate, x_enemy, y_enemy, x_partner, y_partner, distance_enemy_partner);
-				if (distance_partner_to_line_enemy_goal > 0.3548 && distance_goal_to_line_enemy_partner > 0.3548) //0.3548 is half of diagonal.
+				if (distance_partner_to_line_enemy_goal > 0.71 && distance_goal_to_line_enemy_partner > 0.71) //0.71 is diagonal of robot.
 					cached_cost.push_back(cached_cell_cost);
 				else
 					cached_cost.push_back(255);
@@ -256,7 +256,7 @@ namespace roborts_decision {
 			return true;
 	}
 
-  /*******************Suggest Gimbal Patrol*******************/
+  /*******************Functions Relative to Map*******************/
 	void Blackboard::SuggestGimbalPatrol() {
 		double chassis_yaw = GetChassisYaw();
 		double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
@@ -321,6 +321,33 @@ namespace roborts_decision {
 		}
 		patrol_suggest_publisher_.publish(state);
 	}
+
+  bool Blackboard::IsStuckedAndCanGetOut() {
+    double chassis_yaw = GetChassisYaw();
+		double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
+		double x_left = x_self + 0.3 * cos(chassis_yaw + M_PI / 2), y_left = y_self + 0.3 * sin(chassis_yaw + M_PI / 2),
+			x_right = x_self + 0.3 * cos(chassis_yaw - M_PI / 2), y_right = y_self + 0.3 * sin(chassis_yaw - M_PI / 2),
+			x_front = x_self + 0.3 * cos(chassis_yaw), y_front = y_self + 0.3 * sin(chassis_yaw),
+      x_back = x_self + 0.3 * cos(chassis_yaw + M_PI), y_back = y_self + 0.3 * sin(chassis_yaw + M_PI);
+    int map_x_self, map_y_self, map_x_front, map_y_front, map_x_back, map_y_back, map_x_left, map_y_left, map_x_right, map_y_right;
+    costmap_2d_->World2MapWithBoundary(x_self, y_self, map_x_self, map_y_self);
+    costmap_2d_->World2MapWithBoundary(x_front, y_front, map_x_front, map_y_front);
+    costmap_2d_->World2MapWithBoundary(x_back, y_back, map_x_back, map_y_back);
+    costmap_2d_->World2MapWithBoundary(x_left, y_left, map_x_left, map_y_left);
+    costmap_2d_->World2MapWithBoundary(x_right, y_right, map_x_right, map_y_right);
+
+    if (costmap_2d_->GetCost(map_x_self, map_y_self) < 253)
+      return false;
+
+    left_cell_cost_ = costmap_2d_->GetCost(map_x_left, map_y_left);
+    right_cell_cost_ = costmap_2d_->GetCost(map_x_right, map_y_right);
+    front_cell_cost_ = costmap_2d_->GetCost(map_x_front, map_y_front);
+    back_cell_cost_ = costmap_2d_->GetCost(map_x_back, map_y_back);
+    if (left_cell_cost_ < 253 || right_cell_cost_ < 253 || front_cell_cost_ < 253 || back_cell_cost_ < 253)
+      return true;
+    else
+      return false;
+  }
 
   /*******************Enemy Information from roborts_detection*******************/
   void Blackboard::ArmorDetectionFeedbackCallback(const roborts_msgs::ArmorDetectionFeedbackConstPtr& feedback) {
@@ -451,6 +478,13 @@ namespace roborts_decision {
     }
   }
 
+  void Blackboard::ChaseAlertForGimbalControl() {
+    std_msgs::Int32 state;
+    state.data = 7;
+    patrol_suggest_publisher_.publish(state);
+  }
+
+  /*******************Parameter Setup for Match*******************/
   void Blackboard::InitParameter() {
     last_hp_ = 2000;
     dmp_ = 0;

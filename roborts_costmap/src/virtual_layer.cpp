@@ -345,21 +345,24 @@ void VirtualLayer::OnInitialize() {
     clearing_buffers_.push_back(observation_buffers_.back());
   } 
   reset_time_ = std::chrono::system_clock::now();
-  std::shared_ptr<message_filters::Subscriber<roborts_msgs::PartnerInformation>
-  > sub(new message_filters::Subscriber<roborts_msgs::PartnerInformation>(nh, topic_string, 50));
-  std::shared_ptr<tf::MessageFilter<roborts_msgs::PartnerInformation>
-  > filter(new tf::MessageFilter<roborts_msgs::PartnerInformation>(*sub, *tf_, global_frame_, 50));
 
-  filter->registerCallback(
-        boost::bind(&VirtualLayer::PartnerInfoCallback, this, _1, observation_buffers_.back()));
+  // std::shared_ptr<message_filters::Subscriber<roborts_msgs::PartnerInformation>
+  // > sub(new message_filters::Subscriber<roborts_msgs::PartnerInformation>(nh, topic_string, 50));
+  // std::shared_ptr<tf::MessageFilter<roborts_msgs::PartnerInformation>
+  // > filter(new tf::MessageFilter<roborts_msgs::PartnerInformation>(*sub, *tf_, global_frame_, 50));
 
-  observation_subscribers_.push_back(sub);
-  observation_notifiers_.push_back(filter);
-  observation_notifiers_.back()->setTolerance(ros::Duration(0.05));
+  // filter->registerCallback(
+  //       boost::bind(&VirtualLayer::PartnerInfoCallback, this, _1, observation_buffers_.back()));
+
+  partner_info_sub_ = nh.subscribe(topic_string, 1, &VirtualLayer::PartnerInfoCallback, this);
+
+  // observation_subscribers_.push_back(sub);
+  // observation_notifiers_.push_back(filter);
+  // observation_notifiers_.back()->setTolerance(ros::Duration(0.05));
   std::vector<std::string> target_frames;
   target_frames.push_back(global_frame_);
   target_frames.push_back(sensor_frame_);
-  observation_notifiers_.back()->setTargetFrames(target_frames);
+  // observation_notifiers_.back()->setTargetFrames(target_frames);
   is_enabled_ = true;
 
   // std::string map_topic = para_virtual.map_topic();
@@ -379,8 +382,8 @@ void VirtualLayer::OnInitialize() {
   
 }
 
-void VirtualLayer::PartnerInfoCallback(const roborts_msgs::PartnerInformationConstPtr &partner_info,
-                                      const std::shared_ptr<ObservationBuffer> &buffer) {
+void VirtualLayer::PartnerInfoCallback(const roborts_msgs::PartnerInformationConstPtr &partner_info) {
+  const std::shared_ptr<ObservationBuffer> buffer = observation_buffers_.back();
   buffer->partner_pose_ = partner_info->partner_pose;
   buffer->is_enemy_detected = partner_info->enemy_detected;
   if (buffer->is_enemy_detected) {
@@ -393,7 +396,7 @@ void VirtualLayer::PartnerInfoCallback(const roborts_msgs::PartnerInformationCon
   empty_cloud.header.stamp = partner_info->header.stamp;
   empty_cloud.header.frame_id = sensor_frame_;
   buffer->Lock();
-  buffer->BufferCloud(empty_cloud);
+  buffer->BufferCloud(empty_cloud, true);
   buffer->Unlock();
 }
 
@@ -558,11 +561,11 @@ void VirtualLayer::UpdateCosts(Costmap2D &master_grid, int min_i, int min_j, int
 }
 
 void VirtualLayer::Activate() {
-  for (size_t i = 0; i < observation_subscribers_.size(); ++i) {
-    if (observation_subscribers_[i] != nullptr) {
-      observation_subscribers_[i]->subscribe();
-    }
-  }
+  // for (size_t i = 0; i < observation_subscribers_.size(); ++i) {
+  //   if (observation_subscribers_[i] != nullptr) {
+  //     observation_subscribers_[i]->subscribe();
+  //   }
+  // }
   for (size_t i = 0; i < observation_buffers_.size(); ++i) {
     if (observation_buffers_[i] != nullptr) {
       observation_buffers_[i]->ResetLastUpdated();
@@ -571,10 +574,10 @@ void VirtualLayer::Activate() {
 }
 
 void VirtualLayer::Deactivate() {
-  for (unsigned int i = 0; i < observation_subscribers_.size(); ++i) {
-    if (observation_subscribers_[i] != nullptr)
-      observation_subscribers_[i]->unsubscribe();
-  }
+  // for (unsigned int i = 0; i < observation_subscribers_.size(); ++i) {
+  //   if (observation_subscribers_[i] != nullptr)
+  //     observation_subscribers_[i]->unsubscribe();
+  // }
 }
 
 void VirtualLayer::Reset() {

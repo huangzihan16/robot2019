@@ -157,15 +157,20 @@ bool ObservationBuffer::SetGlobalFrame(const std::string new_global_frame)
   return true;
 }
 
-void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud)
+void ObservationBuffer::BufferCloud(const sensor_msgs::PointCloud2& cloud, bool is_virtual)
 {
   try
   {
     pcl::PCLPointCloud2 pcl_pc2;
-    pcl_conversions::toPCL(cloud, pcl_pc2);
-    // Actually convert the PointCloud2 message into a type we can reason about
     pcl::PointCloud < pcl::PointXYZ > pcl_cloud;
-    pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
+  
+    if (!is_virtual) {
+      pcl_conversions::toPCL(cloud, pcl_pc2);
+      pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
+    } else {
+      pcl_cloud.header.stamp = pcl_conversions::toPCL(cloud.header.stamp);
+      pcl_cloud.header.frame_id = cloud.header.frame_id;
+    }
 
     // Constants
     double arc_length = 0.2;

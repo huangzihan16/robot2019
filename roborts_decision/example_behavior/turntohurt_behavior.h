@@ -25,6 +25,8 @@ class TurnToHurtBehavior {
   }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
     double delta_yaw = StandardAngleDiff(blackboard_->GetChassisYaw(), initial_yaw_);
     switch (initial_damage_source_){
@@ -137,6 +139,8 @@ class TurnBackBehavior {
   }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
     double delta_yaw = StandardAngleDiff(blackboard_->GetChassisYaw(), initial_yaw_);
     double speed = 0;

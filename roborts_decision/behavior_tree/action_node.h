@@ -26,6 +26,7 @@
 #include "../example_behavior/turntohurt_behavior.h"
 #include "../example_behavior/buff_behavior.h"
 /**************************************************/
+#include "../example_behavior/getoutfromstuck_behavior.h"
 
 namespace roborts_decision {
 class PatrolAction : public ActionNode {
@@ -744,7 +745,46 @@ class TurnBackAction : public ActionNode {
 };
 
 /**********************************************************/
+class GetOutFromStuckAction : public ActionNode {
+ public:
+  GetOutFromStuckAction(const Blackboard::Ptr &blackboard_ptr, GetOutFromStuckBehavior &getoutfromstuck_behavior) :
+      ActionNode::ActionNode("getoutfromstuck_behavior", blackboard_ptr), getoutfromstuck_behavior_(getoutfromstuck_behavior){
 
+      }
+
+  virtual ~GetOutFromStuckAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    //  std::cout << "GetOutFromStuckAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+			getoutfromstuck_behavior_.Run();
+      ROS_INFO(" getoutfromstuck_behavior_ getoutfromstuck_behavior_ !"); 
+			return getoutfromstuck_behavior_.Update();
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				getoutfromstuck_behavior_.Cancel();
+        //  std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        //  std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        //  std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        //  std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  GetOutFromStuckBehavior getoutfromstuck_behavior_;
+};
 
 
 

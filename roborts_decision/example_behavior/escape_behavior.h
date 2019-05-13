@@ -36,7 +36,8 @@ class EscapeBehavior {
   }
 
   void Run() {
-
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
     if (executor_state != BehaviorState::RUNNING) {
 
