@@ -186,8 +186,7 @@ class VirtualLayer : public CostmapLayer {
   virtual void UpdateCosts(Costmap2D &master_grid, int min_i, int min_j, int max_i, int max_j);
   virtual void UpdateBounds(double robot_x, double robot_y, double robot_yaw, double *min_x, double *min_y,
                             double *max_x, double *max_y) override;
-  void PartnerInfoCallback(const roborts_msgs::PartnerInformationConstPtr &partner_info,
-                         const std::shared_ptr<ObservationBuffer> &buffer);
+  void PartnerInfoCallback(const roborts_msgs::PartnerInformationConstPtr &partner_info);
 
  protected:
   bool GetMarkingObservations(std::vector<Observation> &marking_observations) const;
@@ -221,6 +220,9 @@ class VirtualLayer : public CostmapLayer {
 
   bool map_is_global_;
   int reset_thre;
+
+private:
+  ros::Subscriber partner_info_sub_;
 };
 
 } //namespace roborts_costmap
