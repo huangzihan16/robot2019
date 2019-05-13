@@ -5,6 +5,7 @@
 
 #include <AprilTags/TagDetector.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 
 namespace apriltags_ros{
 
@@ -27,9 +28,13 @@ class AprilTagDetector{
   AprilTagDetector(ros::NodeHandle& nh);
   ~AprilTagDetector();
   image_transport::CameraSubscriber image_sub_;
-  ros::Publisher initialpose_pub_;
   image_transport::ImageTransport it_;
   void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);
+  
+  
+  ros::Publisher initialpose_pub_; 
+  ros::Subscriber amcl_pose_sub_;
+  tf::TransformListener listener;
   int tag_id;
   int tag_detect_amount_;
  

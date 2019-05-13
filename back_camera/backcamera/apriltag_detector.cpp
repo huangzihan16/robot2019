@@ -20,6 +20,11 @@
 #include "proto/armor_detection.pb.h"
 #include <ros/package.h>
 #include "io/io.h"
+#include <geometry_msgs/PoseStamped.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+
 
 
 #define PI (3.1415926535897932346f)  
@@ -108,6 +113,16 @@ AprilTagDetector::~AprilTagDetector(){
 
 void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::CameraInfoConstPtr& cam_info){
  
+
+   tf::StampedTransform transform;
+   try{
+   listener.waitForTransform("/base_link", "/map", ros::Time(0), ros::Duration(3.0));
+   listener.lookupTransform("/base_link", "/map", ros::Time(0), transform);
+    } catch (tf::TransformException &ex) { ROS_ERROR("%s",ex.what()); ros::Duration(1.0).sleep(); } 
+   double pitch, roll, amcl_yaw;
+   transform.getBasis().getEulerYPR(amcl_yaw,pitch,roll);
+
+
   cv_bridge::CvImagePtr cv_ptr;
   try{
     cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -170,31 +185,33 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     p_oc = -rot_inverse*T;     //二维码坐标系y朝下
     //std::cout << "camera center = " << p_oc << std::endl;
 
-    double theta_x = atan2(rot_inverse(2, 1), rot_inverse(2, 2));    
-    double theta_y = atan2(-rot_inverse(2, 0),
-    sqrt(rot_inverse(2, 1)*rot_inverse(2, 1) + rot_inverse(2, 2)*rot_inverse(2, 2)));
-    double theta_z = atan2(rot_inverse(1, 0), rot_inverse(0, 0));
+    // double theta_x = atan2(rot_inverse(2, 1), rot_inverse(2, 2));    
+    // double theta_y = atan2(-rot_inverse(2, 0),
+    // sqrt(rot_inverse(2, 1)*rot_inverse(2, 1) + rot_inverse(2, 2)*rot_inverse(2, 2)));
+    // double theta_z = atan2(rot_inverse(1, 0), rot_inverse(0, 0));
 
     // std::cout << "theta_x = " << theta_x/PI*180 << std::endl
     //           << "theta_y = " << theta_y/PI*180 << std::endl
     //           << "theta_z = " << theta_z/PI*180 << std::endl;
 
-
-    float l = 0.15;  //相机中心到机器人中心距离
-    double alfa = theta_y;
-    double beta = atan2(p_oc(0),p_oc(2));
-
     Eigen::Vector3d robot_pose;  //  x,y,yaw
+    float l = 0.15;  //相机中心到机器人中心距离
+    
+    // double alfa = theta_y;           //从相机旋转轴转到机器人中心
+    // double beta = atan2(p_oc(0),p_oc(2));
     // robot_pose(0) = 4 + p_oc(0) + l*sin(alfa+beta);
     // robot_pose(1) = 5 - p_oc(2) + l*cos(alfa+beta);
-     robot_pose(0) = 4 + p_oc(0);
-     robot_pose(1) = 5 - p_oc(2) ;
-    robot_pose(2) = -PI/2 + alfa + beta;       //从相机旋转轴转到机器人中心
-               
-    /*计算camera_frame到map的tf*/
-   
+    // robot_pose(2) = -PI/2 + alfa + beta; 
+
+    std::cout << "tf form /base_link to /map is : " << amcl_yaw << std::endl;
+
+    double theta = amcl_yaw - PI;
+    robot_pose(0) = 4 + p_oc(0) + l*sin(theta);
+    robot_pose(1) = 5 - p_oc(2) - l*cos(theta);    
+    robot_pose(2) = amcl_yaw;
+          
      
-     /****发布initial****/
+     //-----------------发布initial pose
   
     robot_pose(0) = robot_pose(0) + delta_x;
     robot_pose(1) = robot_pose(1) + delta_y;
@@ -204,7 +221,7 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     //           << "delta_y = "  << delta_y << std::endl;
               
 
-    // std::cout << "robot_pose = " << std::endl << robot_pose << std::endl;
+     std::cout << "robot_pose = " << std::endl << robot_pose << std::endl;
 
 		 initialpose_with_covariance.header.stamp = msg->header.stamp;
 		 initialpose_with_covariance.header.frame_id = "map";
