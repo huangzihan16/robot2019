@@ -115,7 +115,7 @@ class ObservationBuffer {
    * @brief  Transforms a PointCloud to the global frame and buffers it
    * @param  cloud The cloud to be buffered
    */
-  void BufferCloud(const sensor_msgs::PointCloud2 &cloud);
+  void BufferCloud(const sensor_msgs::PointCloud2 &cloud, bool is_virtual = false);
 
   /**
    * @brief  Transforms a PointCloud to the global frame and buffers it
