@@ -22,6 +22,8 @@
 #include "example_behavior/turntohurt_behavior.h"
 #include "example_behavior/buff_behavior.h"
 /********************************************/
+#include "example_behavior/getoutfromstuck_behavior.h"
+
 int main(int argc, char **argv) {
   ros::init(argc, argv, "dual_behavior_tree_node");
   std::string full_path = ros::package::getPath("roborts_decision") + "/config/decision.prototxt";
@@ -52,6 +54,8 @@ int main(int argc, char **argv) {
   roborts_decision::BackBootAreaBehavior         back_boot_area_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::TurnToHurtBehavior         turn_to_hurt_behavior_(chassis_executor, blackboard);
   roborts_decision::TurnBackBehavior         turn_back_behavior_(chassis_executor, blackboard);
+
+  roborts_decision::GetOutFromStuckBehavior get_out_from_stuck_behavior_(chassis_executor, blackboard); 
 /***************************************************************/
  //action
   auto patrol_action_ = std::make_shared<roborts_decision::PatrolAction>(blackboard_ptr_, patrol_behavior_);
@@ -71,6 +75,8 @@ int main(int argc, char **argv) {
   auto wait_action_ = std::make_shared<roborts_decision::BackBootAreaAction>(blackboard_ptr_, back_boot_area_behavior_);
   auto turn_to_hurt_action_ = std::make_shared<roborts_decision::TurnToHurtAction>(blackboard_ptr_, turn_to_hurt_behavior_);
   auto turn_back_action_ = std::make_shared<roborts_decision::TurnBackAction>(blackboard_ptr_, turn_back_behavior_);
+
+  auto get_out_from_stuck_action_ = std::make_shared<roborts_decision::GetOutFromStuckAction>(blackboard_ptr_, get_out_from_stuck_behavior_);
   /***************************************************************/
 
 //  

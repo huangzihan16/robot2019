@@ -13,6 +13,8 @@ class GainBuffBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     if(!have_execute_){
       chassis_executor_->Execute(blackboard_->GetGuardGoal());
 			have_execute_ = true;
