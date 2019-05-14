@@ -527,7 +527,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       }
       for(int k=0;k<4;k++){
           for(int kk=0;kk<4;kk++){
-              float depth3z=cv_toolbox_->depthImg.at<ushort>(yd-k,xd+kk);
+              float depth3z=cv_toolbox_->depthImg.at<ushort>(max(yd-k,0),min(xd+kk,640));
               float depth3y=(yd+k-240)*depth3z/615;
               if(depth3y!=0){
                 if(depth3y<thresh||depth3y>270){
