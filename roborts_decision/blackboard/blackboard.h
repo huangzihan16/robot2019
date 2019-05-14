@@ -183,7 +183,8 @@ public:
       partner_detect_enemy_(false),
 			supply_number_(0),
       identity_number_(1),
- 			gain_buff_number_(0){
+ 			gain_buff_number_(0),
+      is_good_communication_(true) {
 
     start_time_ = ros::Time::now();
 
@@ -251,6 +252,9 @@ public:
 		partner_pub_ = nh.advertise<roborts_msgs::PartnerInformation>("partner_msg", 1);
     std::string partner_status_topic = "/" + partner_name + "/robot_status";
     partner_robot_status_sub_ = nh.subscribe<roborts_msgs::RobotStatus>(partner_status_topic, 30, &Blackboard::PartnerRobotStatusCallback, this);
+    last_get_partner_information_time_ = ros::Time::now();
+    partner_msg_pub_.patrol_count = 0;
+
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
     if (decision_config_.master() == true)
@@ -331,7 +335,8 @@ public:
       return blue_bonus_status_;
     } else {
       return red_bonus_status_;  
-    }   }
+    }   
+  }
 
   SupplierStatus GetSupplierStatus(){
     ROS_INFO("%s: %d", __FUNCTION__, (int)supplier_status_);
@@ -442,6 +447,13 @@ public:
   bool IsMasterCondition();
   bool IsMasterSupplyCondition();
   bool IsMasterGainBuffCondition();
+  
+  bool IsGoodCommunication() {
+    return is_good_communication_;
+  }
+  void CheckCommunication();
+  bool IsPartnerAvailable();
+  void ResetPartnerInformation();
 
   /*******************Math Tools*******************/
   double GetDistance(const geometry_msgs::PoseStamped &pose1,
@@ -505,6 +517,8 @@ public:
   ros::Time last_armor_attacked_time_;  //上一次受到伤害的时间
   bool back_enemy_detected_;
   ros::Time last_enemy_disappear_time_; //敌人最后一次出现的时间
+
+  /*******************Information for Search and Patrol*******************/
   unsigned int search_count_;           //小范围搜索敌人使用，标识用
 
   /*******************Map Information*******************/
@@ -545,6 +559,9 @@ public:
   ros::Time last_rec_partner_hp_time_;
 
   roborts_msgs::PartnerInformation partner_msg_pub_;  //发送给友方的信息
+  
+  ros::Time last_get_partner_information_time_;
+  bool is_good_communication_;
 
   /****************补弹tag id******************/
   int tag_id_;

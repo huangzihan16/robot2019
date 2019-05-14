@@ -28,6 +28,7 @@ class PatrolBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.patrol_count = patrol_count_;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     auto executor_state = Update();

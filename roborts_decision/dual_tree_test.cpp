@@ -7,6 +7,8 @@
 #include "example_behavior/back_boot_area_behavior.h"
 #include "example_behavior/escape_behavior.h"
 #include "example_behavior/chase_behavior.h"
+#include "example_behavior/buff_chase_behavior.h"
+
 #include "example_behavior/search_behavior.h"
 #include "example_behavior/patrol_behavior.h"
 #include "example_behavior/goal_behavior.h"
@@ -47,6 +49,7 @@ int main(int argc, char **argv) {
 
 /***************************************************************/
   roborts_decision::ChaseBehavior         chase_behavior_(chassis_executor, blackboard, full_path);
+  roborts_decision::BuffChaseBehavior      buff_chase_behavior_(chassis_executor, blackboard);
   roborts_decision::EscapeBehavior         escape_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::SearchBehavior         search_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
   roborts_decision::GainBuffBehavior         gain_buff_behavior_(chassis_executor, blackboard);
@@ -70,6 +73,7 @@ int main(int argc, char **argv) {
   /***************************************************************/
 
   auto chase_action_ = std::make_shared<roborts_decision::ChaseAction>(blackboard_ptr_, chase_behavior_);
+  auto buff_chase_action_ = std::make_shared<roborts_decision::BuffChaseAction>(blackboard_ptr_, buff_chase_behavior_);
   auto escape_action_ = std::make_shared<roborts_decision::EscapeAction>(blackboard_ptr_, escape_behavior_);
   auto search_action_ = std::make_shared<roborts_decision::SearchAction>(blackboard_ptr_, search_behavior_);
   auto wait_action_ = std::make_shared<roborts_decision::BackBootAreaAction>(blackboard_ptr_, back_boot_area_behavior_);
@@ -253,21 +257,54 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::SelectorNode> without_buff_selector(new roborts_decision::SelectorNode("without_buff_selector", blackboard_ptr_));          
   bullet_left_selector->AddChildren(without_buff_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
-																																															[&]() {//return true;
+																																															[&]() {
 																																																if (blackboard_ptr_->GetBonusStatus()
-                                                                                                != roborts_decision::BonusStatus::OCCUPIED && !blackboard_ptr_->IsMasterCondition()) {
+                                                                                                == roborts_decision::BonusStatus::UNOCCUPIED ) {
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
 																																															} , roborts_decision::AbortType::BOTH));
- 	std::shared_ptr<roborts_decision::SequenceNode> gain_buff_sequence(new roborts_decision::SequenceNode("gain_buff", blackboard_ptr_));
-  without_buff_selector->AddChildren(buff_ready_condition_);
-  buff_ready_condition_->SetChild(gain_buff_sequence);
-  gain_buff_sequence->AddChildren(gain_buff_goal_action_);
-	gain_buff_sequence->AddChildren(gain_buff_action_);
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_enemy_detected_condition_(new roborts_decision::PreconditionNode("buff_enemy_detected_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::FRONT) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_attack_condition_(new roborts_decision::PreconditionNode("buff_attack_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->GetDamageSource()
+                                                                                                    != roborts_decision::DamageSource::NONE) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_back_condition_(new roborts_decision::PreconditionNode("buff_back_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::BACK) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
 
-  // //need detailed information if rfid is not detected  
+  std::shared_ptr<roborts_decision::SelectorNode> gain_buff_selector(new roborts_decision::SelectorNode("enemy_obtain_buff_selector", blackboard_ptr_)); 
+
+  without_buff_selector->AddChildren(gain_buff_selector);
+  gain_buff_selector ->AddChildren(buff_ready_condition_);
+  gain_buff_selector ->AddChildren(buff_enemy_detected_condition_);
+  gain_buff_selector ->AddChildren(buff_attack_condition_);
+  gain_buff_selector ->AddChildren(buff_back_condition_);
+  gain_buff_selector ->AddChildren(gain_buff_goal_action_);
+  buff_ready_condition_ ->SetChild(gain_buff_action_);
+  buff_enemy_detected_condition_ ->SetChild(buff_chase_action_);
+  buff_attack_condition_ ->SetChild(turn_to_hurt_action_);
+  buff_back_condition_ ->SetChild(turn_back_action_);
 
 
   // enemy buff condition //enemy_buff_selector
@@ -344,9 +381,6 @@ int main(int argc, char **argv) {
   inferior_detected_condition_->SetChild(turn_back_action_);
   emy_buff_attack_condition_->SetChild(turn_to_hurt_action_);
   master_inferior_receive_condition_->SetChild(support_action_); 
-
-
-
 
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 

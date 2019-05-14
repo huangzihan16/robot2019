@@ -35,7 +35,7 @@
   </node>
 
   <!-- Run the initial pose node -->
-  <node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/>
+  <!--node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/-->
 
   <!-- Run the back camera node  rosrun roborts_camera roborts_camera_node-->
   <node pkg="roborts_camera" type="roborts_camera_node" name="roborts_camera_node" respawn="false" />
