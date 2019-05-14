@@ -7,6 +7,8 @@
 #include "example_behavior/back_boot_area_behavior.h"
 #include "example_behavior/escape_behavior.h"
 #include "example_behavior/chase_behavior.h"
+#include "example_behavior/buff_chase_behavior.h"
+
 #include "example_behavior/search_behavior.h"
 #include "example_behavior/patrol_behavior.h"
 #include "example_behavior/goal_behavior.h"
@@ -47,6 +49,7 @@ int main(int argc, char **argv) {
 
 /***************************************************************/
   roborts_decision::ChaseBehavior         chase_behavior_(chassis_executor, blackboard, full_path);
+  roborts_decision::BuffChaseBehavior      buff_chase_behavior_(chassis_executor, blackboard);
   roborts_decision::EscapeBehavior         escape_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::SearchBehavior         search_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
   roborts_decision::GainBuffBehavior         gain_buff_behavior_(chassis_executor, blackboard);
@@ -70,6 +73,7 @@ int main(int argc, char **argv) {
   /***************************************************************/
 
   auto chase_action_ = std::make_shared<roborts_decision::ChaseAction>(blackboard_ptr_, chase_behavior_);
+  auto buff_chase_action_ = std::make_shared<roborts_decision::BuffChaseAction>(blackboard_ptr_, buff_chase_behavior_);
   auto escape_action_ = std::make_shared<roborts_decision::EscapeAction>(blackboard_ptr_, escape_behavior_);
   auto search_action_ = std::make_shared<roborts_decision::SearchAction>(blackboard_ptr_, search_behavior_);
   auto wait_action_ = std::make_shared<roborts_decision::BackBootAreaAction>(blackboard_ptr_, back_boot_area_behavior_);
@@ -82,268 +86,176 @@ int main(int argc, char **argv) {
 //  
 	
   std::shared_ptr<roborts_decision::SelectorNode> root_node(new roborts_decision::SelectorNode("root_selector", blackboard_ptr_));
-  // std::shared_ptr<roborts_decision::PreconditionNode> stuck_in_obstacle_condition_(new roborts_decision::PreconditionNode("stuck_in_obstacle_condition", blackboard_ptr_,
-  //                                                                                             [&]() {
-	// 																																															if (blackboard_ptr_->IsStuckedAndCanGetOut()) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														}, roborts_decision::AbortType::BOTH));
-  // root_node->AddChildren(stuck_in_obstacle_condition_);
-  // stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
-  // //game stop
-  // std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
-	// 																																														[&]() {//return false;
-	// 																																															if (blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::SETUP 
-  //                                                                                               && blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::ROUND) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // root_node->AddChildren(game_stop_condition_);  
-  // game_stop_condition_->SetChild(wait_action_);   
+  std::shared_ptr<roborts_decision::PreconditionNode> stuck_in_obstacle_condition_(new roborts_decision::PreconditionNode("stuck_in_obstacle_condition", blackboard_ptr_,
+                                                                                              [&]() {
+																																																if (blackboard_ptr_->IsStuckedAndCanGetOut()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															}, roborts_decision::AbortType::BOTH));
+  root_node->AddChildren(stuck_in_obstacle_condition_);
+  stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
+  //game stop
+  std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
+																																															[&]() {//return false;
+																																																if (blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::SETUP 
+                                                                                                && blackboard_ptr_->GetGameStatus() != roborts_decision::GameStatus::ROUND) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  root_node->AddChildren(game_stop_condition_);  
+  game_stop_condition_->SetChild(wait_action_);   
 
-  // //game start
-  // std::shared_ptr<roborts_decision::SelectorNode> game_start_selector(new roborts_decision::SelectorNode("game_start_selector", blackboard_ptr_));                                                                                            
-  // root_node->AddChildren(game_start_selector);
+  //game start
+  std::shared_ptr<roborts_decision::SelectorNode> game_start_selector(new roborts_decision::SelectorNode("game_start_selector", blackboard_ptr_));                                                                                            
+  root_node->AddChildren(game_start_selector);
 
 
-  // //game_start_selector
-  // // no bullet left
-  // std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
-	// 																																														[&]() {
-  //                                                                                               if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
-	// 																																															// if(blackboard_ptr_->IsGoToSupplyCondition()){
-  //                                                                                               	return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
+  //game_start_selector
+  // no bullet left
+  std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
+																																															[&]() {
+                                                                                                if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition()) {
+																																																// if(blackboard_ptr_->IsGoToSupplyCondition()){
+                                                                                                	return true;
+																																																} else {
+																																																	return false;
+																																																}
                                                                                                 
-  //                                                                                               // if (!blackboard_ptr_->IsBulletLeft()) {
-	// 																																															// 	return true;
-	// 																																															// } else {
-	// 																																															// 	return false;
-	// 																																															// }
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
-  // game_start_selector->AddChildren(no_bullet_left_condition_);
-  // no_bullet_left_condition_->SetChild(no_bullet_left_selector);
-  // std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition() ) {
-	// 																																															// if(blackboard_ptr_->IsGoToSupplyCondition()){
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::SequenceNode> supply_sequence(new roborts_decision::SequenceNode("supply", blackboard_ptr_));
+                                                                                                // if (!blackboard_ptr_->IsBulletLeft()) {
+																																																// 	return true;
+																																																// } else {
+																																																// 	return false;
+																																																// }
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
+  game_start_selector->AddChildren(no_bullet_left_condition_);
+  no_bullet_left_condition_->SetChild(no_bullet_left_selector);
+  std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->IsSupplyCondition() && blackboard_ptr_->IsMasterCondition() ) {
+																																																// if(blackboard_ptr_->IsGoToSupplyCondition()){
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::SequenceNode> supply_sequence(new roborts_decision::SequenceNode("supply", blackboard_ptr_));
 
-  // no_bullet_left_selector->AddChildren(bullet_supply_condition_);
-  // bullet_supply_condition_->SetChild(supply_sequence); 
-  // supply_sequence->AddChildren(supply_goal_action_);
-	// supply_sequence->AddChildren(supply_application_action_);
+  no_bullet_left_selector->AddChildren(bullet_supply_condition_);
+  bullet_supply_condition_->SetChild(supply_sequence); 
+  supply_sequence->AddChildren(supply_goal_action_);
+	supply_sequence->AddChildren(supply_application_action_);
 
-  // no_bullet_left_selector->AddChildren(guard_action_);
+  no_bullet_left_selector->AddChildren(guard_action_);
 
 
-  // //bullet left
-  // std::shared_ptr<roborts_decision::SelectorNode> bullet_left_selector(new roborts_decision::SelectorNode("bullet_left_selector", blackboard_ptr_));          
-  // game_start_selector->AddChildren(bullet_left_selector);
+  //bullet left
+  std::shared_ptr<roborts_decision::SelectorNode> bullet_left_selector(new roborts_decision::SelectorNode("bullet_left_selector", blackboard_ptr_));          
+  game_start_selector->AddChildren(bullet_left_selector);
 
   
-  // //obtain buff
-  // std::shared_ptr<roborts_decision::PreconditionNode> obtain_buff_condition_(new roborts_decision::PreconditionNode("obtain_buff_condition",blackboard_ptr_,
-	// 																																														[&]() {//return true;
-  //                                                                                             if (blackboard_ptr_->GetRobotBonus()) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::SelectorNode> offensive_selector(new roborts_decision::SelectorNode("offensive_selector", blackboard_ptr_));          
-  // bullet_left_selector->AddChildren(obtain_buff_condition_);
-  // obtain_buff_condition_->SetChild(offensive_selector);  
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->HurtedPerSecond() > 200) {
-  //                                                                                                 ROS_INFO("DMP: %f",blackboard_ptr_->dmp_);
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_detect_enemy_condition_(new roborts_decision::PreconditionNode("offensive_detect_enemy_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::FRONT) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_under_attack_condition_(new roborts_decision::PreconditionNode("offensive_under_attack_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->GetDamageSource()
-  //                                                                                                   != roborts_decision::DamageSource::NONE
-  //                                                                                                   && blackboard_ptr_->GetDamageSource()
-  //                                                                                                       != roborts_decision::DamageSource::FORWARD) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_back_detect_condition_(new roborts_decision::PreconditionNode("offensive_detected_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::BACK) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                              
-  // std::shared_ptr<roborts_decision::PreconditionNode> master_receive_condition_(new roborts_decision::PreconditionNode("master_receive_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->IsPartnerDetectEnemy() && 
-  //                                                                                                blackboard_ptr_-> EnemyDetected()== roborts_decision::EnemyStatus::NONE) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_search_condition_(new roborts_decision::PreconditionNode("offensive_search_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::NONE && blackboard_ptr_->EnemyDisappear()) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                            
-  // std::shared_ptr<roborts_decision::PreconditionNode> offensive_patrol_condition_(new roborts_decision::PreconditionNode("offensive_patrol_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::NONE) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-  //                                                                                             } , roborts_decision::AbortType::LOW_PRIORITY));
-  // // std::shared_ptr<roborts_decision::SequenceNode> offensive_detect_enemy_sequence(new roborts_decision::SequenceNode("offensive_detect_enemy_sequence", blackboard_ptr_));
+  //obtain buff
+  std::shared_ptr<roborts_decision::PreconditionNode> obtain_buff_condition_(new roborts_decision::PreconditionNode("obtain_buff_condition",blackboard_ptr_,
+																																															[&]() {//return true;
+                                                                                              if (blackboard_ptr_->GetRobotBonus()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::SelectorNode> offensive_selector(new roborts_decision::SelectorNode("offensive_selector", blackboard_ptr_));          
+  bullet_left_selector->AddChildren(obtain_buff_condition_);
+  obtain_buff_condition_->SetChild(offensive_selector);  
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->HurtedPerSecond() > 200) {
+                                                                                                  ROS_INFO("DMP: %f",blackboard_ptr_->dmp_);
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_detect_enemy_condition_(new roborts_decision::PreconditionNode("offensive_detect_enemy_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::FRONT) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_under_attack_condition_(new roborts_decision::PreconditionNode("offensive_under_attack_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->GetDamageSource()
+                                                                                                    != roborts_decision::DamageSource::NONE
+                                                                                                    && blackboard_ptr_->GetDamageSource()
+                                                                                                        != roborts_decision::DamageSource::FORWARD) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_back_detect_condition_(new roborts_decision::PreconditionNode("offensive_detected_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::BACK) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                              
+  std::shared_ptr<roborts_decision::PreconditionNode> master_receive_condition_(new roborts_decision::PreconditionNode("master_receive_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->IsPartnerDetectEnemy() && 
+                                                                                                 blackboard_ptr_-> EnemyDetected()== roborts_decision::EnemyStatus::NONE) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_search_condition_(new roborts_decision::PreconditionNode("offensive_search_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::NONE && blackboard_ptr_->EnemyDisappear()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                            
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_patrol_condition_(new roborts_decision::PreconditionNode("offensive_patrol_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::NONE) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+                                                                                              } , roborts_decision::AbortType::LOW_PRIORITY));
+  // std::shared_ptr<roborts_decision::SequenceNode> offensive_detect_enemy_sequence(new roborts_decision::SequenceNode("offensive_detect_enemy_sequence", blackboard_ptr_));
  
-  // offensive_selector->AddChildren(offensive_dmp_condition_);
-  // offensive_selector->AddChildren(offensive_detect_enemy_condition_);
-  // offensive_selector->AddChildren(offensive_under_attack_condition_);
-  // offensive_selector->AddChildren(offensive_back_detect_condition_);
-  // offensive_selector->AddChildren(master_receive_condition_);
-  // offensive_selector->AddChildren(offensive_search_condition_);
-  // offensive_selector->AddChildren(offensive_patrol_condition_);
+  offensive_selector->AddChildren(offensive_dmp_condition_);
+  offensive_selector->AddChildren(offensive_detect_enemy_condition_);
+  offensive_selector->AddChildren(offensive_under_attack_condition_);
+  offensive_selector->AddChildren(offensive_back_detect_condition_);
+  offensive_selector->AddChildren(master_receive_condition_);
+  offensive_selector->AddChildren(offensive_search_condition_);
+  offensive_selector->AddChildren(offensive_patrol_condition_);
 
-  // offensive_dmp_condition_->SetChild(escape_action_);
-  // offensive_detect_enemy_condition_->SetChild(chase_action_);
-  // offensive_under_attack_condition_->SetChild(turn_to_hurt_action_);
-  // offensive_back_detect_condition_->SetChild(turn_back_action_);
-  // master_receive_condition_->SetChild(support_action_);
-  // offensive_search_condition_->SetChild(search_action_);
-  // offensive_patrol_condition_->SetChild(patrol_action_);
+  offensive_dmp_condition_->SetChild(escape_action_);
+  offensive_detect_enemy_condition_->SetChild(chase_action_);
+  offensive_under_attack_condition_->SetChild(turn_to_hurt_action_);
+  offensive_back_detect_condition_->SetChild(turn_back_action_);
+  master_receive_condition_->SetChild(support_action_);
+  offensive_search_condition_->SetChild(search_action_);
+  offensive_patrol_condition_->SetChild(patrol_action_);
 
-  //  //without buff
-  // std::shared_ptr<roborts_decision::SelectorNode> without_buff_selector(new roborts_decision::SelectorNode("without_buff_selector", blackboard_ptr_));          
-  // bullet_left_selector->AddChildren(without_buff_selector);
-  // std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
-	// 																																														[&]() {//return true;
-	// 																																															if (blackboard_ptr_->GetBonusStatus()
-  //                                                                                               != roborts_decision::BonusStatus::OCCUPIED && !blackboard_ptr_->IsMasterCondition()) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
- 	// std::shared_ptr<roborts_decision::SequenceNode> gain_buff_sequence(new roborts_decision::SequenceNode("gain_buff", blackboard_ptr_));
-  // without_buff_selector->AddChildren(buff_ready_condition_);
-  // buff_ready_condition_->SetChild(gain_buff_sequence);
-  // gain_buff_sequence->AddChildren(gain_buff_goal_action_);
-	// gain_buff_sequence->AddChildren(gain_buff_action_);
-
-  // // //need detailed information if rfid is not detected  
-
-
-  // // enemy buff condition //enemy_buff_selector
-  // std::shared_ptr<roborts_decision::SelectorNode> enemy_obtain_buff_selector(new roborts_decision::SelectorNode("enemy_obtain_buff_selector", blackboard_ptr_)); 
-
-  // without_buff_selector->AddChildren(enemy_obtain_buff_selector);
-
-  // std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_condition_(new roborts_decision::PreconditionNode("emy_buff_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->GetEnemyBonusStatus()
-  //                                                                                                == roborts_decision::BonusStatus::OCCUPIED) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_dmp_condition_(new roborts_decision::PreconditionNode("emy_buff_dmp_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->HurtedPerSecond() > 200 ) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // std::shared_ptr<roborts_decision::PreconditionNode> inferior_detect_enemy_condition_(new roborts_decision::PreconditionNode("inferior_detect_enemy_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::FRONT) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::PreconditionNode> inferior_detected_condition_(new roborts_decision::PreconditionNode("inferior_detected_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->EnemyDetected()
-  //                                                                                               == roborts_decision::EnemyStatus::BACK) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_attack_condition_(new roborts_decision::PreconditionNode("emy_buff_attack_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->GetDamageSource()
-  //                                                                                            != roborts_decision::DamageSource::NONE
-  //                                                                                            && blackboard_ptr_->GetDamageSource()
-  //                                                                                                != roborts_decision::DamageSource::FORWARD) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::BOTH));
-  // std::shared_ptr<roborts_decision::PreconditionNode> master_inferior_receive_condition_(new roborts_decision::PreconditionNode("master_inferior_receive_condition",blackboard_ptr_,
-	// 																																														[&]() {
-	// 																																															if (blackboard_ptr_->IsPartnerDetectEnemy() && 
-  //                                                                                                blackboard_ptr_-> EnemyDetected()== roborts_decision::EnemyStatus::NONE) {
-	// 																																																return true;
-	// 																																															} else {
-	// 																																																return false;
-	// 																																															}
-	// 																																														} , roborts_decision::AbortType::LOW_PRIORITY));
-  // enemy_obtain_buff_selector->AddChildren(emy_buff_condition_);
-  // enemy_obtain_buff_selector->AddChildren(emy_buff_dmp_condition_);
-  // enemy_obtain_buff_selector->AddChildren(inferior_detect_enemy_condition_);
-  // enemy_obtain_buff_selector->AddChildren(inferior_detected_condition_);
-  // enemy_obtain_buff_selector->AddChildren(emy_buff_attack_condition_);
-  // enemy_obtain_buff_selector->AddChildren(master_inferior_receive_condition_);
-  // // enemy_obtain_buff_selector->AddChildren(guard_action_);
-  // enemy_obtain_buff_selector->AddChildren(patrol_action_);
-  // emy_buff_condition_->SetChild(guard_action_);
-  // emy_buff_dmp_condition_->SetChild(escape_action_);
-  // inferior_detect_enemy_condition_->SetChild(chase_action_);
-  // inferior_detected_condition_->SetChild(turn_back_action_);
-  // emy_buff_attack_condition_->SetChild(turn_to_hurt_action_);
-  // master_inferior_receive_condition_->SetChild(support_action_); 
+   //without buff
+  std::shared_ptr<roborts_decision::SelectorNode> without_buff_selector(new roborts_decision::SelectorNode("without_buff_selector", blackboard_ptr_));          
+  bullet_left_selector->AddChildren(without_buff_selector);
   std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->GetBonusStatus()
@@ -370,7 +282,7 @@ int main(int argc, char **argv) {
 																																																} else {
 																																																	return false;
 																																																}
-																																															} , roborts_decision::AbortType::BOTH));
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
   std::shared_ptr<roborts_decision::PreconditionNode> buff_back_condition_(new roborts_decision::PreconditionNode("buff_back_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->EnemyDetected()
@@ -379,20 +291,97 @@ int main(int argc, char **argv) {
 																																																} else {
 																																																	return false;
 																																																}
-																																															} , roborts_decision::AbortType::BOTH));
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
 
   std::shared_ptr<roborts_decision::SelectorNode> gain_buff_selector(new roborts_decision::SelectorNode("enemy_obtain_buff_selector", blackboard_ptr_)); 
 
-  root_node->AddChildren(gain_buff_selector);
+  without_buff_selector->AddChildren(gain_buff_selector);
   gain_buff_selector ->AddChildren(buff_ready_condition_);
   gain_buff_selector ->AddChildren(buff_enemy_detected_condition_);
   gain_buff_selector ->AddChildren(buff_attack_condition_);
   gain_buff_selector ->AddChildren(buff_back_condition_);
   gain_buff_selector ->AddChildren(gain_buff_goal_action_);
   buff_ready_condition_ ->SetChild(gain_buff_action_);
-  // buff_enemy_detected_condition_ ->SetChild(chase_action_);
+  buff_enemy_detected_condition_ ->SetChild(buff_chase_action_);
   buff_attack_condition_ ->SetChild(turn_to_hurt_action_);
   buff_back_condition_ ->SetChild(turn_back_action_);
+
+
+  // enemy buff condition //enemy_buff_selector
+  std::shared_ptr<roborts_decision::SelectorNode> enemy_obtain_buff_selector(new roborts_decision::SelectorNode("enemy_obtain_buff_selector", blackboard_ptr_)); 
+
+  without_buff_selector->AddChildren(enemy_obtain_buff_selector);
+
+  std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_condition_(new roborts_decision::PreconditionNode("emy_buff_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->GetEnemyBonusStatus()
+                                                                                                 == roborts_decision::BonusStatus::OCCUPIED) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_dmp_condition_(new roborts_decision::PreconditionNode("emy_buff_dmp_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->HurtedPerSecond() > 200 ) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> inferior_detect_enemy_condition_(new roborts_decision::PreconditionNode("inferior_detect_enemy_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::FRONT) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> inferior_detected_condition_(new roborts_decision::PreconditionNode("inferior_detected_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::BACK) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> emy_buff_attack_condition_(new roborts_decision::PreconditionNode("emy_buff_attack_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->GetDamageSource()
+                                                                                             != roborts_decision::DamageSource::NONE
+                                                                                             && blackboard_ptr_->GetDamageSource()
+                                                                                                 != roborts_decision::DamageSource::FORWARD) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> master_inferior_receive_condition_(new roborts_decision::PreconditionNode("master_inferior_receive_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->IsPartnerDetectEnemy() && 
+                                                                                                 blackboard_ptr_-> EnemyDetected()== roborts_decision::EnemyStatus::NONE) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  enemy_obtain_buff_selector->AddChildren(emy_buff_condition_);
+  enemy_obtain_buff_selector->AddChildren(emy_buff_dmp_condition_);
+  enemy_obtain_buff_selector->AddChildren(inferior_detect_enemy_condition_);
+  enemy_obtain_buff_selector->AddChildren(inferior_detected_condition_);
+  enemy_obtain_buff_selector->AddChildren(emy_buff_attack_condition_);
+  enemy_obtain_buff_selector->AddChildren(master_inferior_receive_condition_);
+  // enemy_obtain_buff_selector->AddChildren(guard_action_);
+  enemy_obtain_buff_selector->AddChildren(patrol_action_);
+  emy_buff_condition_->SetChild(guard_action_);
+  emy_buff_dmp_condition_->SetChild(escape_action_);
+  inferior_detect_enemy_condition_->SetChild(chase_action_);
+  inferior_detected_condition_->SetChild(turn_back_action_);
+  emy_buff_attack_condition_->SetChild(turn_to_hurt_action_);
+  master_inferior_receive_condition_->SetChild(support_action_); 
+
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 
   while(1)

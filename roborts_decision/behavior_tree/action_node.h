@@ -9,6 +9,8 @@
 #include "../example_behavior/back_boot_area_behavior.h"
 #include "../example_behavior/escape_behavior.h"
 #include "../example_behavior/chase_behavior.h"
+#include "../example_behavior/buff_chase_behavior.h"
+
 #include "../example_behavior/search_behavior.h"
 #include "../example_behavior/patrol_behavior.h"
 #include "../example_behavior/goal_behavior.h"
@@ -163,6 +165,49 @@ class ChaseAction : public ActionNode {
 
 }; // class ChaseAction
 
+class BuffChaseAction : public ActionNode {
+ public:
+  BuffChaseAction(const Blackboard::Ptr &blackboard_ptr, BuffChaseBehavior &buff_chase_behavior) :
+      ActionNode::ActionNode("buff_chase_behavior", blackboard_ptr), buff_chase_behavior_(buff_chase_behavior){
+
+  }
+
+  virtual ~BuffChaseAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    //  std::cout << "BuffChaseAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+    buff_chase_behavior_.Run();
+    ROS_INFO(" buff_chase_behavior_ buff_chase_behavior_ !");
+
+    return buff_chase_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				buff_chase_behavior_.Cancel();
+        //  std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        //  std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        //  std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        //  std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  BuffChaseBehavior buff_chase_behavior_;
+
+}; // class BuffChaseAction
 
 class SearchAction : public ActionNode {
  public:

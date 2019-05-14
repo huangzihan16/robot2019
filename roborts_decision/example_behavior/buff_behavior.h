@@ -58,15 +58,16 @@ class GainBuffBehavior {
       i += 1;
     }
 
-    float goal_x_[4] = {5.5, 6.4, 5.5, 4.3};
-    float goal_y_[4] = {1.75, 1.70, 1.75, 1.8};    
+    float goal_x_[5] = {6.30, 6.2, 6.40, 6.40, 6.2};
+    float goal_y_[5] = {1.85, 1.95, 1.75, 1.95, 1.75};  
+    float goal_q_[5] = {180, 135, 225, 180, 135};      
     geometry_msgs::PoseStamped fix_goal;
     ros::Time current_time = ros::Time::now();
     fix_goal.header.stamp = current_time;
-    fix_goal.pose.position.x = goal_x_[i % 4];
-    fix_goal.pose.position.y = goal_y_[i % 4];
+    fix_goal.pose.position.x = goal_x_[i % 5];
+    fix_goal.pose.position.y = goal_y_[i % 5];
     fix_goal.pose.position.z = 0.0;
-    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(180.0/180*3.14);
+    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(goal_q_[i]/180*3.14);
 
     return fix_goal;
   }

@@ -91,8 +91,9 @@ class GainBuffGoalBehavior {
 
   void Run() {
     blackboard_->SuggestGimbalPatrol();
+    chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
     if(!have_execute_){
-            geometry_msgs::PoseStamped fix_goal = blackboard_->GetRobotMapPose();
+      geometry_msgs::PoseStamped fix_goal = blackboard_->GetRobotMapPose();
       ros::Time current_time = ros::Time::now();
       fix_goal.header.stamp = current_time;
       fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(190.0/180*3.14);
@@ -101,6 +102,7 @@ class GainBuffGoalBehavior {
       // chassis_executor_->Execute(blackboard_->GetGuardGoal());
 			have_execute_ = true;
     }
+    ROS_INFO("have_execute_:%d",(int)have_execute_);
     //     BehaviorState executor_state = Update();
     // if (executor_state != BehaviorState::RUNNING ){
     //   geometry_msgs::PoseStamped fix_goal = blackboard_->GetRobotMapPose();
