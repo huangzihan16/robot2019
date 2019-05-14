@@ -118,7 +118,12 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
    try{
    listener.waitForTransform("/base_link", "/map", ros::Time(0), ros::Duration(3.0));
    listener.lookupTransform("/base_link", "/map", ros::Time(0), transform);
-    } catch (tf::TransformException &ex) { ROS_ERROR("%s",ex.what()); ros::Duration(1.0).sleep(); } 
+    } catch (tf::TransformException &ex) {
+     ROS_ERROR("%s",ex.what());
+     //ros::Duration(1.0).sleep();
+     return;
+    } 
+   
    double pitch, roll, amcl_yaw;
    transform.getBasis().getEulerYPR(amcl_yaw,pitch,roll);
 
@@ -206,9 +211,11 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     std::cout << "tf form /base_link to /map is : " << amcl_yaw << std::endl;
 
     double theta = amcl_yaw - PI;
-    robot_pose(0) = 4 + p_oc(0) + l*sin(theta);
-    robot_pose(1) = 5 - p_oc(2) - l*cos(theta);    
-    robot_pose(2) = amcl_yaw;
+     robot_pose(0) = 4 + p_oc(0) + l*sin(theta);    //姿态太跳
+     robot_pose(1) = 5 - p_oc(2) - l*cos(theta); 
+    // robot_pose(0) = 4 + p_oc(0) ;
+    // robot_pose(1) = 5 - p_oc(2) ;    
+    robot_pose(2) = -amcl_yaw;
           
      
      //-----------------发布initial pose

@@ -233,6 +233,11 @@ class ConstraintSet : public ArmorDetectionBase {
   bool using_hsv_;
   unsigned int enemy_color_;
   int roiy_=150;
+  float thresh_depth_=130;
+  float fx_=615;
+  float fy_=615;
+  float cx_=320;
+  float cy_=240;
 
   //! Use for debug
   cv::Mat show_lights_before_filter_;

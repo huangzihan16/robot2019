@@ -49,6 +49,7 @@ void ConstraintSet::LoadParam() {
       "/armor_detection/constraint_set/contourHOG_SVM";
   model = svm_load_model(svm_path.c_str());
   ConstraintSetConfig constraint_set_config_;
+  CameraMatrix cameramatrix_;
   std::string file_name = ros::package::getPath("roborts_detection") + \
       "/armor_detection/constraint_set/config/constraint_set.prototxt";
   bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &constraint_set_config_);
@@ -74,6 +75,13 @@ void ConstraintSet::LoadParam() {
   armor_max_pixel_val_ = constraint_set_config_.threshold().armor_max_pixel_val();
   armor_max_stddev_ = constraint_set_config_.threshold().armor_max_stddev();
   armor_max_mean_   = constraint_set_config_.threshold().armor_max_mean();
+  
+  //thresh_depth_ = cameramatrix_.thresh_depth();
+  //fx_ = cameramatrix_.fx();
+  //fy_ = cameramatrix_.fy();
+  //cx_ = cameramatrix_.cx(); 
+  // cy_ = cameramatrix_.cy();
+
 
   color_thread_ = constraint_set_config_.threshold().color_thread();
   blue_thread_ = constraint_set_config_.threshold().blue_thread();
@@ -511,8 +519,8 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     int yd=armors[i].rect.center.y+roiy_ ;
     int xd=armors[i].rect.center.x;
     float depthz=cv_toolbox_->depthImg.at<ushort>(yd,xd);
-    float depthy=(yd-240)*depthz/615;
-    int thresh=130;  //参数
+    float depthy=(yd-cy_)*depthz/fy_;
+
     int sumvertex=0;
     int nflag=0;
     if(depthz>4500){
@@ -521,16 +529,20 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     if(depthz!=0){
       sumvertex=sumvertex/nflag;
       int diff =abs(sumvertex-depthz);
-      if(depthy<thresh||depthy>270){//225,307   中间大框115
+      std::cout<<thresh_depth_<<fx_<<"========="<<std::endl;
+      if(depthy<thresh_depth_){//225,307   中间大框115
         is_armor[i] = false;
         continue;
       }
       for(int k=0;k<4;k++){
           for(int kk=0;kk<4;kk++){
+            if(yd+k<0||yd+k>479||xd+kk<0||xd+kk>639){
+              continue;
+            }
               float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
-              float depth3y=(yd+k-240)*depth3z/615;
+              float depth3y=(yd+k-cy_)*depth3z/fy_;
               if(depth3y!=0){
-                if(depth3y<thresh||depth3y>270){
+                if(depth3y<thresh_depth_){
                   is_armor[i] = false;
                   break;
                 }
@@ -544,7 +556,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       is_armor[i] = false;
        
     }
-    if(armors[i].rect.size.width>100){
+    if(armors[i].rect.size.width>160){
       is_armor[i] = false;
     }
 

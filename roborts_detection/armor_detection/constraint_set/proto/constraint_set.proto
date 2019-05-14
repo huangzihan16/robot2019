@@ -41,6 +41,7 @@ message CameraMatrix {
   required float cx = 2;
   required float fy = 3;
   required float cy = 4;
+  required float thresh_depth= 5;
 }
 
 message ConstraintSetConfig {
