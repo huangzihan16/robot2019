@@ -30,6 +30,7 @@ add_message_files(
     ShootState.msg
     EnemyInfo.msg
     PartnerInformation.msg
+    BulletVacant.msg
 )
 
 add_message_files(
@@ -46,6 +47,7 @@ add_message_files(
     RobotShoot.msg
     RobotStatus.msg
     SupplierStatus.msg
+    
 )
 
 add_service_files(

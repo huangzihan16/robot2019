@@ -35,11 +35,7 @@
   </node>
 
   <!-- Run the initial pose node -->
-<<<<<<< HEAD
-  <!-- node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/ -->
-=======
   <!--node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/-->
->>>>>>> 85175d079a1d31e81e72a73014101b12df58e024
 
   <!-- Run the back camera node  rosrun roborts_camera roborts_camera_node-->
   <node pkg="roborts_camera" type="roborts_camera_node" name="roborts_camera_node" respawn="false" />
