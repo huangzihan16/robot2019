@@ -543,11 +543,16 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
       }
       for(int k=0;k<4;k++){
           for(int kk=0;kk<4;kk++){
+<<<<<<< HEAD
             if(yd+k<0||yd+k>479||xd+kk<0||xd+kk>639){
               continue;
             }
               float depth3z=cv_toolbox_->depthImg.at<ushort>(yd+k,xd+kk);
               float depth3y=(yd+k-cy_)*depth3z/fy_;
+=======
+              float depth3z=cv_toolbox_->depthImg.at<ushort>(max(yd-k,0),min(xd+kk,640));
+              float depth3y=(yd+k-240)*depth3z/615;
+>>>>>>> 85175d079a1d31e81e72a73014101b12df58e024
               if(depth3y!=0){
                 if(depth3y<thresh_depth_){
                   is_armor[i] = false;

@@ -9,9 +9,6 @@ message Point {
     optional float roll  = 4;
     optional float pitch = 5;
     optional float yaw   = 6;
-    
-    optional float yaw_angle_min = 7;
-    optional float yaw_angle_max = 8;
 }
 
 message EscapeConstraint {
@@ -40,24 +37,25 @@ message MultiRobot {
 }
 
 message DecisionConfig {
-    repeated Point point = 1;
-    optional bool simulate = 2 [default = false];
-    optional bool master = 3 [default = false];
-    optional EscapeConstraint escape = 4;
-    repeated Point buff_point = 5;
-    optional SearchConstraint search_limit = 6;
-    optional WhirlVel whirl_vel = 7;
-    optional MultiRobot wing_bot = 8;
-    optional MultiRobot master_bot = 9;
-    optional Point wing_bot_task_point = 10;
-    repeated Point search_region_1 = 11;
-    repeated Point search_region_2 = 12;
-    repeated Point search_region_3 = 13;
-    repeated Point search_region_4 = 14;
-    optional float offset_x = 15;
-    optional float half_robot_length = 16;
-    optional int32 initial_bullet_num = 17;
-    optional string self_name = 18;
-    optional string partner_name = 19;
+    repeated Point master_point = 1;
+    repeated Point slave_point = 2;
+    optional bool simulate = 3 [default = false];
+    optional bool master = 4 [default = false];
+    optional EscapeConstraint escape = 5;
+    repeated Point buff_point = 6;
+    optional SearchConstraint search_limit = 7;
+    optional WhirlVel whirl_vel = 8;
+    optional MultiRobot wing_bot = 9;
+    optional MultiRobot master_bot = 10;
+    optional Point wing_bot_task_point = 11;
+    repeated Point search_region_1 = 12;
+    repeated Point search_region_2 = 13;
+    repeated Point search_region_3 = 14;
+    repeated Point search_region_4 = 15;
+    optional float offset_x = 16;
+    optional float half_robot_length = 17;
+    optional int32 initial_bullet_num = 18;
+    optional string self_name = 19;
+    optional string partner_name = 20;
 }
 

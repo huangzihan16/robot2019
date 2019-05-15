@@ -541,10 +541,7 @@ namespace roborts_decision {
     chassis_output_ = robot_status->chassis_output;
     shooter_output_ = robot_status->shooter_output;
   }
-  void Blackboard::PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status) {
-    partner_remain_hp_ = partner_robot_status->remain_hp;
-    last_rec_partner_hp_time_ = ros::Time::now();
-  }
+  
   void Blackboard::RobotHeatCallback(const roborts_msgs::RobotHeat::ConstPtr& robot_heat) {
     chassis_volt_ = robot_heat->chassis_volt;
     chassis_current_ = robot_heat->chassis_current;
@@ -584,14 +581,14 @@ namespace roborts_decision {
 		UpdateRobotPose();
 		double delta_x = robot_map_pose_.pose.position.x - 6.3;
 		double delta_y = robot_map_pose_.pose.position.y - 1.75;
-		if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
-      return true;
-    else 
-      return false;
-		// if (delta_x * delta_x + delta_y * delta_y < 0.01) 
-		// 	return true;
-		// else 
-		// 	return false;
+		// if (red_bonus_status_ == roborts_decision::BonusStatus::BEING_OCCUPIED)
+    //   return true;
+    // else 
+    //   return false;
+		if (GetChassisYaw() < 0.3) //GetChassisYaw() < 0.1delta_x * delta_x + delta_y * delta_y < 0.1
+			return true;
+		else 
+			return false;
 	}
 
   geometry_msgs::PoseStamped Blackboard::GetSupplyGoal() {
@@ -615,7 +612,7 @@ namespace roborts_decision {
     fix_goal.pose.position.x = 6.3;
     fix_goal.pose.position.y = 1.75;
     fix_goal.pose.position.z = 0.0;
-    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(90.0/180*3.14);
+    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(225.0/180*3.14);
 
     return fix_goal;
   }
@@ -713,9 +710,17 @@ namespace roborts_decision {
         test_support_publisher_.publish(partner_enemy_pose_);
     }
 		partner_pose_ = partner_info->partner_pose;
-		partner_patrol_count_ = partner_info->patrol_count;
+		partner_patrol_count_ = (unsigned int)partner_info->patrol_count;
     partner_bullet_num_ = partner_info->bullet_num;
+
+    last_get_partner_information_time_ = ros::Time::now();
+    have_connected_ = true;
 	}
+
+  void Blackboard::PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status) {
+    partner_remain_hp_ = partner_robot_status->remain_hp;
+    last_rec_partner_hp_time_ = ros::Time::now();
+  }
 
   void Blackboard::PublishPartnerInformation() {
     partner_msg_pub_.enemy_detected = enemy_detected_;
@@ -771,6 +776,39 @@ namespace roborts_decision {
     else
       return false;
   }
+
+  void Blackboard::CheckCommunication() {
+    ros::Duration duration_to_last_get_communication_ = ros::Time::now() - last_get_partner_information_time_;
+    if (duration_to_last_get_communication_.toSec() > 2.0)
+      is_good_communication_ = false;
+    else
+      is_good_communication_ = true;    
+  }
+
+  bool Blackboard::IsPartnerAvailable() {
+    CheckCommunication();
+    bool partner_survive = false;
+    if (id_ == 3)
+      partner_survive = red4_;
+    else if (id_ == 4)
+      partner_survive = red3_;
+    else if (id_ == 13)
+      partner_survive = blue4_;
+    else if (id_ == 14)
+      partner_survive = blue3_;
+
+    if (!partner_survive || !is_good_communication_) {
+      if (!is_good_communication_)
+        ResetPartnerInformation();
+      return false;
+    } else
+      return true;
+  }
+
+  void Blackboard::ResetPartnerInformation() {
+    partner_detect_enemy_ = false;
+    partner_enemy_info_.clear(); //友方检测到的敌人位置
+	}
 
   /*******************Math Tools*******************/
   double Blackboard::GetDistance(const geometry_msgs::PoseStamped &pose1,
