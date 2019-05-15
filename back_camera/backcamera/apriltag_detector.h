@@ -38,6 +38,7 @@ class AprilTagDetector{
   int tag_id;
   int tag_detect_amount_;
   unsigned int enemy_color_;
+  bool is_pose_publish_;
  
  private:
  // void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);

@@ -29,7 +29,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     detected_enemy_(false),
     tag_start_(false),
     undetected_count_(0),
-    tag_id_(-1),
+    tag_id_(-1),  
     as_(nh_, "backcamera_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false) {
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
