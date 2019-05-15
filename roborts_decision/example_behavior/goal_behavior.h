@@ -204,6 +204,61 @@ public:
   Blackboard* const blackboard_;
 };
 
+class GuardGoalBehavior {
+ public:
+  GuardGoalBehavior(ChassisExecutor* &chassis_executor, Blackboard* &blackboard) :
+      chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
+
+  void Run() {
+    blackboard_->SuggestGimbalPatrol();
+    chassis_executor_->SetMode(ChassisExecutor::ExcutionMode::GOAL_MODE);
+    if(!have_execute_){
+      geometry_msgs::PoseStamped fix_goal;
+      ros::Time current_time = ros::Time::now();
+      fix_goal.header.stamp = current_time;
+      if (blackboard_->IsMasterCondition()){
+        fix_goal.pose.position.x = 7.5;
+        fix_goal.pose.position.y = 2.5;
+        fix_goal.pose.position.z = 0.0;
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(270.0/180*3.14);
+      } else {
+        fix_goal.pose.position.x = 1;
+        fix_goal.pose.position.y = 4.5;
+        fix_goal.pose.position.z = 0.0;
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(0.0/180*3.14);
+      }
+      chassis_executor_->Execute(fix_goal);
+			have_execute_ = true;
+    }
+    // ROS_INFO("have_execute_:%d",(int)have_execute_);
+  }
+
+  void Cancel() {
+		have_execute_ = false;
+    chassis_executor_->Cancel();
+  }
+
+  BehaviorState Update() {
+		BehaviorState state = chassis_executor_->Update();
+		if (state != BehaviorState::RUNNING)
+			have_execute_ = false;
+    return state;
+  }
+
+  ~GuardGoalBehavior() = default;
+
+public:
+		bool have_execute_;
+ private:
+  //! executor
+  ChassisExecutor* const chassis_executor_;
+
+  //! perception information
+  Blackboard* const blackboard_;
+};
+
+
+
 }
 
 
