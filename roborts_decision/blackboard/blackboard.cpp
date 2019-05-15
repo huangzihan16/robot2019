@@ -710,10 +710,11 @@ namespace roborts_decision {
         test_support_publisher_.publish(partner_enemy_pose_);
     }
 		partner_pose_ = partner_info->partner_pose;
-		partner_patrol_count_ = partner_info->patrol_count;
+		partner_patrol_count_ = (unsigned int)partner_info->patrol_count;
     partner_bullet_num_ = partner_info->bullet_num;
 
     last_get_partner_information_time_ = ros::Time::now();
+    have_connected_ = true;
 	}
 
   void Blackboard::PartnerRobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& partner_robot_status) {
@@ -800,8 +801,7 @@ namespace roborts_decision {
       if (!is_good_communication_)
         ResetPartnerInformation();
       return false;
-    }
-    else
+    } else
       return true;
   }
 

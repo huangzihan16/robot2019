@@ -184,7 +184,8 @@ public:
 			supply_number_(0),
       identity_number_(1),
  			gain_buff_number_(0),
-      is_good_communication_(true) {
+      is_good_communication_(true),
+      have_connected_(false) {
 
     start_time_ = ros::Time::now();
 
@@ -449,6 +450,7 @@ public:
   bool IsMasterGainBuffCondition();
   
   bool IsGoodCommunication() {
+    CheckCommunication();
     return is_good_communication_;
   }
   void CheckCommunication();
@@ -553,7 +555,7 @@ public:
   geometry_msgs::PoseStamped partner_enemy_pose_;
 	std::vector<roborts_msgs::EnemyInfo> partner_enemy_info_; //友方检测到的敌人位置
 	geometry_msgs::PoseStamped partner_pose_;       //友方的位姿
-	int partner_patrol_count_;                      //友方巡逻位置相关
+	unsigned int partner_patrol_count_;                      //友方巡逻位置相关
   int partner_bullet_num_;              //队友弹量
   unsigned int partner_remain_hp_;               //队友血量
   ros::Time last_rec_partner_hp_time_;
@@ -562,6 +564,7 @@ public:
   
   ros::Time last_get_partner_information_time_;
   bool is_good_communication_;
+  bool have_connected_;
 
   /****************补弹tag id******************/
   int tag_id_;

@@ -45,6 +45,37 @@ class PatrolAction : public ActionNode {
     // //  std::cout << "PatrolAction OnInitialize" << std::endl;
 		// patrol_behavior_.have_time_ = true;
 		// patrol_behavior_.start_time_ = ros::Time::now();
+    unsigned int close_patrol_count = 0;
+    double min_distance_square = 100.0;
+    if (blackboard_ptr_->self_identity_ == Identity::MASTER || !blackboard_ptr_->IsPartnerAvailable() || !blackboard_ptr_->have_connected_) {
+      geometry_msgs::PoseStamped self_pose = blackboard_ptr_->GetRobotMapPose();
+      double x_self = self_pose.pose.position.x, y_self = self_pose.pose.position.y;
+
+      for (int i = 0; i < patrol_behavior_.master_point_size_; i++) {
+        double x_patrol = patrol_behavior_.master_patrol_goals_[i].pose.position.x, 
+          y_patrol = patrol_behavior_.master_patrol_goals_[i].pose.position.y;
+        double dx = x_self - x_patrol, dy = y_self - y_patrol;
+        double distance_square = dx * dx + dy * dy;
+        if (distance_square < min_distance_square) {
+          close_patrol_count = i;
+          min_distance_square = distance_square;
+        }
+      }
+    } else {
+      double x_master = blackboard_ptr_->partner_pose_.pose.position.x, y_master = blackboard_ptr_->partner_pose_.pose.position.y;
+
+      for (int i = 0; i < patrol_behavior_.slave_point_size_; i++) {
+        double x_patrol = patrol_behavior_.slave_patrol_goals_[i].pose.position.x,
+          y_patrol = patrol_behavior_.slave_patrol_goals_[i].pose.position.y;
+        double dx = x_master - x_patrol, dy = y_master - y_patrol;
+        double distance_square = dx * dx + dy * dy;
+        if (distance_square < min_distance_square) {
+          close_patrol_count = i;
+          min_distance_square = distance_square;
+        }
+      }
+    }
+    patrol_behavior_.patrol_count_ = close_patrol_count;
   };
 
   virtual BehaviorState Update() {
