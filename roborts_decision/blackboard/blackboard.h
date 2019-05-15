@@ -504,6 +504,7 @@ public:
 		return partner_detect_enemy_;
 	}
   bool IsBulletLeft() const;
+  bool NotGetDamageIn3Sec();
 
 private:
   /*******************Update Chassis Pose and Gimbal Pose*******************/

@@ -37,6 +37,8 @@ class AprilTagDetector{
   tf::TransformListener listener;
   int tag_id;
   int tag_detect_amount_;
+  unsigned int enemy_color_;
+  bool is_pose_publish_;
  
  private:
  // void imageCb(const sensor_msgs::ImageConstPtr& msg,const sensor_msgs::CameraInfoConstPtr& cam_info);
@@ -59,7 +61,7 @@ class AprilTagDetector{
   public:
   double delta_x ; 
   double delta_y ; 
-  double delta_theta;
+  double delta_theta ;
 
 };
 

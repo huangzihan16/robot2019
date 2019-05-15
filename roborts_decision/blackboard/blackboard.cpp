@@ -983,10 +983,19 @@ namespace roborts_decision {
 
   bool Blackboard::IsBulletLeft() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
-    if (bullet_num_ > 5){
+    if (bullet_num_ > 0){
       return true;
     } else{
       return false;
     }
   }
+
+  bool Blackboard::NotGetDamageIn3Sec(){
+    if (ros::Time::now() - last_armor_attacked_time_ > ros::Duration(3)){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }
