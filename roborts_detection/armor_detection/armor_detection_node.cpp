@@ -236,6 +236,7 @@ void ArmorDetectionNode::ExecuteLoop() {
       }
 
       if(detected_enemy_) {
+        ROS_INFO("detect");
         start_patrol_=false;
         float pitch, yaw, speed, delta_yaw, all_yaw;
         float speed_estimate;
@@ -275,7 +276,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         } else {
           speed_estimate = 0;
         }
-        gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate;
+        gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate; 
         PublishMsgs();
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
@@ -295,7 +296,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         gimbal_angle_.pitch_angle = 0;
 
         undetected_count_--;
-        PublishMsgs();
+        // PublishMsgs();
         enemy_disappear_time = ros::Time::now();
       } else {
         last_enemy_time = ros::Time::now();

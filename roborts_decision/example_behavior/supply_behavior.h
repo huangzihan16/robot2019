@@ -17,9 +17,6 @@ public:
 			if(blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE) 
 				blackboard_->SendSupplyCmd();//send command
 		}
-		// if (have_applicated_ == true && status_ == 0)
-		// 	blackboard_->SendSupplyCmd();//send command
-		// std::cout << "Supplying..." << std::endl;
   }
 
   void Cancel() {
@@ -36,7 +33,7 @@ public:
 		}
 
 		ros::Duration time_past = ros::Time::now() - application_time_;
-		if (time_past.toSec() >= 5) {
+		if (time_past.toSec() >= 5 || (status_ == 2 && blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE)) {
 			blackboard_->AddSupplyNum();
 			status_ = 0;
 			have_applicated_ = false;

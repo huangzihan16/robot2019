@@ -107,11 +107,12 @@ void protobuf_AssignDesc_constraint_5fset_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SignalRecognization));
   CameraMatrix_descriptor_ = file->message_type(3);
-  static const int CameraMatrix_offsets_[4] = {
+  static const int CameraMatrix_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, fx_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, cx_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, fy_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, cy_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CameraMatrix, thresh_depth_),
   };
   CameraMatrix_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -206,18 +207,19 @@ void protobuf_AddDesc_constraint_5fset_2eproto() {
     "ze\022\r\n\005width\030\001 \002(\002\022\016\n\006height\030\002 \002(\002\"U\n\023Sig"
     "nalRecognization\022\024\n\014max_wait_fps\030\001 \002(\r\022\027"
     "\n\017min_pulse_angle\030\002 \002(\002\022\017\n\007min_num\030\003 \002(\r"
-    "\">\n\014CameraMatrix\022\n\n\002fx\030\001 \002(\002\022\n\n\002cx\030\002 \002(\002"
-    "\022\n\n\002fy\030\003 \002(\002\022\n\n\002cy\030\004 \002(\002\"\350\002\n\023ConstraintS"
-    "etConfig\022\024\n\014enable_debug\030\001 \002(\010\022\023\n\013enable"
-    "_neon\030\002 \002(\010\022\021\n\tusing_hsv\030\003 \002(\010\022/\n\tthresh"
-    "old\030\004 \002(\0132\034.roborts_detection.Threshold\022"
-    "0\n\narmor_size\030\005 \002(\0132\034.roborts_detection."
-    "ArmorSize\0222\n\013enemy_color\030\006 \002(\0162\035.roborts"
-    "_detection.EnemyColor\022D\n\024signal_recogniz"
-    "ation\030\007 \002(\0132&.roborts_detection.SignalRe"
-    "cognization\0226\n\rcamera_matrix\030\010 \002(\0132\037.rob"
-    "orts_detection.CameraMatrix*\037\n\nEnemyColo"
-    "r\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001", 980);
+    "\"T\n\014CameraMatrix\022\n\n\002fx\030\001 \002(\002\022\n\n\002cx\030\002 \002(\002"
+    "\022\n\n\002fy\030\003 \002(\002\022\n\n\002cy\030\004 \002(\002\022\024\n\014thresh_depth"
+    "\030\005 \002(\002\"\350\002\n\023ConstraintSetConfig\022\024\n\014enable"
+    "_debug\030\001 \002(\010\022\023\n\013enable_neon\030\002 \002(\010\022\021\n\tusi"
+    "ng_hsv\030\003 \002(\010\022/\n\tthreshold\030\004 \002(\0132\034.robort"
+    "s_detection.Threshold\0220\n\narmor_size\030\005 \002("
+    "\0132\034.roborts_detection.ArmorSize\0222\n\013enemy"
+    "_color\030\006 \002(\0162\035.roborts_detection.EnemyCo"
+    "lor\022D\n\024signal_recognization\030\007 \002(\0132&.robo"
+    "rts_detection.SignalRecognization\0226\n\rcam"
+    "era_matrix\030\010 \002(\0132\037.roborts_detection.Cam"
+    "eraMatrix*\037\n\nEnemyColor\022\010\n\004BLUE\020\000\022\007\n\003RED"
+    "\020\001", 1002);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "constraint_set.proto", &protobuf_RegisterTypes);
   Threshold::default_instance_ = new Threshold();
@@ -1519,6 +1521,7 @@ const int CameraMatrix::kFxFieldNumber;
 const int CameraMatrix::kCxFieldNumber;
 const int CameraMatrix::kFyFieldNumber;
 const int CameraMatrix::kCyFieldNumber;
+const int CameraMatrix::kThreshDepthFieldNumber;
 #endif  // !_MSC_VER
 
 CameraMatrix::CameraMatrix()
@@ -1543,6 +1546,7 @@ void CameraMatrix::SharedCtor() {
   cx_ = 0;
   fy_ = 0;
   cy_ = 0;
+  thresh_depth_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1588,7 +1592,9 @@ void CameraMatrix::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  ZR_(fx_, cy_);
+  if (_has_bits_[0 / 32] & 31) {
+    ZR_(fx_, thresh_depth_);
+  }
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -1662,6 +1668,21 @@ bool CameraMatrix::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(45)) goto parse_thresh_depth;
+        break;
+      }
+
+      // required float thresh_depth = 5;
+      case 5: {
+        if (tag == 45) {
+         parse_thresh_depth:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &thresh_depth_)));
+          set_has_thresh_depth();
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1711,6 +1732,11 @@ void CameraMatrix::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->cy(), output);
   }
 
+  // required float thresh_depth = 5;
+  if (has_thresh_depth()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(5, this->thresh_depth(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1739,6 +1765,11 @@ void CameraMatrix::SerializeWithCachedSizes(
   // required float cy = 4;
   if (has_cy()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->cy(), target);
+  }
+
+  // required float thresh_depth = 5;
+  if (has_thresh_depth()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(5, this->thresh_depth(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1770,6 +1801,11 @@ int CameraMatrix::ByteSize() const {
 
     // required float cy = 4;
     if (has_cy()) {
+      total_size += 1 + 4;
+    }
+
+    // required float thresh_depth = 5;
+    if (has_thresh_depth()) {
       total_size += 1 + 4;
     }
 
@@ -1812,6 +1848,9 @@ void CameraMatrix::MergeFrom(const CameraMatrix& from) {
     if (from.has_cy()) {
       set_cy(from.cy());
     }
+    if (from.has_thresh_depth()) {
+      set_thresh_depth(from.thresh_depth());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1829,7 +1868,7 @@ void CameraMatrix::CopyFrom(const CameraMatrix& from) {
 }
 
 bool CameraMatrix::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
+  if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
 
   return true;
 }
@@ -1840,6 +1879,7 @@ void CameraMatrix::Swap(CameraMatrix* other) {
     std::swap(cx_, other->cx_);
     std::swap(fy_, other->fy_);
     std::swap(cy_, other->cy_);
+    std::swap(thresh_depth_, other->thresh_depth_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

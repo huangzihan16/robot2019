@@ -42,21 +42,23 @@ int main(int argc, char **argv) {
   roborts_decision::SupportBehavior       support_behavior_(chassis_executor, gimbal_executor, blackboard);
   roborts_decision::ShootBehavior         shoot_behavior_(shoot_executor, chassis_executor, blackboard, full_path);
   roborts_decision::SupplyGoalBehavior    supply_goal_behavior_(chassis_executor, blackboard);
+  roborts_decision::SupplyGoalOutBehavior supply_goalout_behavior_(chassis_executor, blackboard);
+  roborts_decision::GuardGoalBehavior     guard_goal_behavior_(chassis_executor, blackboard);
   roborts_decision::SupplyBehavior        supply_application_behavior_(blackboard);
 	roborts_decision::GainBuffGoalBehavior  gain_buff_goal_behavior_(chassis_executor, blackboard);
 	// roborts_decision::RoundBehavior         gain_buff_round_behavior_(chassis_executor, blackboard, 2);
   roborts_decision::RoundBehavior         guard_behavior_(chassis_executor, blackboard, 3);
 
 /***************************************************************/
-  roborts_decision::ChaseBehavior         chase_behavior_(chassis_executor, blackboard, full_path);
+  roborts_decision::ChaseBehavior          chase_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::BuffChaseBehavior      buff_chase_behavior_(chassis_executor, blackboard);
   roborts_decision::EscapeBehavior         escape_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::SearchBehavior         search_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
-  roborts_decision::GainBuffBehavior         gain_buff_behavior_(chassis_executor, blackboard);
+  roborts_decision::GainBuffBehavior       gain_buff_behavior_(chassis_executor, blackboard);
   
-  roborts_decision::BackBootAreaBehavior         back_boot_area_behavior_(chassis_executor, blackboard, full_path);
-  roborts_decision::TurnToHurtBehavior         turn_to_hurt_behavior_(chassis_executor, blackboard);
-  roborts_decision::TurnBackBehavior         turn_back_behavior_(chassis_executor, blackboard);
+  roborts_decision::BackBootAreaBehavior   back_boot_area_behavior_(chassis_executor, blackboard, full_path);
+  roborts_decision::TurnToHurtBehavior     turn_to_hurt_behavior_(chassis_executor, blackboard);
+  roborts_decision::TurnBackBehavior       turn_back_behavior_(chassis_executor, blackboard);
 
   roborts_decision::GetOutFromStuckBehavior get_out_from_stuck_behavior_(chassis_executor, blackboard); 
 /***************************************************************/
@@ -65,6 +67,8 @@ int main(int argc, char **argv) {
   auto support_action_ = std::make_shared<roborts_decision::SupportAction>(blackboard_ptr_, support_behavior_);
   auto shoot_action_ = std::make_shared<roborts_decision::ShootAction>(blackboard_ptr_, shoot_behavior_);
 	auto supply_goal_action_ = std::make_shared<roborts_decision::SupplyGoalAction>(blackboard_ptr_, supply_goal_behavior_);
+	auto guard_goal_action_ = std::make_shared<roborts_decision::GuardGoalAction>(blackboard_ptr_, guard_goal_behavior_);
+	auto supply_goalout_action_ = std::make_shared<roborts_decision::SupplyGoalOutAction>(blackboard_ptr_, supply_goalout_behavior_);
   auto supply_application_action_ = std::make_shared<roborts_decision::SupplyApplicateNode>(blackboard_ptr_, supply_application_behavior_);
   auto gain_buff_goal_action_ = std::make_shared<roborts_decision::GainBuffGoalAction>(blackboard_ptr_, gain_buff_goal_behavior_);
   auto gain_buff_action_ = std::make_shared<roborts_decision::GainBuffAction>(blackboard_ptr_, gain_buff_behavior_);
@@ -94,8 +98,8 @@ int main(int argc, char **argv) {
 																																																	return false;
 																																																}
 																																															}, roborts_decision::AbortType::BOTH));
-  root_node->AddChildren(patrol_action_);
-  // root_node->AddChildren(stuck_in_obstacle_condition_);
+  root_node->AddChildren(stuck_in_obstacle_condition_);
+
   stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
   //game stop
   std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
@@ -150,6 +154,7 @@ int main(int argc, char **argv) {
   bullet_supply_condition_->SetChild(supply_sequence); 
   supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
+  supply_sequence->AddChildren(supply_goalout_action_);
 
   no_bullet_left_selector->AddChildren(guard_action_);
 
@@ -368,14 +373,33 @@ int main(int argc, char **argv) {
 																																																	return false;
 																																																}
 																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+
+  std::shared_ptr<roborts_decision::SelectorNode> escape_selector(new roborts_decision::SelectorNode("escape_selector", blackboard_ptr_)); 
+  std::shared_ptr<roborts_decision::PreconditionNode> escape_guard_goal_condition_(new roborts_decision::PreconditionNode("escape_guard_goal_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->NotGetDamageIn3Sec()){
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  escape_selector->AddChildren(escape_guard_goal_condition_);
+  escape_selector->AddChildren(guard_action_);
+  escape_guard_goal_condition_->SetChild(guard_goal_action_);
+
+
   enemy_obtain_buff_selector->AddChildren(emy_buff_condition_);
   enemy_obtain_buff_selector->AddChildren(emy_buff_dmp_condition_);
   enemy_obtain_buff_selector->AddChildren(inferior_detect_enemy_condition_);
   enemy_obtain_buff_selector->AddChildren(inferior_detected_condition_);
   enemy_obtain_buff_selector->AddChildren(emy_buff_attack_condition_);
   enemy_obtain_buff_selector->AddChildren(master_inferior_receive_condition_);
-  // enemy_obtain_buff_selector->AddChildren(guard_action_);
-  enemy_obtain_buff_selector->AddChildren(patrol_action_);
+  enemy_obtain_buff_selector->AddChildren(escape_selector);
+
+  escape_selector->AddChildren(escape_guard_goal_condition_);
+  escape_selector->AddChildren(guard_action_);
+  escape_guard_goal_condition_->SetChild(guard_goal_action_);
+
   emy_buff_condition_->SetChild(guard_action_);
   emy_buff_dmp_condition_->SetChild(escape_action_);
   inferior_detect_enemy_condition_->SetChild(chase_action_);
