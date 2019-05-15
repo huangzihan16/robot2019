@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
   roborts_decision::SupportBehavior       support_behavior_(chassis_executor, gimbal_executor, blackboard);
   roborts_decision::ShootBehavior         shoot_behavior_(shoot_executor, chassis_executor, blackboard, full_path);
   roborts_decision::SupplyGoalBehavior    supply_goal_behavior_(chassis_executor, blackboard);
+  roborts_decision::SupplyGoalOutBehavior    supply_goalout_behavior_(chassis_executor, blackboard);
   roborts_decision::SupplyBehavior        supply_application_behavior_(blackboard);
 	roborts_decision::GainBuffGoalBehavior  gain_buff_goal_behavior_(chassis_executor, blackboard);
 	// roborts_decision::RoundBehavior         gain_buff_round_behavior_(chassis_executor, blackboard, 2);
@@ -65,6 +66,7 @@ int main(int argc, char **argv) {
   auto support_action_ = std::make_shared<roborts_decision::SupportAction>(blackboard_ptr_, support_behavior_);
   auto shoot_action_ = std::make_shared<roborts_decision::ShootAction>(blackboard_ptr_, shoot_behavior_);
 	auto supply_goal_action_ = std::make_shared<roborts_decision::SupplyGoalAction>(blackboard_ptr_, supply_goal_behavior_);
+	auto supply_goalout_action_ = std::make_shared<roborts_decision::SupplyGoalOutAction>(blackboard_ptr_, supply_goalout_behavior_);
   auto supply_application_action_ = std::make_shared<roborts_decision::SupplyApplicateNode>(blackboard_ptr_, supply_application_behavior_);
   auto gain_buff_goal_action_ = std::make_shared<roborts_decision::GainBuffGoalAction>(blackboard_ptr_, gain_buff_goal_behavior_);
   auto gain_buff_action_ = std::make_shared<roborts_decision::GainBuffAction>(blackboard_ptr_, gain_buff_behavior_);
@@ -95,6 +97,7 @@ int main(int argc, char **argv) {
 																																																}
 																																															}, roborts_decision::AbortType::BOTH));
   root_node->AddChildren(stuck_in_obstacle_condition_);
+
   stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
   //game stop
   std::shared_ptr<roborts_decision::PreconditionNode> game_stop_condition_(new roborts_decision::PreconditionNode("game_stop_condition",blackboard_ptr_,
@@ -149,6 +152,7 @@ int main(int argc, char **argv) {
   bullet_supply_condition_->SetChild(supply_sequence); 
   supply_sequence->AddChildren(supply_goal_action_);
 	supply_sequence->AddChildren(supply_application_action_);
+  supply_sequence->AddChildren(supply_goalout_action_);
 
   no_bullet_left_selector->AddChildren(guard_action_);
 
@@ -381,6 +385,10 @@ int main(int argc, char **argv) {
   inferior_detected_condition_->SetChild(turn_back_action_);
   emy_buff_attack_condition_->SetChild(turn_to_hurt_action_);
   master_inferior_receive_condition_->SetChild(support_action_); 
+
+
+
+
 
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 

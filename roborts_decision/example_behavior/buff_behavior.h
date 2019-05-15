@@ -23,15 +23,6 @@ class GainBuffBehavior {
     BehaviorState executor_state = Update();
     if (executor_state != BehaviorState::RUNNING && blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED)
       chassis_executor_->Execute(GetAddGuardGoal());
-    // if (blackboard_->GetBonusStatus() == BonusStatus::BEING_OCCUPIED){
-    //       // chassis_executor_->Cancel();
-    //   geometry_msgs::PoseStamped fix_goal = blackboard_->GetRobotMapPose();
-    //   ros::Time current_time = ros::Time::now();
-    //   fix_goal.header.stamp = current_time;
-    //   fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(225.0/180*3.14);
-
-    //   chassis_executor_->Execute(fix_goal);
-    // }
  }
 
   void Cancel() {
@@ -41,7 +32,6 @@ class GainBuffBehavior {
 
   BehaviorState Update() {
 		if (blackboard_->GetBonusStatus() == BonusStatus::BEING_OCCUPIED) {
-			// chassis_executor_->Cancel();
 			have_execute_ = false;
 			return BehaviorState::SUCCESS;
 		} else {
@@ -53,7 +43,7 @@ class GainBuffBehavior {
   ~GainBuffBehavior() = default;
   geometry_msgs::PoseStamped GetAddGuardGoal() {
     buff_time_duration_ = ros::Time::now() - buff_start_time_;
-    if (/*buff_time_duration_.toSec() / buff_count_ > 1*/ blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED){
+    if (blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED){
       buff_count_ += 1;
       i += 1;
     }

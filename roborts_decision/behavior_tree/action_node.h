@@ -414,6 +414,50 @@ class SupplyGoalAction : public ActionNode {
   SupplyGoalBehavior supply_goal_behavior_;
 };
 
+class SupplyGoalOutAction : public ActionNode {
+ public:
+  SupplyGoalOutAction(const Blackboard::Ptr &blackboard_ptr, SupplyGoalOutBehavior &supply_goalout_behavior) :
+      ActionNode::ActionNode("supply_goalout_behavior", blackboard_ptr), supply_goalout_behavior_(supply_goalout_behavior){
+
+  }
+
+  virtual ~SupplyGoalOutAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    //  std::cout << "SupplyGoalOutAction OnInitialize" << std::endl;
+		supply_goalout_behavior_.have_execute_ = false;
+  };
+
+  virtual BehaviorState Update() {
+    supply_goalout_behavior_.Run();
+    ROS_INFO(" supply_goalout_behavior_ supply_goalout_behavior_ !");
+    return supply_goalout_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				supply_goalout_behavior_.Cancel();
+        //  std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        //  std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        //  std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        //  std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  SupplyGoalOutBehavior supply_goalout_behavior_;
+};
+
+
 class GainBuffGoalAction : public ActionNode {
  public:
   GainBuffGoalAction(const Blackboard::Ptr &blackboard_ptr, GainBuffGoalBehavior &buff_goal_behavior) :
