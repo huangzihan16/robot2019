@@ -28,6 +28,7 @@ namespace roborts_decision {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.patrol_count = patrol_count_;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
@@ -115,6 +116,7 @@ class PatrolBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.patrol_count = patrol_count_;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     auto executor_state = Update();
@@ -122,22 +124,50 @@ class PatrolBehavior {
     std::cout << "state: " << (int)(executor_state) << std::endl;
 
     if (executor_state != BehaviorState::RUNNING) {
-
-      if (blackboard_->self_identity_ == Identity::MASTER) {
+      bool need_execute = true;
+      if (blackboard_->self_identity_ == Identity::MASTER || !blackboard_->IsPartnerAvailable() || !blackboard_->have_connected_) {
         if (master_patrol_goals_.empty()) {
           ROS_ERROR("master patrol goal is empty");
           return;
         }
-        if (patrol_count_ <= blackboard_->partner_patrol_count_) {
+        
+        if (!blackboard_->IsPartnerAvailable())
+          need_execute = true;
+        else {
+          if (patrol_count_ < master_point_size_ - 1) {
+            if (patrol_count_ <=  blackboard_->partner_patrol_count_)
+              need_execute = true;
+            else
+              need_execute = false;            
+          } else if (patrol_count_ == master_point_size_ - 1) {
+            if (blackboard_->partner_patrol_count_ == slave_point_size_ - 1 || blackboard_->partner_patrol_count_ == 0)
+              need_execute = true;
+            else
+              need_execute = false;
+          }
+        }
+        if (need_execute) {
           chassis_executor_->Execute(master_patrol_goals_[patrol_count_]);
           patrol_count_ = ++patrol_count_ % master_point_size_;
         }
-      } else if (blackboard_->self_identity_ == Identity::SLAVE) {
+      } else {
         if (slave_patrol_goals_.empty()) {
           ROS_ERROR("slave patrol goal is empty");
           return;
         }
-        if (patrol_count_ <= blackboard_->partner_patrol_count_) {
+
+        if (patrol_count_ < slave_point_size_ - 1) {
+          if (patrol_count_ <= blackboard_->partner_patrol_count_)
+            need_execute = true;
+          else
+            need_execute = false;          
+        } else if (patrol_count_ == slave_point_size_ - 1) {
+          if (blackboard_->partner_patrol_count_ == master_point_size_ - 1 || blackboard_->partner_patrol_count_ == 0)
+            need_execute = true;
+          else
+            need_execute = false;
+        }
+        if (need_execute) {
           chassis_executor_->Execute(slave_patrol_goals_[patrol_count_]);
           patrol_count_ = ++patrol_count_ % slave_point_size_;
         }

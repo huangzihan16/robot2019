@@ -174,8 +174,8 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     std::cout << "error supply station，tag_id = " << detection.id << std::endl;   
     tf::StampedTransform transform;
     try{
-    listener.waitForTransform("/base_link", "/map", ros::Time(0), ros::Duration(3.0));
-    listener.lookupTransform("/base_link", "/map", ros::Time(0), transform);
+    listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(3.0));
+    listener.lookupTransform("map", "/base_link", ros::Time(0), transform);
     } catch (tf::TransformException &ex) { 
     ROS_ERROR("%s",ex.what()); 
     return; 
@@ -191,9 +191,9 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
               << "z = : " << amcl_yaw << std::endl;
   
     Eigen::Vector3d robot_pose;  //  x,y,yaw
-    robot_pose(0) = 8 - amcl_y;
-    robot_pose(1) = 5 + amcl_x;
-    robot_pose(2) = amcl_yaw + PI;
+    robot_pose(0) = 8 - amcl_x;
+    robot_pose(1) = 5 - amcl_y;
+    robot_pose(2) = amcl_yaw - PI;
     
 
 /*-----------------------计算pnp,并计算机器人位姿态 

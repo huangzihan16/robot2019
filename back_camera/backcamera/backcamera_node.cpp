@@ -29,6 +29,7 @@ ArmorDetectionNode::ArmorDetectionNode():
     detected_enemy_(false),
     tag_start_(false),
     undetected_count_(0),
+    tag_id_(-1),
     as_(nh_, "backcamera_node_action", boost::bind(&ArmorDetectionNode::ActionCB, this, _1), false) {
   initialized_ = false;
   enemy_nh_ = ros::NodeHandle();
@@ -193,7 +194,7 @@ void ArmorDetectionNode::tagDetection(){
 }
 
 void ArmorDetectionNode::PauseThread() {
-  ROS_INFO("Armor detection thread paused!");
+  ROS_INFO("Tag detection thread paused!");
  // node_state_ = NodeState::PAUSE;
   tag_detect_->image_sub_.shutdown();
   tag_start_ = false;

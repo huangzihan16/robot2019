@@ -49,15 +49,13 @@ void protobuf_AssignDesc_decision_2eproto() {
       "decision.proto");
   GOOGLE_CHECK(file != NULL);
   Point_descriptor_ = file->message_type(0);
-  static const int Point_offsets_[8] = {
+  static const int Point_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, x_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, y_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, z_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, roll_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, pitch_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, yaw_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, yaw_angle_min_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Point, yaw_angle_max_),
   };
   Point_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -140,8 +138,9 @@ void protobuf_AssignDesc_decision_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MultiRobot));
   DecisionConfig_descriptor_ = file->message_type(5);
-  static const int DecisionConfig_offsets_[19] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, point_),
+  static const int DecisionConfig_offsets_[20] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, master_point_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, slave_point_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, simulate_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, master_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, escape_),
@@ -222,40 +221,40 @@ void protobuf_AddDesc_decision_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\016decision.proto\022\020roborts_decision\"\200\001\n\005P"
-    "oint\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\014\n"
-    "\004roll\030\004 \001(\002\022\r\n\005pitch\030\005 \001(\002\022\013\n\003yaw\030\006 \001(\002\022"
-    "\025\n\ryaw_angle_min\030\007 \001(\002\022\025\n\ryaw_angle_max\030"
-    "\010 \001(\002\"\304\001\n\020EscapeConstraint\022\024\n\014left_x_lim"
-    "it\030\001 \001(\002\022\025\n\rright_x_limit\030\002 \001(\002\022\025\n\rrobot"
-    "_x_limit\030\003 \001(\002\022\031\n\021left_random_min_x\030\004 \001("
-    "\002\022\031\n\021left_random_max_x\030\005 \001(\002\022\032\n\022right_ra"
-    "ndom_min_x\030\006 \001(\002\022\032\n\022right_random_max_x\030\007"
-    " \001(\002\"4\n\020SearchConstraint\022\017\n\007x_limit\030\001 \001("
-    "\002\022\017\n\007y_limit\030\002 \001(\002\"I\n\010WhirlVel\022\023\n\013angle_"
-    "x_vel\030\001 \001(\002\022\023\n\013angle_y_vel\030\002 \001(\002\022\023\n\013angl"
-    "e_z_vel\030\003 \001(\002\"=\n\nMultiRobot\022/\n\016start_pos"
-    "ition\030\007 \001(\0132\027.roborts_decision.Point\"\204\006\n"
-    "\016DecisionConfig\022&\n\005point\030\001 \003(\0132\027.roborts"
-    "_decision.Point\022\027\n\010simulate\030\002 \001(\010:\005false"
-    "\022\025\n\006master\030\003 \001(\010:\005false\0222\n\006escape\030\004 \001(\0132"
-    "\".roborts_decision.EscapeConstraint\022+\n\nb"
-    "uff_point\030\005 \003(\0132\027.roborts_decision.Point"
-    "\0228\n\014search_limit\030\006 \001(\0132\".roborts_decisio"
-    "n.SearchConstraint\022-\n\twhirl_vel\030\007 \001(\0132\032."
-    "roborts_decision.WhirlVel\022.\n\010wing_bot\030\010 "
-    "\001(\0132\034.roborts_decision.MultiRobot\0220\n\nmas"
-    "ter_bot\030\t \001(\0132\034.roborts_decision.MultiRo"
-    "bot\0224\n\023wing_bot_task_point\030\n \001(\0132\027.robor"
-    "ts_decision.Point\0220\n\017search_region_1\030\013 \003"
-    "(\0132\027.roborts_decision.Point\0220\n\017search_re"
-    "gion_2\030\014 \003(\0132\027.roborts_decision.Point\0220\n"
-    "\017search_region_3\030\r \003(\0132\027.roborts_decisio"
-    "n.Point\0220\n\017search_region_4\030\016 \003(\0132\027.robor"
-    "ts_decision.Point\022\020\n\010offset_x\030\017 \001(\002\022\031\n\021h"
-    "alf_robot_length\030\020 \001(\002\022\032\n\022initial_bullet"
-    "_num\030\021 \001(\005\022\021\n\tself_name\030\022 \001(\t\022\024\n\014partner"
-    "_name\030\023 \001(\t", 1331);
+    "\n\016decision.proto\022\020roborts_decision\"R\n\005Po"
+    "int\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\014\n\004"
+    "roll\030\004 \001(\002\022\r\n\005pitch\030\005 \001(\002\022\013\n\003yaw\030\006 \001(\002\"\304"
+    "\001\n\020EscapeConstraint\022\024\n\014left_x_limit\030\001 \001("
+    "\002\022\025\n\rright_x_limit\030\002 \001(\002\022\025\n\rrobot_x_limi"
+    "t\030\003 \001(\002\022\031\n\021left_random_min_x\030\004 \001(\002\022\031\n\021le"
+    "ft_random_max_x\030\005 \001(\002\022\032\n\022right_random_mi"
+    "n_x\030\006 \001(\002\022\032\n\022right_random_max_x\030\007 \001(\002\"4\n"
+    "\020SearchConstraint\022\017\n\007x_limit\030\001 \001(\002\022\017\n\007y_"
+    "limit\030\002 \001(\002\"I\n\010WhirlVel\022\023\n\013angle_x_vel\030\001"
+    " \001(\002\022\023\n\013angle_y_vel\030\002 \001(\002\022\023\n\013angle_z_vel"
+    "\030\003 \001(\002\"=\n\nMultiRobot\022/\n\016start_position\030\007"
+    " \001(\0132\027.roborts_decision.Point\"\271\006\n\016Decisi"
+    "onConfig\022-\n\014master_point\030\001 \003(\0132\027.roborts"
+    "_decision.Point\022,\n\013slave_point\030\002 \003(\0132\027.r"
+    "oborts_decision.Point\022\027\n\010simulate\030\003 \001(\010:"
+    "\005false\022\025\n\006master\030\004 \001(\010:\005false\0222\n\006escape\030"
+    "\005 \001(\0132\".roborts_decision.EscapeConstrain"
+    "t\022+\n\nbuff_point\030\006 \003(\0132\027.roborts_decision"
+    ".Point\0228\n\014search_limit\030\007 \001(\0132\".roborts_d"
+    "ecision.SearchConstraint\022-\n\twhirl_vel\030\010 "
+    "\001(\0132\032.roborts_decision.WhirlVel\022.\n\010wing_"
+    "bot\030\t \001(\0132\034.roborts_decision.MultiRobot\022"
+    "0\n\nmaster_bot\030\n \001(\0132\034.roborts_decision.M"
+    "ultiRobot\0224\n\023wing_bot_task_point\030\013 \001(\0132\027"
+    ".roborts_decision.Point\0220\n\017search_region"
+    "_1\030\014 \003(\0132\027.roborts_decision.Point\0220\n\017sea"
+    "rch_region_2\030\r \003(\0132\027.roborts_decision.Po"
+    "int\0220\n\017search_region_3\030\016 \003(\0132\027.roborts_d"
+    "ecision.Point\0220\n\017search_region_4\030\017 \003(\0132\027"
+    ".roborts_decision.Point\022\020\n\010offset_x\030\020 \001("
+    "\002\022\031\n\021half_robot_length\030\021 \001(\002\022\032\n\022initial_"
+    "bullet_num\030\022 \001(\005\022\021\n\tself_name\030\023 \001(\t\022\024\n\014p"
+    "artner_name\030\024 \001(\t", 1337);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "decision.proto", &protobuf_RegisterTypes);
   Point::default_instance_ = new Point();
@@ -289,8 +288,6 @@ const int Point::kZFieldNumber;
 const int Point::kRollFieldNumber;
 const int Point::kPitchFieldNumber;
 const int Point::kYawFieldNumber;
-const int Point::kYawAngleMinFieldNumber;
-const int Point::kYawAngleMaxFieldNumber;
 #endif  // !_MSC_VER
 
 Point::Point()
@@ -317,8 +314,6 @@ void Point::SharedCtor() {
   roll_ = 0;
   pitch_ = 0;
   yaw_ = 0;
-  yaw_angle_min_ = 0;
-  yaw_angle_max_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -364,8 +359,8 @@ void Point::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 255) {
-    ZR_(x_, yaw_angle_max_);
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(x_, yaw_);
   }
 
 #undef OFFSET_OF_FIELD_
@@ -470,36 +465,6 @@ bool Point::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(61)) goto parse_yaw_angle_min;
-        break;
-      }
-
-      // optional float yaw_angle_min = 7;
-      case 7: {
-        if (tag == 61) {
-         parse_yaw_angle_min:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, &yaw_angle_min_)));
-          set_has_yaw_angle_min();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(69)) goto parse_yaw_angle_max;
-        break;
-      }
-
-      // optional float yaw_angle_max = 8;
-      case 8: {
-        if (tag == 69) {
-         parse_yaw_angle_max:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, &yaw_angle_max_)));
-          set_has_yaw_angle_max();
-        } else {
-          goto handle_unusual;
-        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -559,16 +524,6 @@ void Point::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(6, this->yaw(), output);
   }
 
-  // optional float yaw_angle_min = 7;
-  if (has_yaw_angle_min()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(7, this->yaw_angle_min(), output);
-  }
-
-  // optional float yaw_angle_max = 8;
-  if (has_yaw_angle_max()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(8, this->yaw_angle_max(), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -607,16 +562,6 @@ void Point::SerializeWithCachedSizes(
   // optional float yaw = 6;
   if (has_yaw()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(6, this->yaw(), target);
-  }
-
-  // optional float yaw_angle_min = 7;
-  if (has_yaw_angle_min()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(7, this->yaw_angle_min(), target);
-  }
-
-  // optional float yaw_angle_max = 8;
-  if (has_yaw_angle_max()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(8, this->yaw_angle_max(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -658,16 +603,6 @@ int Point::ByteSize() const {
 
     // optional float yaw = 6;
     if (has_yaw()) {
-      total_size += 1 + 4;
-    }
-
-    // optional float yaw_angle_min = 7;
-    if (has_yaw_angle_min()) {
-      total_size += 1 + 4;
-    }
-
-    // optional float yaw_angle_max = 8;
-    if (has_yaw_angle_max()) {
       total_size += 1 + 4;
     }
 
@@ -716,12 +651,6 @@ void Point::MergeFrom(const Point& from) {
     if (from.has_yaw()) {
       set_yaw(from.yaw());
     }
-    if (from.has_yaw_angle_min()) {
-      set_yaw_angle_min(from.yaw_angle_min());
-    }
-    if (from.has_yaw_angle_max()) {
-      set_yaw_angle_max(from.yaw_angle_max());
-    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -751,8 +680,6 @@ void Point::Swap(Point* other) {
     std::swap(roll_, other->roll_);
     std::swap(pitch_, other->pitch_);
     std::swap(yaw_, other->yaw_);
-    std::swap(yaw_angle_min_, other->yaw_angle_min_);
-    std::swap(yaw_angle_max_, other->yaw_angle_max_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -2026,7 +1953,8 @@ void MultiRobot::Swap(MultiRobot* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int DecisionConfig::kPointFieldNumber;
+const int DecisionConfig::kMasterPointFieldNumber;
+const int DecisionConfig::kSlavePointFieldNumber;
 const int DecisionConfig::kSimulateFieldNumber;
 const int DecisionConfig::kMasterFieldNumber;
 const int DecisionConfig::kEscapeFieldNumber;
@@ -2142,7 +2070,7 @@ void DecisionConfig::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 238) {
+  if (_has_bits_[0 / 32] & 220) {
     ZR_(simulate_, master_);
     if (has_escape()) {
       if (escape_ != NULL) escape_->::roborts_decision::EscapeConstraint::Clear();
@@ -2153,11 +2081,11 @@ void DecisionConfig::Clear() {
     if (has_whirl_vel()) {
       if (whirl_vel_ != NULL) whirl_vel_->::roborts_decision::WhirlVel::Clear();
     }
+  }
+  if (_has_bits_[8 / 32] & 34560) {
     if (has_wing_bot()) {
       if (wing_bot_ != NULL) wing_bot_->::roborts_decision::MultiRobot::Clear();
     }
-  }
-  if (_has_bits_[8 / 32] & 49920) {
     if (has_master_bot()) {
       if (master_bot_ != NULL) master_bot_->::roborts_decision::MultiRobot::Clear();
     }
@@ -2165,10 +2093,9 @@ void DecisionConfig::Clear() {
       if (wing_bot_task_point_ != NULL) wing_bot_task_point_->::roborts_decision::Point::Clear();
     }
     offset_x_ = 0;
-    half_robot_length_ = 0;
   }
-  if (_has_bits_[16 / 32] & 458752) {
-    initial_bullet_num_ = 0;
+  if (_has_bits_[16 / 32] & 983040) {
+    ZR_(half_robot_length_, initial_bullet_num_);
     if (has_self_name()) {
       if (self_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         self_name_->clear();
@@ -2184,7 +2111,8 @@ void DecisionConfig::Clear() {
 #undef OFFSET_OF_FIELD_
 #undef ZR_
 
-  point_.Clear();
+  master_point_.Clear();
+  slave_point_.Clear();
   buff_point_.Clear();
   search_region_1_.Clear();
   search_region_2_.Clear();
@@ -2204,23 +2132,37 @@ bool DecisionConfig::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .roborts_decision.Point point = 1;
+      // repeated .roborts_decision.Point master_point = 1;
       case 1: {
         if (tag == 10) {
-         parse_point:
+         parse_master_point:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_point()));
+                input, add_master_point()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(10)) goto parse_point;
-        if (input->ExpectTag(16)) goto parse_simulate;
+        if (input->ExpectTag(10)) goto parse_master_point;
+        if (input->ExpectTag(18)) goto parse_slave_point;
         break;
       }
 
-      // optional bool simulate = 2 [default = false];
+      // repeated .roborts_decision.Point slave_point = 2;
       case 2: {
-        if (tag == 16) {
+        if (tag == 18) {
+         parse_slave_point:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_slave_point()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_slave_point;
+        if (input->ExpectTag(24)) goto parse_simulate;
+        break;
+      }
+
+      // optional bool simulate = 3 [default = false];
+      case 3: {
+        if (tag == 24) {
          parse_simulate:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
@@ -2229,13 +2171,13 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(24)) goto parse_master;
+        if (input->ExpectTag(32)) goto parse_master;
         break;
       }
 
-      // optional bool master = 3 [default = false];
-      case 3: {
-        if (tag == 24) {
+      // optional bool master = 4 [default = false];
+      case 4: {
+        if (tag == 32) {
          parse_master:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
@@ -2244,161 +2186,161 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_escape;
+        if (input->ExpectTag(42)) goto parse_escape;
         break;
       }
 
-      // optional .roborts_decision.EscapeConstraint escape = 4;
-      case 4: {
-        if (tag == 34) {
+      // optional .roborts_decision.EscapeConstraint escape = 5;
+      case 5: {
+        if (tag == 42) {
          parse_escape:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_escape()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(42)) goto parse_buff_point;
+        if (input->ExpectTag(50)) goto parse_buff_point;
         break;
       }
 
-      // repeated .roborts_decision.Point buff_point = 5;
-      case 5: {
-        if (tag == 42) {
+      // repeated .roborts_decision.Point buff_point = 6;
+      case 6: {
+        if (tag == 50) {
          parse_buff_point:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_buff_point()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(42)) goto parse_buff_point;
-        if (input->ExpectTag(50)) goto parse_search_limit;
+        if (input->ExpectTag(50)) goto parse_buff_point;
+        if (input->ExpectTag(58)) goto parse_search_limit;
         break;
       }
 
-      // optional .roborts_decision.SearchConstraint search_limit = 6;
-      case 6: {
-        if (tag == 50) {
+      // optional .roborts_decision.SearchConstraint search_limit = 7;
+      case 7: {
+        if (tag == 58) {
          parse_search_limit:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_search_limit()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(58)) goto parse_whirl_vel;
+        if (input->ExpectTag(66)) goto parse_whirl_vel;
         break;
       }
 
-      // optional .roborts_decision.WhirlVel whirl_vel = 7;
-      case 7: {
-        if (tag == 58) {
+      // optional .roborts_decision.WhirlVel whirl_vel = 8;
+      case 8: {
+        if (tag == 66) {
          parse_whirl_vel:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_whirl_vel()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(66)) goto parse_wing_bot;
+        if (input->ExpectTag(74)) goto parse_wing_bot;
         break;
       }
 
-      // optional .roborts_decision.MultiRobot wing_bot = 8;
-      case 8: {
-        if (tag == 66) {
+      // optional .roborts_decision.MultiRobot wing_bot = 9;
+      case 9: {
+        if (tag == 74) {
          parse_wing_bot:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_wing_bot()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(74)) goto parse_master_bot;
+        if (input->ExpectTag(82)) goto parse_master_bot;
         break;
       }
 
-      // optional .roborts_decision.MultiRobot master_bot = 9;
-      case 9: {
-        if (tag == 74) {
+      // optional .roborts_decision.MultiRobot master_bot = 10;
+      case 10: {
+        if (tag == 82) {
          parse_master_bot:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_master_bot()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(82)) goto parse_wing_bot_task_point;
+        if (input->ExpectTag(90)) goto parse_wing_bot_task_point;
         break;
       }
 
-      // optional .roborts_decision.Point wing_bot_task_point = 10;
-      case 10: {
-        if (tag == 82) {
+      // optional .roborts_decision.Point wing_bot_task_point = 11;
+      case 11: {
+        if (tag == 90) {
          parse_wing_bot_task_point:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_wing_bot_task_point()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(90)) goto parse_search_region_1;
+        if (input->ExpectTag(98)) goto parse_search_region_1;
         break;
       }
 
-      // repeated .roborts_decision.Point search_region_1 = 11;
-      case 11: {
-        if (tag == 90) {
+      // repeated .roborts_decision.Point search_region_1 = 12;
+      case 12: {
+        if (tag == 98) {
          parse_search_region_1:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_search_region_1()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(90)) goto parse_search_region_1;
-        if (input->ExpectTag(98)) goto parse_search_region_2;
+        if (input->ExpectTag(98)) goto parse_search_region_1;
+        if (input->ExpectTag(106)) goto parse_search_region_2;
         break;
       }
 
-      // repeated .roborts_decision.Point search_region_2 = 12;
-      case 12: {
-        if (tag == 98) {
+      // repeated .roborts_decision.Point search_region_2 = 13;
+      case 13: {
+        if (tag == 106) {
          parse_search_region_2:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_search_region_2()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(98)) goto parse_search_region_2;
-        if (input->ExpectTag(106)) goto parse_search_region_3;
+        if (input->ExpectTag(106)) goto parse_search_region_2;
+        if (input->ExpectTag(114)) goto parse_search_region_3;
         break;
       }
 
-      // repeated .roborts_decision.Point search_region_3 = 13;
-      case 13: {
-        if (tag == 106) {
+      // repeated .roborts_decision.Point search_region_3 = 14;
+      case 14: {
+        if (tag == 114) {
          parse_search_region_3:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_search_region_3()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(106)) goto parse_search_region_3;
-        if (input->ExpectTag(114)) goto parse_search_region_4;
+        if (input->ExpectTag(114)) goto parse_search_region_3;
+        if (input->ExpectTag(122)) goto parse_search_region_4;
         break;
       }
 
-      // repeated .roborts_decision.Point search_region_4 = 14;
-      case 14: {
-        if (tag == 114) {
+      // repeated .roborts_decision.Point search_region_4 = 15;
+      case 15: {
+        if (tag == 122) {
          parse_search_region_4:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_search_region_4()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(114)) goto parse_search_region_4;
-        if (input->ExpectTag(125)) goto parse_offset_x;
+        if (input->ExpectTag(122)) goto parse_search_region_4;
+        if (input->ExpectTag(133)) goto parse_offset_x;
         break;
       }
 
-      // optional float offset_x = 15;
-      case 15: {
-        if (tag == 125) {
+      // optional float offset_x = 16;
+      case 16: {
+        if (tag == 133) {
          parse_offset_x:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
@@ -2407,13 +2349,13 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(133)) goto parse_half_robot_length;
+        if (input->ExpectTag(141)) goto parse_half_robot_length;
         break;
       }
 
-      // optional float half_robot_length = 16;
-      case 16: {
-        if (tag == 133) {
+      // optional float half_robot_length = 17;
+      case 17: {
+        if (tag == 141) {
          parse_half_robot_length:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
@@ -2422,13 +2364,13 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(136)) goto parse_initial_bullet_num;
+        if (input->ExpectTag(144)) goto parse_initial_bullet_num;
         break;
       }
 
-      // optional int32 initial_bullet_num = 17;
-      case 17: {
-        if (tag == 136) {
+      // optional int32 initial_bullet_num = 18;
+      case 18: {
+        if (tag == 144) {
          parse_initial_bullet_num:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
@@ -2437,13 +2379,13 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(146)) goto parse_self_name;
+        if (input->ExpectTag(154)) goto parse_self_name;
         break;
       }
 
-      // optional string self_name = 18;
-      case 18: {
-        if (tag == 146) {
+      // optional string self_name = 19;
+      case 19: {
+        if (tag == 154) {
          parse_self_name:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_self_name()));
@@ -2454,13 +2396,13 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(154)) goto parse_partner_name;
+        if (input->ExpectTag(162)) goto parse_partner_name;
         break;
       }
 
-      // optional string partner_name = 19;
-      case 19: {
-        if (tag == 154) {
+      // optional string partner_name = 20;
+      case 20: {
+        if (tag == 162) {
          parse_partner_name:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_partner_name()));
@@ -2500,121 +2442,127 @@ failure:
 void DecisionConfig::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:roborts_decision.DecisionConfig)
-  // repeated .roborts_decision.Point point = 1;
-  for (int i = 0; i < this->point_size(); i++) {
+  // repeated .roborts_decision.Point master_point = 1;
+  for (int i = 0; i < this->master_point_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->point(i), output);
+      1, this->master_point(i), output);
   }
 
-  // optional bool simulate = 2 [default = false];
+  // repeated .roborts_decision.Point slave_point = 2;
+  for (int i = 0; i < this->slave_point_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->slave_point(i), output);
+  }
+
+  // optional bool simulate = 3 [default = false];
   if (has_simulate()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->simulate(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->simulate(), output);
   }
 
-  // optional bool master = 3 [default = false];
+  // optional bool master = 4 [default = false];
   if (has_master()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->master(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(4, this->master(), output);
   }
 
-  // optional .roborts_decision.EscapeConstraint escape = 4;
+  // optional .roborts_decision.EscapeConstraint escape = 5;
   if (has_escape()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->escape(), output);
+      5, this->escape(), output);
   }
 
-  // repeated .roborts_decision.Point buff_point = 5;
+  // repeated .roborts_decision.Point buff_point = 6;
   for (int i = 0; i < this->buff_point_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->buff_point(i), output);
+      6, this->buff_point(i), output);
   }
 
-  // optional .roborts_decision.SearchConstraint search_limit = 6;
+  // optional .roborts_decision.SearchConstraint search_limit = 7;
   if (has_search_limit()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, this->search_limit(), output);
+      7, this->search_limit(), output);
   }
 
-  // optional .roborts_decision.WhirlVel whirl_vel = 7;
+  // optional .roborts_decision.WhirlVel whirl_vel = 8;
   if (has_whirl_vel()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, this->whirl_vel(), output);
+      8, this->whirl_vel(), output);
   }
 
-  // optional .roborts_decision.MultiRobot wing_bot = 8;
+  // optional .roborts_decision.MultiRobot wing_bot = 9;
   if (has_wing_bot()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      8, this->wing_bot(), output);
+      9, this->wing_bot(), output);
   }
 
-  // optional .roborts_decision.MultiRobot master_bot = 9;
+  // optional .roborts_decision.MultiRobot master_bot = 10;
   if (has_master_bot()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      9, this->master_bot(), output);
+      10, this->master_bot(), output);
   }
 
-  // optional .roborts_decision.Point wing_bot_task_point = 10;
+  // optional .roborts_decision.Point wing_bot_task_point = 11;
   if (has_wing_bot_task_point()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      10, this->wing_bot_task_point(), output);
+      11, this->wing_bot_task_point(), output);
   }
 
-  // repeated .roborts_decision.Point search_region_1 = 11;
+  // repeated .roborts_decision.Point search_region_1 = 12;
   for (int i = 0; i < this->search_region_1_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      11, this->search_region_1(i), output);
+      12, this->search_region_1(i), output);
   }
 
-  // repeated .roborts_decision.Point search_region_2 = 12;
+  // repeated .roborts_decision.Point search_region_2 = 13;
   for (int i = 0; i < this->search_region_2_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      12, this->search_region_2(i), output);
+      13, this->search_region_2(i), output);
   }
 
-  // repeated .roborts_decision.Point search_region_3 = 13;
+  // repeated .roborts_decision.Point search_region_3 = 14;
   for (int i = 0; i < this->search_region_3_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      13, this->search_region_3(i), output);
+      14, this->search_region_3(i), output);
   }
 
-  // repeated .roborts_decision.Point search_region_4 = 14;
+  // repeated .roborts_decision.Point search_region_4 = 15;
   for (int i = 0; i < this->search_region_4_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      14, this->search_region_4(i), output);
+      15, this->search_region_4(i), output);
   }
 
-  // optional float offset_x = 15;
+  // optional float offset_x = 16;
   if (has_offset_x()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(15, this->offset_x(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(16, this->offset_x(), output);
   }
 
-  // optional float half_robot_length = 16;
+  // optional float half_robot_length = 17;
   if (has_half_robot_length()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(16, this->half_robot_length(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(17, this->half_robot_length(), output);
   }
 
-  // optional int32 initial_bullet_num = 17;
+  // optional int32 initial_bullet_num = 18;
   if (has_initial_bullet_num()) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(17, this->initial_bullet_num(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(18, this->initial_bullet_num(), output);
   }
 
-  // optional string self_name = 18;
+  // optional string self_name = 19;
   if (has_self_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->self_name().data(), this->self_name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "self_name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      18, this->self_name(), output);
+      19, this->self_name(), output);
   }
 
-  // optional string partner_name = 19;
+  // optional string partner_name = 20;
   if (has_partner_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->partner_name().data(), this->partner_name().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "partner_name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      19, this->partner_name(), output);
+      20, this->partner_name(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -2627,116 +2575,123 @@ void DecisionConfig::SerializeWithCachedSizes(
 ::google::protobuf::uint8* DecisionConfig::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:roborts_decision.DecisionConfig)
-  // repeated .roborts_decision.Point point = 1;
-  for (int i = 0; i < this->point_size(); i++) {
+  // repeated .roborts_decision.Point master_point = 1;
+  for (int i = 0; i < this->master_point_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        1, this->point(i), target);
+        1, this->master_point(i), target);
   }
 
-  // optional bool simulate = 2 [default = false];
+  // repeated .roborts_decision.Point slave_point = 2;
+  for (int i = 0; i < this->slave_point_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->slave_point(i), target);
+  }
+
+  // optional bool simulate = 3 [default = false];
   if (has_simulate()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->simulate(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->simulate(), target);
   }
 
-  // optional bool master = 3 [default = false];
+  // optional bool master = 4 [default = false];
   if (has_master()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->master(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(4, this->master(), target);
   }
 
-  // optional .roborts_decision.EscapeConstraint escape = 4;
+  // optional .roborts_decision.EscapeConstraint escape = 5;
   if (has_escape()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->escape(), target);
+        5, this->escape(), target);
   }
 
-  // repeated .roborts_decision.Point buff_point = 5;
+  // repeated .roborts_decision.Point buff_point = 6;
   for (int i = 0; i < this->buff_point_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->buff_point(i), target);
+        6, this->buff_point(i), target);
   }
 
-  // optional .roborts_decision.SearchConstraint search_limit = 6;
+  // optional .roborts_decision.SearchConstraint search_limit = 7;
   if (has_search_limit()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        6, this->search_limit(), target);
+        7, this->search_limit(), target);
   }
 
-  // optional .roborts_decision.WhirlVel whirl_vel = 7;
+  // optional .roborts_decision.WhirlVel whirl_vel = 8;
   if (has_whirl_vel()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        7, this->whirl_vel(), target);
+        8, this->whirl_vel(), target);
   }
 
-  // optional .roborts_decision.MultiRobot wing_bot = 8;
+  // optional .roborts_decision.MultiRobot wing_bot = 9;
   if (has_wing_bot()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        8, this->wing_bot(), target);
+        9, this->wing_bot(), target);
   }
 
-  // optional .roborts_decision.MultiRobot master_bot = 9;
+  // optional .roborts_decision.MultiRobot master_bot = 10;
   if (has_master_bot()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        9, this->master_bot(), target);
+        10, this->master_bot(), target);
   }
 
-  // optional .roborts_decision.Point wing_bot_task_point = 10;
+  // optional .roborts_decision.Point wing_bot_task_point = 11;
   if (has_wing_bot_task_point()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        10, this->wing_bot_task_point(), target);
+        11, this->wing_bot_task_point(), target);
   }
 
-  // repeated .roborts_decision.Point search_region_1 = 11;
+  // repeated .roborts_decision.Point search_region_1 = 12;
   for (int i = 0; i < this->search_region_1_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        11, this->search_region_1(i), target);
+        12, this->search_region_1(i), target);
   }
 
-  // repeated .roborts_decision.Point search_region_2 = 12;
+  // repeated .roborts_decision.Point search_region_2 = 13;
   for (int i = 0; i < this->search_region_2_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        12, this->search_region_2(i), target);
+        13, this->search_region_2(i), target);
   }
 
-  // repeated .roborts_decision.Point search_region_3 = 13;
+  // repeated .roborts_decision.Point search_region_3 = 14;
   for (int i = 0; i < this->search_region_3_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        13, this->search_region_3(i), target);
+        14, this->search_region_3(i), target);
   }
 
-  // repeated .roborts_decision.Point search_region_4 = 14;
+  // repeated .roborts_decision.Point search_region_4 = 15;
   for (int i = 0; i < this->search_region_4_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        14, this->search_region_4(i), target);
+        15, this->search_region_4(i), target);
   }
 
-  // optional float offset_x = 15;
+  // optional float offset_x = 16;
   if (has_offset_x()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(15, this->offset_x(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(16, this->offset_x(), target);
   }
 
-  // optional float half_robot_length = 16;
+  // optional float half_robot_length = 17;
   if (has_half_robot_length()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(16, this->half_robot_length(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(17, this->half_robot_length(), target);
   }
 
-  // optional int32 initial_bullet_num = 17;
+  // optional int32 initial_bullet_num = 18;
   if (has_initial_bullet_num()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(17, this->initial_bullet_num(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(18, this->initial_bullet_num(), target);
   }
 
-  // optional string self_name = 18;
+  // optional string self_name = 19;
   if (has_self_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->self_name().data(), this->self_name().length(),
@@ -2744,10 +2699,10 @@ void DecisionConfig::SerializeWithCachedSizes(
       "self_name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        18, this->self_name(), target);
+        19, this->self_name(), target);
   }
 
-  // optional string partner_name = 19;
+  // optional string partner_name = 20;
   if (has_partner_name()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->partner_name().data(), this->partner_name().length(),
@@ -2755,7 +2710,7 @@ void DecisionConfig::SerializeWithCachedSizes(
       "partner_name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        19, this->partner_name(), target);
+        20, this->partner_name(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2769,88 +2724,88 @@ void DecisionConfig::SerializeWithCachedSizes(
 int DecisionConfig::ByteSize() const {
   int total_size = 0;
 
-  if (_has_bits_[1 / 32] & (0xffu << (1 % 32))) {
-    // optional bool simulate = 2 [default = false];
+  if (_has_bits_[2 / 32] & (0xffu << (2 % 32))) {
+    // optional bool simulate = 3 [default = false];
     if (has_simulate()) {
       total_size += 1 + 1;
     }
 
-    // optional bool master = 3 [default = false];
+    // optional bool master = 4 [default = false];
     if (has_master()) {
       total_size += 1 + 1;
     }
 
-    // optional .roborts_decision.EscapeConstraint escape = 4;
+    // optional .roborts_decision.EscapeConstraint escape = 5;
     if (has_escape()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->escape());
     }
 
-    // optional .roborts_decision.SearchConstraint search_limit = 6;
+    // optional .roborts_decision.SearchConstraint search_limit = 7;
     if (has_search_limit()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->search_limit());
     }
 
-    // optional .roborts_decision.WhirlVel whirl_vel = 7;
+    // optional .roborts_decision.WhirlVel whirl_vel = 8;
     if (has_whirl_vel()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->whirl_vel());
     }
 
-    // optional .roborts_decision.MultiRobot wing_bot = 8;
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional .roborts_decision.MultiRobot wing_bot = 9;
     if (has_wing_bot()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->wing_bot());
     }
 
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional .roborts_decision.MultiRobot master_bot = 9;
+    // optional .roborts_decision.MultiRobot master_bot = 10;
     if (has_master_bot()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->master_bot());
     }
 
-    // optional .roborts_decision.Point wing_bot_task_point = 10;
+    // optional .roborts_decision.Point wing_bot_task_point = 11;
     if (has_wing_bot_task_point()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->wing_bot_task_point());
     }
 
-    // optional float offset_x = 15;
+    // optional float offset_x = 16;
     if (has_offset_x()) {
-      total_size += 1 + 4;
-    }
-
-    // optional float half_robot_length = 16;
-    if (has_half_robot_length()) {
       total_size += 2 + 4;
     }
 
   }
   if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
-    // optional int32 initial_bullet_num = 17;
+    // optional float half_robot_length = 17;
+    if (has_half_robot_length()) {
+      total_size += 2 + 4;
+    }
+
+    // optional int32 initial_bullet_num = 18;
     if (has_initial_bullet_num()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->initial_bullet_num());
     }
 
-    // optional string self_name = 18;
+    // optional string self_name = 19;
     if (has_self_name()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->self_name());
     }
 
-    // optional string partner_name = 19;
+    // optional string partner_name = 20;
     if (has_partner_name()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -2858,15 +2813,23 @@ int DecisionConfig::ByteSize() const {
     }
 
   }
-  // repeated .roborts_decision.Point point = 1;
-  total_size += 1 * this->point_size();
-  for (int i = 0; i < this->point_size(); i++) {
+  // repeated .roborts_decision.Point master_point = 1;
+  total_size += 1 * this->master_point_size();
+  for (int i = 0; i < this->master_point_size(); i++) {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->point(i));
+        this->master_point(i));
   }
 
-  // repeated .roborts_decision.Point buff_point = 5;
+  // repeated .roborts_decision.Point slave_point = 2;
+  total_size += 1 * this->slave_point_size();
+  for (int i = 0; i < this->slave_point_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->slave_point(i));
+  }
+
+  // repeated .roborts_decision.Point buff_point = 6;
   total_size += 1 * this->buff_point_size();
   for (int i = 0; i < this->buff_point_size(); i++) {
     total_size +=
@@ -2874,7 +2837,7 @@ int DecisionConfig::ByteSize() const {
         this->buff_point(i));
   }
 
-  // repeated .roborts_decision.Point search_region_1 = 11;
+  // repeated .roborts_decision.Point search_region_1 = 12;
   total_size += 1 * this->search_region_1_size();
   for (int i = 0; i < this->search_region_1_size(); i++) {
     total_size +=
@@ -2882,7 +2845,7 @@ int DecisionConfig::ByteSize() const {
         this->search_region_1(i));
   }
 
-  // repeated .roborts_decision.Point search_region_2 = 12;
+  // repeated .roborts_decision.Point search_region_2 = 13;
   total_size += 1 * this->search_region_2_size();
   for (int i = 0; i < this->search_region_2_size(); i++) {
     total_size +=
@@ -2890,7 +2853,7 @@ int DecisionConfig::ByteSize() const {
         this->search_region_2(i));
   }
 
-  // repeated .roborts_decision.Point search_region_3 = 13;
+  // repeated .roborts_decision.Point search_region_3 = 14;
   total_size += 1 * this->search_region_3_size();
   for (int i = 0; i < this->search_region_3_size(); i++) {
     total_size +=
@@ -2898,7 +2861,7 @@ int DecisionConfig::ByteSize() const {
         this->search_region_3(i));
   }
 
-  // repeated .roborts_decision.Point search_region_4 = 14;
+  // repeated .roborts_decision.Point search_region_4 = 15;
   total_size += 1 * this->search_region_4_size();
   for (int i = 0; i < this->search_region_4_size(); i++) {
     total_size +=
@@ -2931,13 +2894,14 @@ void DecisionConfig::MergeFrom(const ::google::protobuf::Message& from) {
 
 void DecisionConfig::MergeFrom(const DecisionConfig& from) {
   GOOGLE_CHECK_NE(&from, this);
-  point_.MergeFrom(from.point_);
+  master_point_.MergeFrom(from.master_point_);
+  slave_point_.MergeFrom(from.slave_point_);
   buff_point_.MergeFrom(from.buff_point_);
   search_region_1_.MergeFrom(from.search_region_1_);
   search_region_2_.MergeFrom(from.search_region_2_);
   search_region_3_.MergeFrom(from.search_region_3_);
   search_region_4_.MergeFrom(from.search_region_4_);
-  if (from._has_bits_[1 / 32] & (0xffu << (1 % 32))) {
+  if (from._has_bits_[2 / 32] & (0xffu << (2 % 32))) {
     if (from.has_simulate()) {
       set_simulate(from.simulate());
     }
@@ -2953,11 +2917,11 @@ void DecisionConfig::MergeFrom(const DecisionConfig& from) {
     if (from.has_whirl_vel()) {
       mutable_whirl_vel()->::roborts_decision::WhirlVel::MergeFrom(from.whirl_vel());
     }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_wing_bot()) {
       mutable_wing_bot()->::roborts_decision::MultiRobot::MergeFrom(from.wing_bot());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_master_bot()) {
       mutable_master_bot()->::roborts_decision::MultiRobot::MergeFrom(from.master_bot());
     }
@@ -2967,11 +2931,11 @@ void DecisionConfig::MergeFrom(const DecisionConfig& from) {
     if (from.has_offset_x()) {
       set_offset_x(from.offset_x());
     }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_half_robot_length()) {
       set_half_robot_length(from.half_robot_length());
     }
-  }
-  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_initial_bullet_num()) {
       set_initial_bullet_num(from.initial_bullet_num());
     }
@@ -3004,7 +2968,8 @@ bool DecisionConfig::IsInitialized() const {
 
 void DecisionConfig::Swap(DecisionConfig* other) {
   if (other != this) {
-    point_.Swap(&other->point_);
+    master_point_.Swap(&other->master_point_);
+    slave_point_.Swap(&other->slave_point_);
     std::swap(simulate_, other->simulate_);
     std::swap(master_, other->master_);
     std::swap(escape_, other->escape_);
