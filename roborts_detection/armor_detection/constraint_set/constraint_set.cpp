@@ -76,11 +76,11 @@ void ConstraintSet::LoadParam() {
   armor_max_stddev_ = constraint_set_config_.threshold().armor_max_stddev();
   armor_max_mean_   = constraint_set_config_.threshold().armor_max_mean();
   
-  //thresh_depth_ = cameramatrix_.thresh_depth();
-  //fx_ = cameramatrix_.fx();
-  //fy_ = cameramatrix_.fy();
-  //cx_ = cameramatrix_.cx(); 
-  // cy_ = cameramatrix_.cy();
+  thresh_depth_ = constraint_set_config_.camera_matrix().thresh_depth();
+  fx_ = constraint_set_config_.camera_matrix().fx();
+  fy_ = constraint_set_config_.camera_matrix().fy();
+  cx_ = constraint_set_config_.camera_matrix().cx(); 
+  cy_ = constraint_set_config_.camera_matrix().cy();
 
 
   color_thread_ = constraint_set_config_.threshold().color_thread();
@@ -102,6 +102,8 @@ void ConstraintSet::LoadParam() {
 
 
 ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &armors) {
+  std::cout<<"00000000000000000"<<std::endl;
+  
   std::vector<cv::RotatedRect> lights;
 
   auto img_begin = std::chrono::high_resolution_clock::now();
@@ -159,7 +161,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
       show_lights_after_filter_ = src_img_.clone();
       show_armors_befor_filter_ = src_img_.clone();
       show_armors_after_filter_ = src_img_.clone();
-      cv::waitKey(1);
+      //cv::waitKey(1);
     }
     armors.clear();
 
@@ -224,6 +226,7 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
   ROS_INFO("read complete");
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
       (std::chrono::high_resolution_clock::now() - detection_begin).count();
+      std::cout<<"hhhhhhhhhhh"<<std::endl;
 
   return error_info_;
 }
@@ -262,6 +265,10 @@ void ConstraintSet::DetectLights(const cv::Mat &src, std::vector<cv::RotatedRect
   lights_info_.reserve(contours_light.size());
   // TODO: To be optimized
   //std::vector<int> is_processes(contours_light.size());
+
+
+
+
   for (unsigned int i = 0; i < contours_brightness.size(); ++i) {
     for (unsigned int j = 0; j < contours_light.size(); ++j) {
 
@@ -529,7 +536,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
     if(depthz!=0){
       sumvertex=sumvertex/nflag;
       int diff =abs(sumvertex-depthz);
-      std::cout<<thresh_depth_<<fx_<<"========="<<std::endl;
+      //  std::cout<<thresh_depth_<<fx_<<"========="<<std::endl;
       if(depthy<thresh_depth_){//225,307   中间大框115
         is_armor[i] = false;
         continue;
@@ -563,31 +570,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
   }
   
-  //     }else{
-  //           int dewidth=corners[2].x-corners[0].x;//最小24
-  //   int deheight=-corners[2].y+corners[0].y;//最小8
-  //   std::cout<<"dewidth"<<dewidth<<std::endl;
-  //   std::cout<<"deheight"<<deheight<<std::endl;
-  //   int wtrans=dewidth/4;
-  //   int htrans=deheight/4;
-  //        float depth0z=cv_toolbox_->depthImg.at<ushort>(corners[0].y+roiy_-htrans ,corners[0].x+wtrans);
-  //     float depth0y=(corners[0].y+roiy_-htrans -240)*depth0z/387.4;
-  //     float depth1z=cv_toolbox_->depthImg.at<ushort>(corners[1].y+roiy_ +htrans,corners[1].x+wtrans);
-  //      float depth1y=(corners[1].y+roiy_+htrans-240)*depth1z/387.4;
-  //      float depth2z=cv_toolbox_->depthImg.at<ushort>(corners[2].y+roiy_ +htrans,corners[2].x)-wtrans;
-  //      float depth2y=(corners[2].y+roiy_+htrans-240)*depth2z/387.4;
-  //      float depth3z=cv_toolbox_->depthImg.at<ushort>(corners[3].y +roiy_ -htrans,corners[3].x-wtrans);
-  //     float depth3y=(corners[3].y+roiy_-htrans-240)*depth3z/387.4;
 
-
-  //     if(depth0z!=0){
-  //     sumvertex+=depth0z;
-  //     nflag++;
-  //     if(depth0y<thresh){
-  //       is_armor[i] = false;
-  //       continue;
-  //     }
-  //   }
   
   // nms
   
@@ -1063,7 +1046,7 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
     //Canny(gray, canny, 70, 50);//night
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2, 2));
     dilate(canny, canny, element);//对canny膨胀，可防止提取轮廓时不闭合的情况
-    imshow("canny",canny);
+    //imshow("canny",canny);
     //imshow("gray",gray);
 
 
@@ -1072,8 +1055,8 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
     findContours(canny, contours, noArray(), CV_RETR_LIST, CHAIN_APPROX_SIMPLE);//还可以用CV_CHAIN_APPROX_NONE
 
     //temp是用来给人看的，比赛时可注释掉
-    vector< vector<Point> > tempContours;//可注释，存储经过面积筛选的轮廓结果
-    Mat tempImage = colorImg.clone();//可注释
+    //vector< vector<Point> > tempContours;//可注释，存储经过面积筛选的轮廓结果
+   // Mat tempImage = colorImg.clone();//可注释
 
     //初始化两个序列用来存储1和2的检测结果
     sortLinkList *one_sort = new sortLinkList;
@@ -1113,7 +1096,7 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
       //   continue;
       //   std::cout<<"erase for bright"<<std::endl;}
 
-            tempContours.push_back(contours[i]);
+           // tempContours.push_back(contours[i]);
             Mat tempGray = Mat::zeros(gray.rows, gray.cols, CV_8UC1);
             drawContours(tempGray, contours, i, cv::Scalar(255));
             
@@ -1220,10 +1203,10 @@ void ConstraintSet::detect12FromImage(Mat colorImg, vector<Point2f>& ones, vecto
     }
 
 
-    for(sortLinkList *p = one_sort->next;p!=NULL;p = p->next) rectangle(tempImage,p->rect,Scalar(0,255,0),2);//可注释，在图中画出识别出的1和2外接矩形框
-    for(sortLinkList *p = two_sort->next;p!=NULL;p = p->next) rectangle(tempImage,p->rect,Scalar(255,0,0),2);//可注释，在图中画出识别出的1和2外接矩形框
-    drawContours(tempImage, tempContours, -1, cv::Scalar(0,0,255));//可注释，在图中画出识别出的1和2外接矩形框
-    cv::imshow("Contours", tempImage);//可注释，在图中画出识别出的1和2外接矩形框
+    //for(sortLinkList *p = one_sort->next;p!=NULL;p = p->next) rectangle(tempImage,p->rect,Scalar(0,255,0),2);//可注释，在图中画出识别出的1和2外接矩形框
+    //for(sortLinkList *p = two_sort->next;p!=NULL;p = p->next) rectangle(tempImage,p->rect,Scalar(255,0,0),2);//可注释，在图中画出识别出的1和2外接矩形框
+    //drawContours(tempImage, tempContours, -1, cv::Scalar(0,0,255));//可注释，在图中画出识别出的1和2外接矩形框
+    //cv::imshow("Contours", tempImage);//可注释，在图中画出识别出的1和2外接矩形框
 }
 
 
