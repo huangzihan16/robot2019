@@ -584,9 +584,23 @@ namespace roborts_decision {
     }
   }
 
+  void Blackboard::BulletVacantCallback(const roborts_msgs::BulletVacant::ConstPtr& bullet_vacant){
+    if(bullet_vacant){
+      bullet_num_=0;
+    }
+  }
+
   void Blackboard::SendSupplyCmd() {
     // projectilesupply_.number = 50;
     projectile_supply_pub_.publish(projectilesupply_);
+  }
+
+  void Blackboard::SendArmorDetectionCmd() {
+      armor_detection_goal_.command = 1;
+      armor_detection_actionlib_client_.sendGoal(armor_detection_goal_,
+                                                 actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleDoneCallback(),
+                                                 actionlib::SimpleActionClient<roborts_msgs::ArmorDetectionAction>::SimpleActiveCallback(),
+                                                 boost::bind(&Blackboard::ArmorDetectionFeedbackCallback, this, _1));
   }
 
   /*******************Localization Information for Supply and Gain Buff*******************/
@@ -796,8 +810,10 @@ namespace roborts_decision {
 
   void Blackboard::CheckCommunication() {
     ros::Duration duration_to_last_get_communication_ = ros::Time::now() - last_get_partner_information_time_;
-    if (duration_to_last_get_communication_.toSec() > 2.0)
+    if (duration_to_last_get_communication_.toSec() > 2.0) {
       is_good_communication_ = false;
+      ResetPartnerInformation();
+    }
     else
       is_good_communication_ = true;    
   }
@@ -1060,7 +1076,7 @@ namespace roborts_decision {
 	}
 
   bool Blackboard::IsGoToGainBuffCondition() {
-    if (GetBonusStatus() == roborts_decision::BonusStatus::UNOCCUPIED) {
+    if (GetBonusStatus() != roborts_decision::BonusStatus::OCCUPIED) {
       CheckCommunication();
       if (is_good_communication_) {
         if (!IsPartnerInBuffArea())
@@ -1068,8 +1084,10 @@ namespace roborts_decision {
         else
           return false;
       } else {
+        ROS_INFO("Communication Failure!");
         if (have_gone_to_gainbuff_) {
           ros::Duration gainbuff_duration = ros::Time::now() - go_to_gainbuff_time_;
+          ROS_INFO("gainbuff_duration:%f",gainbuff_duration.toSec());
           if (gainbuff_duration.toSec() > 30.0)
             return false;
           else

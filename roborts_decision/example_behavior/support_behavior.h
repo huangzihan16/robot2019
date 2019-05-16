@@ -22,6 +22,7 @@ class SupportBehavior {
     blackboard_->partner_msg_pub_.status = (char)PartnerStatus::BATTLE;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
+    blackboard_->CheckCommunication();
 
     geometry_msgs::PoseStamped enemy_pose, self_pose;
     enemy_pose = blackboard_->GetPartnerEnemyPose();

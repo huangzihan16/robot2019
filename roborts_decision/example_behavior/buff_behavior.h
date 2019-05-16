@@ -21,6 +21,11 @@ class GainBuffBehavior {
       buff_count_ = 1;
 			have_execute_ = true;
     }
+
+    if (!blackboard_->have_gone_to_gainbuff_) {
+      blackboard_->have_gone_to_gainbuff_ = true;
+      blackboard_->go_to_gainbuff_time_ = ros::Time::now();
+    }
     BehaviorState executor_state = Update();
     if (executor_state != BehaviorState::RUNNING && blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED)
       chassis_executor_->Execute(GetAddGuardGoal());

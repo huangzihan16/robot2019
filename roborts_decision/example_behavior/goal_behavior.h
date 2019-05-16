@@ -56,6 +56,12 @@ class SupplyGoalBehavior {
     blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
+
+    if(!blackboard_->have_gone_to_supply_) {
+      blackboard_->have_gone_to_supply_ = true;
+      blackboard_->go_to_supply_time_ = ros::Time::now();
+    }
+
     if(!have_execute_){
       chassis_executor_->Execute(blackboard_->GetSupplyGoal());
 			have_execute_ = true;
