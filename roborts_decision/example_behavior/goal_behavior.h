@@ -53,7 +53,9 @@ class SupplyGoalBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
     blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     if(!have_execute_){
       chassis_executor_->Execute(blackboard_->GetSupplyGoal());
 			have_execute_ = true;
@@ -90,7 +92,9 @@ class SupplyGoalOutBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
     blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     if(!have_execute_){
       goalout_start_time_ = ros::Time::now();
       goalout_count_ = 1;      

@@ -10,6 +10,7 @@ public:
 	SupplyBehavior(Blackboard* &blackboard): blackboard_(blackboard), have_applicated_(false), status_(0){}
 	
 	void Run() {
+		blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
 		blackboard_->SuggestGimbalPatrol();
 		blackboard_->PublishPartnerInformation();
 		if (!have_applicated_){

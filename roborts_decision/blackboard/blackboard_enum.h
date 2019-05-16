@@ -12,7 +12,8 @@ namespace roborts_decision {
     GAINBUFF,
     BATTLE,
     GUARD,
-    PATROL
+    PATROL,
+    STOP
   };
   enum class GameStatus{
     PRE_MATCH = 0,

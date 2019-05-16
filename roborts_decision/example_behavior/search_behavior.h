@@ -40,6 +40,7 @@ class SearchBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::PATROL;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     auto executor_state = Update();

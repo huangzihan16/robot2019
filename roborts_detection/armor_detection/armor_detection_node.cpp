@@ -287,7 +287,25 @@ void ArmorDetectionNode::ExecuteLoop() {
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
           shoot_executor_.Execute();
+        //==============bullet=============
+              float diff_spd_=shoot_executor_.speed_-shoot_executor_.last_speed_;
+               if( diff_spd_!=0){//如果射弹了
+               shoot_executor_.unshoot_count_=0;
+               shoot_executor_.last_speed_=shoot_executor_.speed_;
+             }else{
+               shoot_executor_.unshoot_count_++;
+             }
+          
+           if(shoot_executor_.unshoot_count_>60){
+             shoot_executor_.bullet_vacant_.bullet_vacant=true;
+             shoot_executor_.bullet_status_pub_.publish(shoot_executor_.bullet_vacant_);
+            }
+           
+        }else{
+          shoot_executor_.unshoot_count_=0;
         }
+       
+          
       } else if(undetected_count_ != 0) {
 
         gimbal_angle_.yaw_mode = true;
@@ -298,6 +316,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         undetected_count_--;
         // PublishMsgs();
         enemy_disappear_time = ros::Time::now();
+        shoot_executor_.unshoot_count_=0;
       } else {
         last_enemy_time = ros::Time::now();
         last_yaw_ = GetGimbalYaw();

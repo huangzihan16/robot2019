@@ -1,0 +1,2 @@
+bool bullet_vacant
+

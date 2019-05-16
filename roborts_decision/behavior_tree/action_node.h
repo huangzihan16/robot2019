@@ -428,6 +428,8 @@ class SupplyGoalAction : public ActionNode {
   virtual void OnInitialize() {
     //  std::cout << "SupplyGoalAction OnInitialize" << std::endl;
 		supply_goal_behavior_.have_execute_ = false;
+    blackboard_ptr_->have_gone_to_supply_ = true;
+    blackboard_ptr_->go_to_supply_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {
@@ -556,6 +558,8 @@ class GainBuffAction : public ActionNode {
   virtual void OnInitialize() {
     //  std::cout << "GainBuffAction OnInitialize" << std::endl;
 		buff_behavior_.have_execute_ = false;
+    blackboard_ptr_->have_gone_to_gainbuff_ = true;
+    blackboard_ptr_->go_to_gainbuff_time_ = ros::Time::now();
   };
 
   virtual BehaviorState Update() {

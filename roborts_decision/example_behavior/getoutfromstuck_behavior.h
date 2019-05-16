@@ -46,6 +46,7 @@ class GetOutFromStuckBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::STOP;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     int diff_between_leftright = (int)blackboard_->left_cell_cost_ - (int)blackboard_->right_cell_cost_;
