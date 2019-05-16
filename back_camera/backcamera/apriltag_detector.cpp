@@ -18,20 +18,23 @@
 #include<math.h>
 
 #include "proto/armor_detection.pb.h"
+#include "constraint_set/proto/constraint_set.pb.h"
+
 #include <ros/package.h>
 #include "io/io.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
-#include <tf/transform_listener.h>
-
 
 
 #define PI (3.1415926535897932346f)  
 
 namespace apriltags_ros{
 
-AprilTagDetector::AprilTagDetector(ros::NodeHandle& nh): it_(nh){
+AprilTagDetector::AprilTagDetector(ros::NodeHandle& nh): 
+it_(nh),
+is_pose_publish_(false)
+{
   //XmlRpc::XmlRpcValue april_tag_descriptions;
   //descriptions_ = parse_tag_descriptions(april_tag_descriptions);
   // if(!pnh.getParam("tag_descriptions", april_tag_descriptions)){
@@ -82,7 +85,6 @@ AprilTagDetector::AprilTagDetector(ros::NodeHandle& nh): it_(nh){
    const AprilTags::TagCodes* tag_codes;
    tag_codes = &AprilTags::tagCodes36h11;
 
-
   std::string frame_name0 ="tag_0";
   std::string frame_name1 ="tag_1";
   AprilTagDescription description0(0, 0.068, frame_name0);
@@ -90,21 +92,26 @@ AprilTagDetector::AprilTagDetector(ros::NodeHandle& nh): it_(nh){
   descriptions_.insert(std::make_pair(0, description0));
   descriptions_.insert(std::make_pair(1, description1));
 
+//-----------------读取相机偏移信息
+  // roborts_detection::ArmorDetectionAlgorithms offset_param;
+  // std::string file_name = ros::package::getPath("back_camera") + "/backcamera/config/armor_detection.prototxt";
+  // bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &offset_param);
+  // delta_x = offset_param.supply_offset().delta_x();
+  // delta_y = offset_param.supply_offset().delta_y();
+  // delta_theta = offset_param.supply_offset().delta_theta();
 
-  roborts_detection::ArmorDetectionAlgorithms offset_param;
-
-  std::string file_name = ros::package::getPath("back_camera") + "/backcamera/config/armor_detection.prototxt";
-  bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &offset_param);
-
-  delta_x = offset_param.supply_offset().delta_x();
-  delta_y = offset_param.supply_offset().delta_y();
-  delta_theta = offset_param.supply_offset().delta_theta();
+//----------------读取敌方机器人颜色
+  roborts_detection::ConstraintSetConfig constraint_set_config_;
+  std::string file_name = ros::package::getPath("back_camera") + \
+      "/backcamera/constraint_set/config/constraint_set.prototxt";
+  bool read_state = roborts_common::ReadProtoFromTextFile(file_name, &constraint_set_config_);
+  ROS_ASSERT_MSG(read_state, "Cannot open %s", file_name.c_str());
+  enemy_color_ = constraint_set_config_.enemy_color();
 
   tag_detector_= boost::shared_ptr<AprilTags::TagDetector>(new AprilTags::TagDetector(*tag_codes));
-  image_sub_ = it_.subscribeCamera("/back_camera/image_raw", 1, &AprilTagDetector::imageCb, this);   
+  image_sub_ = it_.subscribeCamera("back_camera/image_raw", 1, &AprilTagDetector::imageCb, this);   
   image_pub_ = it_.advertise("tag_detections_image", 1);
   initialpose_pub_ = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 50);
-
 }
 
 AprilTagDetector::~AprilTagDetector(){
@@ -113,21 +120,6 @@ AprilTagDetector::~AprilTagDetector(){
 
 void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::CameraInfoConstPtr& cam_info){
  
-
-   tf::StampedTransform transform;
-   try{
-   listener.waitForTransform("/base_link", "/map", ros::Time(0), ros::Duration(3.0));
-   listener.lookupTransform("/base_link", "/map", ros::Time(0), transform);
-    } catch (tf::TransformException &ex) {
-     ROS_ERROR("%s",ex.what());
-     //ros::Duration(1.0).sleep();
-     return;
-    } 
-   
-   double pitch, roll, amcl_yaw;
-   transform.getBasis().getEulerYPR(amcl_yaw,pitch,roll);
-
-
   cv_bridge::CvImagePtr cv_ptr;
   try{
     cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -143,6 +135,9 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
   ROS_DEBUG("%d tag detected", (int)detections.size());
 
   tag_detect_amount_ = (int)detections.size();
+  if (tag_detect_amount_ == 0){
+    return;
+  }
  // std::cout << "tag_detect_amount = " << tag_detect_amount_ << std::endl;
 
 /*相机数据读不进来，手动初始化相机内参，还需修改TagDetection.cc文件的畸变参数distParam*/ 
@@ -157,8 +152,7 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
   //std::cout << "fx=" << fx << std::endl;
  
   if(!sensor_frame_id_.empty())
-    cv_ptr->header.frame_id = sensor_frame_id_;
-
+  cv_ptr->header.frame_id = sensor_frame_id_;
   //AprilTagDetectionArray tag_detection_array;      //apriltags标签坐标
   geometry_msgs::PoseArray tag_pose_array;
   tag_pose_array.header = cv_ptr->header; 
@@ -171,13 +165,73 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
       ROS_WARN_THROTTLE(10.0, "Found tag: %d, but no description was found for it", detection.id);
       continue;
     }
-    AprilTagDescription description = description_itr->second;
-    double tag_size = description.size();
 
     detection.draw(cv_ptr->image);
-    tag_id = detection.id;
-   // std::cout << "tag_id = " << detection.id << std::endl; 
 
+//---------------------判断是否停错补给区
+     tf::StampedTransform transform;
+    try{
+    listener.waitForTransform("map", "base_link", ros::Time(0), ros::Duration(3.0));
+    listener.lookupTransform("map", "base_link", ros::Time(0), transform);
+    } catch (tf::TransformException &ex) { 
+    ROS_ERROR("%s",ex.what()); 
+    return; 
+    }
+
+    double pitch, roll, amcl_yaw, amcl_x, amcl_y, z;
+    transform.getBasis().getEulerYPR(amcl_yaw,pitch,roll);
+    amcl_x = transform.getOrigin().x();
+    amcl_y = transform.getOrigin().y();
+    std::cout << "tf form /base_link to /map is : "  << std::endl
+              << "x = : " << amcl_x << std::endl
+              << "y = : " << amcl_y<< std::endl
+              << "z = : " << amcl_yaw << std::endl;
+
+
+    tag_id = detection.id;
+    // if(tag_id == enemy_color_){
+    //   return;
+    // }
+    //红方enemy_color_ = 0  蓝方enemy_color_ = 1
+    std::cout << "enemy color = " << enemy_color_ << std::endl;
+
+    switch(tag_id)
+    {
+      case 0 :
+          if(enemy_color_ == 0 && amcl_y > 2.5 ){
+            std::cout <<  "aaaaaaaaaaaaa" << std::endl;    
+            return;
+          }
+          if(enemy_color_ == 1 && amcl_y < 2.5){
+           std::cout <<  "bbbbbbbbbbbb" << std::endl; 
+            return;
+          }
+          break;
+
+      case 1 :
+          if(enemy_color_ == 0 && amcl_y < 2.5 ){
+            std::cout <<  "ccccccccccc" << std::endl; 
+            return;
+          }
+          if(enemy_color_ == 1 && amcl_y > 2.5){
+            std::cout <<  "ddddddddddddd" << std::endl; 
+            return;
+          }
+          break;
+
+      default:
+      break;
+    }
+    
+    std::cout << "error supply station，tag_id = " << detection.id << std::endl;   
+    
+    Eigen::Vector3d robot_pose;  //  x,y,yaw
+    robot_pose(0) = 8.15 - amcl_x;
+    robot_pose(1) = 5.15 - amcl_y;
+    robot_pose(2) = amcl_yaw - PI;
+     std::cout << "robot_pose = " << std::endl << robot_pose << std::endl;
+
+/*-----------------------计算pnp,并计算机器人位姿态 
     Eigen::Matrix4d transform = detection.getRelativeTransform(tag_size, fx, fy, px, py,k1,k2,k3,k4);  //计算标签坐标
     Eigen::Matrix3d rot = transform.block(0, 0, 3, 3);           //旋转矩阵R
     Eigen::Vector3d p_oc;
@@ -196,12 +250,11 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     // double theta_z = atan2(rot_inverse(1, 0), rot_inverse(0, 0));
 
     // std::cout << "theta_x = " << theta_x/PI*180 << std::endl
-    //           << "theta_y = " << theta_y/PI*180 << std::endl
+    //           << "theta_y = " <<补激a_y/PI*180 << std::endl
     //           << "theta_z = " << theta_z/PI*180 << std::endl;
 
-    Eigen::Vector3d robot_pose;  //  x,y,yaw
     float l = 0.15;  //相机中心到机器人中心距离
-    
+    Eigen::Vector3d robot_pose;
     // double alfa = theta_y;           //从相机旋转轴转到机器人中心
     // double beta = atan2(p_oc(0),p_oc(2));
     // robot_pose(0) = 4 + p_oc(0) + l*sin(alfa+beta);
@@ -210,12 +263,10 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
 
     std::cout << "tf form /base_link to /map is : " << amcl_yaw << std::endl;
 
-    double theta = amcl_yaw - PI;
-     robot_pose(0) = 4 + p_oc(0) + l*sin(theta);    //姿态太跳
-     robot_pose(1) = 5 - p_oc(2) - l*cos(theta); 
-    // robot_pose(0) = 4 + p_oc(0) ;
-    // robot_pose(1) = 5 - p_oc(2) ;    
-    robot_pose(2) = -amcl_yaw;
+    double theta = amcl_yaw - PI;    //yaw角从amcl读取
+    robot_pose(0) = 4 + p_oc(0) + l*sin(theta);
+    robot_pose(1) = 5 - p_oc(2) - l*cos(theta);    
+    robot_pose(2) = amcl_yaw;
           
      
      //-----------------发布initial pose
@@ -225,10 +276,10 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
     robot_pose(2) = robot_pose(2) + delta_theta;
     
     // std::cout << "delta_x = "  << delta_x << std::endl
-    //           << "delta_y = "  << delta_y << std::endl;
-              
+    //           << "delta_y = "  << delta_y << std::endl;             
+*/
 
-     std::cout << "robot_pose = " << std::endl << robot_pose << std::endl;
+    
 
 		 initialpose_with_covariance.header.stamp = msg->header.stamp;
 		 initialpose_with_covariance.header.frame_id = "map";
@@ -244,12 +295,20 @@ void AprilTagDetector::imageCb(const sensor_msgs::ImageConstPtr& msg, const sens
 			0, 0, 0, 0, 0, 0.0001
 		};
 		initialpose_with_covariance.pose.covariance = covariance;
+
+    //---------一直发
     initialpose_pub_.publish(initialpose_with_covariance);
+    std::cout << "位姿已校正" << std::endl;
+    // if(!is_pose_publish_){
+    // initialpose_pub_.publish(initialpose_with_covariance);
+    // is_pose_publish_ = true;
+    // std::cout << "位姿已校正，关闭标签检测" << std::endl;
+    // }
   }
 
-  //detections_pub_.publish(tag_detection_array);
-  //pose_pub_.publish(tag_pose_array);                //发布tag_pose_array
-  image_pub_.publish(cv_ptr->toImageMsg());
+    //detections_pub_.publish(tag_detection_array);
+    //pose_pub_.publish(tag_pose_array);                //发布tag_pose_array
+    image_pub_.publish(cv_ptr->toImageMsg());
 }
 
 

@@ -371,6 +371,50 @@ class GoalAction : public ActionNode {
 
 }; // class GoalAction
 
+class GuardGoalAction : public ActionNode {
+ public:
+  GuardGoalAction(const Blackboard::Ptr &blackboard_ptr, GuardGoalBehavior &guard_goal_behavior) :
+      ActionNode::ActionNode("guard_goal_behavior", blackboard_ptr), guard_goal_behavior_(guard_goal_behavior){
+
+  }
+
+  virtual ~GuardGoalAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    //  std::cout << "GuardGoalAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+    guard_goal_behavior_.Run();
+    ROS_INFO(" guard_goal_behavior_ guard_goal_behavior_ !");
+    return guard_goal_behavior_.Update();
+
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				guard_goal_behavior_.Cancel();
+        //  std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        //  std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        //  std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        //  std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  GuardGoalBehavior guard_goal_behavior_;
+
+}; // class GuardGoalAction
+
+
 class SupplyGoalAction : public ActionNode {
  public:
   SupplyGoalAction(const Blackboard::Ptr &blackboard_ptr, SupplyGoalBehavior &supply_goal_behavior) :

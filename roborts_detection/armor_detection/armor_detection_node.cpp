@@ -287,21 +287,22 @@ void ArmorDetectionNode::ExecuteLoop() {
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
           shoot_executor_.Execute();
-        
-              int diff_fre_=shoot_executor_.frequency_-shoot_executor_.last_fre_;
+        //==============bullet=============
               float diff_spd_=shoot_executor_.speed_-shoot_executor_.last_speed_;
-               if(diff_fre_!=0 && diff_spd_!=0){//如果射弹了
-               shoot_executor_.shoot_last_time = ros::Time::now();
+               if( diff_spd_!=0){//如果射弹了
+               shoot_executor_.unshoot_count_=0;
+               shoot_executor_.last_speed_=shoot_executor_.speed_;
+             }else{
+               shoot_executor_.unshoot_count_++;
              }
-           ros::Time now_time = ros::Time::now();
-           ros::Duration shoot_duration=now_time-shoot_executor_.shoot_last_time;
-           float shoot_pause_time = shoot_duration.toSec();
-           if(shoot_pause_time>3){//
+          
+           if(shoot_executor_.unshoot_count_>60){
              shoot_executor_.bullet_vacant_.bullet_vacant=true;
              shoot_executor_.bullet_status_pub_.publish(shoot_executor_.bullet_vacant_);
             }
-           shoot_executor_.last_fre_=shoot_executor_.frequency_;
-           shoot_executor_.last_speed_=shoot_executor_.speed_;
+           
+        }else{
+          shoot_executor_.unshoot_count_=0;
         }
        
           
@@ -315,6 +316,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         undetected_count_--;
         // PublishMsgs();
         enemy_disappear_time = ros::Time::now();
+        shoot_executor_.unshoot_count_=0;
       } else {
         last_enemy_time = ros::Time::now();
         last_yaw_ = GetGimbalYaw();
