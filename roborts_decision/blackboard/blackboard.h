@@ -505,6 +505,8 @@ public:
 	}
   bool IsBulletLeft() const;
   bool NotGetDamageIn3Sec();
+  bool IsPartnerBulletLeft() const;
+  bool IsArrivedGuardGoal();
 
 private:
   /*******************Update Chassis Pose and Gimbal Pose*******************/

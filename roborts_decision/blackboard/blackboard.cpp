@@ -998,4 +998,38 @@ namespace roborts_decision {
     }
   }
 
+  bool Blackboard::IsPartnerBulletLeft() const{
+    ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);
+    if (bullet_num_ > 0){
+      return true;
+    } else{
+      return false;
+    }
+  }
+
+  bool Blackboard::IsArrivedGuardGoal() {
+      geometry_msgs::PoseStamped fix_goal;
+      if (IsMasterCondition()){
+        fix_goal.pose.position.x = 7.5;
+        fix_goal.pose.position.y = 2.5;
+        fix_goal.pose.position.z = 0.0;
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(270.0/180*3.14);
+      } else {
+        fix_goal.pose.position.x = 1;
+        fix_goal.pose.position.y = 4.5;
+        fix_goal.pose.position.z = 0.0;
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(0.0/180*3.14);
+      }
+      UpdateRobotPose();
+      float dis = sqrt((robot_map_pose_.pose.position.x - fix_goal.pose.position.x) * (robot_map_pose_.pose.position.x - fix_goal.pose.position.x)
+       + (robot_map_pose_.pose.position.y - fix_goal.pose.position.y) * (robot_map_pose_.pose.position.y - fix_goal.pose.position.y));
+      if (dis < 0.2){
+        return true;
+      } else {
+        return false;
+      }
+
+  }
+
+
 }

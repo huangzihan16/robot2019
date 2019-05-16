@@ -376,15 +376,12 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::SelectorNode> escape_selector(new roborts_decision::SelectorNode("escape_selector", blackboard_ptr_)); 
   std::shared_ptr<roborts_decision::PreconditionNode> escape_guard_goal_condition_(new roborts_decision::PreconditionNode("escape_guard_goal_condition",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->NotGetDamageIn3Sec()){
+																																																if (blackboard_ptr_->NotGetDamageIn3Sec() && !blackboard_ptr_->IsArrivedGuardGoal()){
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
 																																															} , roborts_decision::AbortType::BOTH));
-  escape_selector->AddChildren(escape_guard_goal_condition_);
-  escape_selector->AddChildren(guard_action_);
-  escape_guard_goal_condition_->SetChild(guard_goal_action_);
 
 
   enemy_obtain_buff_selector->AddChildren(emy_buff_condition_);
@@ -405,6 +402,7 @@ int main(int argc, char **argv) {
   inferior_detected_condition_->SetChild(turn_back_action_);
   emy_buff_attack_condition_->SetChild(turn_to_hurt_action_);
   master_inferior_receive_condition_->SetChild(support_action_); 
+
 
   roborts_decision::BehaviorTree behaviortree(root_node, 20);
 
