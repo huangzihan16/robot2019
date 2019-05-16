@@ -116,6 +116,7 @@ class PatrolBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::PATROL;
     blackboard_->partner_msg_pub_.patrol_count = patrol_count_;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
@@ -131,7 +132,7 @@ class PatrolBehavior {
           return;
         }
         
-        if (!blackboard_->IsPartnerAvailable())
+        if (!blackboard_->IsPartnerAvailable() || blackboard_->partner_bullet_num_ == 0 || blackboard_->partner_status_ != PartnerStatus::PATROL)
           need_execute = true;
         else {
           if (patrol_count_ < master_point_size_ - 1) {
@@ -140,7 +141,7 @@ class PatrolBehavior {
             else
               need_execute = false;            
           } else if (patrol_count_ == master_point_size_ - 1) {
-            if (blackboard_->partner_patrol_count_ == slave_point_size_ - 1 || blackboard_->partner_patrol_count_ == 0)
+            if (blackboard_->partner_patrol_count_ >= patrol_count_ || blackboard_->partner_patrol_count_ == 0)
               need_execute = true;
             else
               need_execute = false;
@@ -156,16 +157,20 @@ class PatrolBehavior {
           return;
         }
 
-        if (patrol_count_ < slave_point_size_ - 1) {
-          if (patrol_count_ <= blackboard_->partner_patrol_count_)
-            need_execute = true;
-          else
-            need_execute = false;          
-        } else if (patrol_count_ == slave_point_size_ - 1) {
-          if (blackboard_->partner_patrol_count_ == master_point_size_ - 1 || blackboard_->partner_patrol_count_ == 0)
-            need_execute = true;
-          else
-            need_execute = false;
+        if (blackboard_->partner_bullet_num_ == 0 || blackboard_->partner_status_ != PartnerStatus::PATROL)
+          need_execute = true;
+        else {  
+          if (patrol_count_ < slave_point_size_ - 1) {
+            if (patrol_count_ <= blackboard_->partner_patrol_count_)
+              need_execute = true;
+            else
+              need_execute = false;          
+          } else if (patrol_count_ == slave_point_size_ - 1) {
+            if (blackboard_->partner_patrol_count_ >= patrol_count_ || blackboard_->partner_patrol_count_ == 0)
+              need_execute = true;
+            else
+              need_execute = false;
+          }
         }
         if (need_execute) {
           chassis_executor_->Execute(slave_patrol_goals_[patrol_count_]);

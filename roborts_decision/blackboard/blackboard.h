@@ -185,7 +185,10 @@ public:
       identity_number_(1),
  			gain_buff_number_(0),
       is_good_communication_(true),
-      have_connected_(false) {
+      have_connected_(false),
+      have_supplied_(false),
+      have_gone_to_supply_(false),
+      have_gone_to_gainbuff_(false) {
 
     start_time_ = ros::Time::now();
 
@@ -493,9 +496,14 @@ public:
 
   /*******************Functions Used in Behavior Tree*******************/
   bool IsSupplyCondition();
+  bool IsGoodIdentityForSupply();
+  bool IsPartnerInSupplier();
   bool IsGoToSupplyCondition();
 
   bool IsGainBuffCondition();
+  bool IsPartnerInBuffArea();
+  bool IsGoToGainBuffCondition();
+
   bool IsEnemyDetected() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);
     return enemy_detected_;
@@ -570,6 +578,14 @@ public:
   /****************补弹tag id******************/
   int tag_id_;
   int back_camera_mode_;
+
+  /****************补弹和buff相关变量******************/
+  bool have_supplied_;
+  ros::Time go_to_supply_time_;
+  bool have_gone_to_supply_;
+
+  ros::Time go_to_gainbuff_time_;
+  bool have_gone_to_gainbuff_;
 
   /*******************Referee System Information*******************/
   //Useless

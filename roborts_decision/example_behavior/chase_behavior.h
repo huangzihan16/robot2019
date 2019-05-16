@@ -36,6 +36,7 @@ class ChaseBehavior {
   }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::BATTLE;
     blackboard_->ChaseAlertForGimbalControl();
     blackboard_->PublishPartnerInformation();
     auto executor_state = Update();

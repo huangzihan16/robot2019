@@ -494,6 +494,10 @@ namespace roborts_decision {
     partner_detect_enemy_ = false;
     start_time_ = ros::Time::now();
 
+    have_supplied_ = false;
+    have_gone_to_supply_ = false;
+    have_gone_to_gainbuff_ = false;
+
     bullet_num_ = decision_config_.initial_bullet_num();
     if (decision_config_.master())
       self_identity_ = Identity::MASTER;
@@ -528,6 +532,15 @@ namespace roborts_decision {
 
   void Blackboard::SupplierStatusCallback(const roborts_msgs::SupplierStatus::ConstPtr& supplier_status) {
     supplier_status_ = (SupplierStatus)supplier_status->status;
+
+    if (supplier_status_ == SupplierStatus::PREPARING || supplier_status_ == SupplierStatus::SUPPLYING) {
+      if (self_identity_ == Identity::SLAVE) {
+        if (!have_supplied_) {
+          have_supplied_ = true;
+          supply_number_++;
+        }
+      }
+    }
   }
 
   void Blackboard::RobotStatusCallback(const roborts_msgs::RobotStatus::ConstPtr& robot_status) {
@@ -596,8 +609,8 @@ namespace roborts_decision {
     geometry_msgs::PoseStamped fix_goal;
     ros::Time current_time = ros::Time::now();
     fix_goal.header.stamp = current_time;
-    fix_goal.pose.position.x = 4 + 0.075;
-    fix_goal.pose.position.y = 4.5 - 0.08;
+    fix_goal.pose.position.x = 4.10;
+    fix_goal.pose.position.y = 4.28;
     fix_goal.pose.position.z = 0.0;
     fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
 
@@ -747,12 +760,16 @@ namespace roborts_decision {
     ros::Duration time_past = ros::Time::now() - start_time_;
     float time = 180 - remaining_time_;
 	  if (time >= 60 * identity_number_) {
+      have_supplied_ = false;
+      have_gone_to_supply_ = false;
+      have_gone_to_gainbuff_ = false;
+
       if (self_identity_ == Identity::MASTER) {
         self_identity_ = Identity::SLAVE;
-        supply_number_++;
       } else {
         self_identity_ = Identity::MASTER;
       }
+      supply_number_ = identity_number_;
       identity_number_++;
     }
     if (self_identity_ == Identity::MASTER) {
@@ -897,7 +914,36 @@ namespace roborts_decision {
 			return false;
 	}
 
-  bool Blackboard::IsGoToSupplyCondition() {
+  bool Blackboard::IsGoodIdentityForSupply() {
+    if (IsMasterCondition())
+      return true;
+    else {
+      bool partner_survive = true;
+      if (id_ == 3)
+        partner_survive = red4_;
+      else if (id_ == 4)
+        partner_survive = red3_;
+      else if (id_ == 13)
+        partner_survive = blue4_;
+      else if (id_ == 14)
+        partner_survive = blue3_;
+
+      if (!partner_survive)
+        return true;
+      else
+        return false;
+    }
+  }
+
+  bool Blackboard::IsPartnerInSupplier() {
+    double x_partner = partner_pose_.pose.position.x, y_partner = partner_pose_.pose.position.y;
+    if (x_partner > 3.575 && x_partner < 4.575 && y_partner > 4.075 && y_partner < 5.075) 
+      return true;
+    else
+      return false;
+  }
+
+  /*bool Blackboard::IsGoToSupplyCondition() {
     static int status = 0;
 		ros::Duration time_past = ros::Time::now() - start_time_;
     ros::Duration partner_hp_time = ros::Time::now() - last_rec_partner_hp_time_;
@@ -964,7 +1010,39 @@ namespace roborts_decision {
         return false;
       }
     }
-	}
+	}*/
+
+  bool Blackboard::IsGoToSupplyCondition() {
+    if (IsSupplyCondition()) {
+      if (IsGoodIdentityForSupply()) {
+        CheckCommunication();
+        if (is_good_communication_) {
+          if (!IsPartnerInSupplier())
+            return true;
+          else 
+            return false;
+        } else {
+          if (have_gone_to_supply_) {
+            ros::Duration supply_duration = ros::Time::now() - go_to_supply_time_;
+            if (supply_duration.toSec() > 30.0) 
+              return false;
+            else
+              return true;            
+          } else
+            return true;          
+        }
+      }
+    }
+    return false;
+  }
+
+  bool Blackboard::IsPartnerInBuffArea() {
+    double x_partner = partner_pose_.pose.position.x, y_partner = partner_pose_.pose.position.y;
+    if (x_partner > 5.875 && x_partner < 6.875 && y_partner > 1.325 && y_partner < 2.325) 
+      return true;
+    else
+      return false;
+  }
 
   bool Blackboard::IsGainBuffCondition() {
     float time = 180 - remaining_time_;
@@ -980,6 +1058,28 @@ namespace roborts_decision {
 		// else
 		// 	return false;
 	}
+
+  bool Blackboard::IsGoToGainBuffCondition() {
+    if (GetBonusStatus() == roborts_decision::BonusStatus::UNOCCUPIED) {
+      CheckCommunication();
+      if (is_good_communication_) {
+        if (!IsPartnerInBuffArea())
+          return true;
+        else
+          return false;
+      } else {
+        if (have_gone_to_gainbuff_) {
+          ros::Duration gainbuff_duration = ros::Time::now() - go_to_gainbuff_time_;
+          if (gainbuff_duration.toSec() > 30.0)
+            return false;
+          else
+            return true;
+        } else
+          return true;        
+      }
+    }
+    return false;
+  }
 
   bool Blackboard::IsBulletLeft() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)bullet_num_);

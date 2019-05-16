@@ -13,6 +13,7 @@ class GainBuffBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false), i(0), buff_count_(1){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::GAINBUFF;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     if(!have_execute_){
