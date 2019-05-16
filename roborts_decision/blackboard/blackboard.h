@@ -451,7 +451,8 @@ public:
   bool IsMasterCondition();
   bool IsMasterSupplyCondition();
   bool IsMasterGainBuffCondition();
-  
+  bool IsArriveSupplyGoal();
+
   bool IsGoodCommunication() {
     CheckCommunication();
     return is_good_communication_;

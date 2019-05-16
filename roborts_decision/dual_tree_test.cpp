@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
 	roborts_decision::GainBuffGoalBehavior  gain_buff_goal_behavior_(chassis_executor, blackboard);
 	// roborts_decision::RoundBehavior         gain_buff_round_behavior_(chassis_executor, blackboard, 2);
   roborts_decision::RoundBehavior         guard_behavior_(chassis_executor, blackboard, 3);
+  roborts_decision::AccurSupplyBehavior   accur_supply_behavior_(chassis_executor, blackboard);
 
 /***************************************************************/
   roborts_decision::ChaseBehavior          chase_behavior_(chassis_executor, blackboard, full_path);
@@ -85,6 +86,7 @@ int main(int argc, char **argv) {
   auto turn_back_action_ = std::make_shared<roborts_decision::TurnBackAction>(blackboard_ptr_, turn_back_behavior_);
 
   auto get_out_from_stuck_action_ = std::make_shared<roborts_decision::GetOutFromStuckAction>(blackboard_ptr_, get_out_from_stuck_behavior_);
+  auto accur_supply_action_ = std::make_shared<roborts_decision::AccurSupplyAction>(blackboard_ptr_, accur_supply_behavior_);
   /***************************************************************/
 
 //  
@@ -149,9 +151,23 @@ int main(int argc, char **argv) {
 																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::SequenceNode> supply_sequence(new roborts_decision::SequenceNode("supply", blackboard_ptr_));
 
+  std::shared_ptr<roborts_decision::PreconditionNode> accur_supply_condition_(new roborts_decision::PreconditionNode("accur_supply_condition", blackboard_ptr_,
+                                                                                              [&]() {
+																																																if (blackboard_ptr_->IsArriveSupplyGoal()) {
+																																																	return false;
+																																																} else {
+																																																	return true;
+																																																}
+																																															}, roborts_decision::AbortType::BOTH));
+  // root_node->AddChildren(accur_supply_condition_);
+  // accur_supply_condition_->SetChild(accur_supply_action_);
+
+
+
   no_bullet_left_selector->AddChildren(bullet_supply_condition_);
   bullet_supply_condition_->SetChild(supply_sequence); 
   supply_sequence->AddChildren(supply_goal_action_);
+  supply_sequence->AddChildren(accur_supply_action_);
 	supply_sequence->AddChildren(supply_application_action_);
   supply_sequence->AddChildren(supply_goalout_action_);
 
