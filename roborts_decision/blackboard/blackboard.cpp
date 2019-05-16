@@ -1052,6 +1052,26 @@ namespace roborts_decision {
     return false;
   }
 
+  bool Blackboard::IsArriveSupplyGoal()
+  {
+    geometry_msgs::PoseStamped robot_pose = GetRobotMapPose();
+    geometry_msgs::PoseStamped goal = GetSupplyGoal();
+    double yaw = tf::getYaw(robot_pose.pose.orientation) + 1.57;    //--1.57
+
+
+    if(fabs(robot_pose.pose.position.x - goal.pose.position.x) < 0.02){
+      if(fabs(robot_pose.pose.position.y - goal.pose.position.y) < 0.02){
+        if(fabs(yaw) < 0.03){
+          return true;
+        }
+        return false;
+      }
+      return false;
+    }
+    return false;
+
+  } 
+
   bool Blackboard::IsPartnerInBuffArea() {
     double x_partner = partner_pose_.pose.position.x, y_partner = partner_pose_.pose.position.y;
     if (x_partner > 5.875 && x_partner < 6.875 && y_partner > 1.325 && y_partner < 2.325) 
