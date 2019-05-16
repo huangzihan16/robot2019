@@ -20,6 +20,7 @@
 #include "roborts_msgs/RobotStatus.h"
 #include "roborts_msgs/SupplierStatus.h"
 #include "roborts_msgs/ProjectileSupply.h"
+#include "roborts_msgs/BulletVacant.h"
 
 namespace roborts_detection{
 enum class GameStatus{
@@ -83,7 +84,7 @@ class ShootExecutor{
   ROS_INFO("Shoot server start!");
   zero_shoot_cmd_.request.mode = 0;
 	zero_shoot_cmd_.request.number = 0;
-
+  unshoot_count_=0;
   game_status_sub_ = nh.subscribe<roborts_msgs::GameStatus>("game_status",30 , &ShootExecutor::GameStatusCallback, this);
   game_result_sub_ = nh.subscribe<roborts_msgs::GameResult>("game_result",30 , &ShootExecutor::GameResultCallback, this);
     game_survival_sub_ = nh.subscribe<roborts_msgs::GameSurvivor>("game_survivor",30 , &ShootExecutor::GameSurvivorCallback, this);
@@ -95,6 +96,7 @@ class ShootExecutor{
     robot_damage_sub_ = nh.subscribe<roborts_msgs::RobotDamage>("robot_damage",30 , &ShootExecutor::RobotDamageCallback, this);
     robot_shoot_sub_ = nh.subscribe<roborts_msgs::RobotShoot>("robot_shoot",30 , &ShootExecutor::RobotShootCallback, this);
     projectile_supply_pub_ = nh.advertise<roborts_msgs::ProjectileSupply>("projectile_supply", 1);
+    bullet_status_pub_ = nh.advertise<roborts_msgs::BulletVacant>("BulletVacant", 1);
 }
   ~ShootExecutor() = default;
 
@@ -209,6 +211,7 @@ void Execute(){
   void RobotShootCallback(const roborts_msgs::RobotShoot::ConstPtr& robot_shoot){
     frequency_ = robot_shoot->frequency;
     speed_ = robot_shoot->speed;
+    
   } 
 
 
@@ -224,6 +227,7 @@ void Execute(){
     ros::Subscriber robot_damage_sub_;
     ros::Subscriber robot_shoot_sub_;  
     ros::Publisher projectile_supply_pub_; 
+    ros::Publisher bullet_status_pub_;
     //! Referee system info
     // Game Status
     GameStatus game_status_;
@@ -262,11 +266,15 @@ void Execute(){
     DamageSource armor_attacked_;
     DamageType damage_type_; 
     //Robot Shoot
-    unsigned int frequency_;
-    float speed_;
+    unsigned int frequency_=0;
+    float speed_=0;
+    int unshoot_time_=0;
+    int last_fre_=0;
+    float last_speed_=0;
+    int unshoot_count_;
     //projectile supply
-    roborts_msgs::ProjectileSupply projectilesupply_;
-
+  roborts_msgs::ProjectileSupply projectilesupply_;
+  roborts_msgs::BulletVacant bullet_vacant_;
   roborts_msgs::ShootCmd shoot_cmd_;
 
  private:

@@ -555,11 +555,12 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
                 }
               }
           }
+      }
           if(!is_armor[i]){
             break;
           }
     }
-    }else{
+    else{
       is_armor[i] = false;
        
     }
@@ -569,6 +570,7 @@ void ConstraintSet::FilterArmors(std::vector<ArmorInfo> &armors) {
 
 
   }
+
   
 
   
