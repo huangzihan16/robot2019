@@ -25,8 +25,8 @@ namespace roborts_decision {
   };
   enum class DamageSource{
     FORWARD = 0,
-    BACKWARD = 1,
-    LEFT = 2,
+    LEFT = 1,
+    BACKWARD = 2,
     RIGHT = 3,
     NONE = 4
   };

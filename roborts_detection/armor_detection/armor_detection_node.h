@@ -113,6 +113,7 @@ class ArmorDetectionNode {
   float MembershipKs[6];
   int patrol_dir_;
   int patrol_mode_;
+  bool chase_mode_;
 protected:
  private:
   std::shared_ptr<ArmorDetectionBase> armor_detector_;
