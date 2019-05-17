@@ -225,7 +225,7 @@ public:
     robot_damage_sub_ = nh.subscribe<roborts_msgs::RobotDamage>("robot_damage",30 , &Blackboard::RobotDamageCallback, this);
     robot_shoot_sub_ = nh.subscribe<roborts_msgs::RobotShoot>("robot_shoot",30 , &Blackboard::RobotShootCallback, this);
     projectile_supply_pub_ = nh.advertise<roborts_msgs::ProjectileSupply>("projectile_supply", 1);
-    bullet_vacant_sub_ = nh.subscribe<roborts_msgs::BulletVacant>("bulletto0",30 , &Blackboard::BulletVacantCallback, this);
+    bullet_vacant_sub_ = nh.subscribe<roborts_msgs::BulletVacant>("BulletVacant",30 , &Blackboard::BulletVacantCallback, this);
 
     last_enemy_disappear_time_ = ros::Time::now() + ros::Duration(5*60);
     /*******************/
