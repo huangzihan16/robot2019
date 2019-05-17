@@ -64,6 +64,8 @@ class ChassisExecutor{
    */
   void Cancel();
 
+  int dir_flag_=1;
+
  private:
   /***
    * @brief Global planner actionlib feedback callback function to send the global planner path to local planner

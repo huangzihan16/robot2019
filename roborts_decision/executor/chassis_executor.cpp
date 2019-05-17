@@ -50,11 +50,58 @@ void ChassisExecutor::Execute(const double yaw){
 	execution_mode_ = ExcutionMode::SPEED_MODE;
 	
   float limitangle_ = M_PI/4;
+  float incre_angle_ = 2.5*M_PI/180;
+  
+  // if(yaw>-limitangle_&&yaw<=-limitangle_+3*incre_angle_){
+  //     // angular_vel = -0.08*dir_flag_;
+  // // }else if(yaw>-limitangle_+incre_angle_&&yaw<=-limitangle_+2*incre_angle_){
+  // //      angular_vel = -0.34*dir_flag_;
+  // // }else if(yaw>-limitangle_+2*incre_angle_&&yaw<=-limitangle_+3*incre_angle_){
+  //     angular_vel = -0.52*dir_flag_;
+  // }else if(yaw>-limitangle_+3*incre_angle_&&yaw<=-limitangle_+4*incre_angle_){
+  //     angular_vel = -0.75*dir_flag_;
+  // }else if(yaw>-limitangle_+4*incre_angle_&&yaw<=-limitangle_+5*incre_angle_){
+  //     angular_vel = -0.95*dir_flag_;
+  // }else if(yaw>-limitangle_+5*incre_angle_&&yaw<=-limitangle_+9*incre_angle_){
+  //     angular_vel = -1.43*dir_flag_;
+  // }else if(yaw>-limitangle_+9*incre_angle_&&yaw<=-limitangle_+13*incre_angle_){
+  //     angular_vel = -2.08*dir_flag_;
+  // }else if(yaw>-limitangle_+13*incre_angle_&&yaw<=-limitangle_+18*incre_angle_){
+  //     angular_vel = -2.34*dir_flag_;
+  // }
+  
+  // else if(yaw<limitangle_&&yaw>=limitangle_-3*incre_angle_){
+  // //     angular_vel = -0.08*dir_flag_;
+  // // }else if(yaw<limitangle_-incre_angle_&&yaw>=limitangle_-2*incre_angle_){
+  // //     angular_vel = -0.34*dir_flag_;
+  // // }else if(yaw<limitangle_-2*incre_angle_&&yaw>=limitangle_-3*incre_angle_){
+  //     angular_vel = -0.52*dir_flag_;
+  // }else if(yaw<limitangle_-3*incre_angle_&&yaw>=limitangle_-4*incre_angle_){
+  //     angular_vel = -0.75*dir_flag_;
+  // }else if(yaw<limitangle_-4*incre_angle_&&yaw>=limitangle_-5*incre_angle_){
+  //     angular_vel = -0.95*dir_flag_;
+  // }else if(yaw<limitangle_-5*incre_angle_&&yaw>=limitangle_-9*incre_angle_){
+  //     angular_vel = -1.43*dir_flag_;
+  // }else if(yaw<limitangle_-9*incre_angle_&&yaw>=limitangle_-13*incre_angle_){
+  //     angular_vel = -2.08*dir_flag_;
+  // }else if(yaw<limitangle_-13*incre_angle_&&yaw>=limitangle_-18*incre_angle_){
+  //     angular_vel = -2.34*dir_flag_;
+  // }
+  // else if(yaw <= -limitangle_){
+  //     angular_vel = -0.08;
+  //     dir_flag_ = 1;
+  // }else if(yaw >= limitangle_){
+  //     angular_vel = 0.08;
+  //     dir_flag_ =-1;
+  // }
 
-  if(yaw < -limitangle_)
-    angular_vel = -1;
-  if(yaw > limitangle_)
-    angular_vel = 1;
+  
+  if(yaw <= -limitangle_){
+      angular_vel = -1;
+  }
+  if(yaw >= limitangle_){
+      angular_vel = 1;
+  }
 
   set_w.angular.z=angular_vel;
   cmd_vel_pub_.publish(set_w);
