@@ -299,7 +299,9 @@ void ArmorDetectionNode::ExecuteLoop() {
         //TODO ff
 
         float enemy_x_shooter = armors[0].target_3d.x/1000.0 + 0.03;  //offset 0.03
-		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
+		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500 &&
+        (shoot_executor_.game_status_ == roborts_detection::GameStatus::PRE_MATCH 
+          || shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND)) {
           shoot_executor_.Execute();
         //==============bullet=============
         float diff_spd_=shoot_executor_.speed_-shoot_executor_.last_speed_;
@@ -351,8 +353,7 @@ void ArmorDetectionNode::ExecuteLoop() {
         }
       }
       if (shoot_executor_.game_status_ == roborts_detection::GameStatus::PRE_MATCH 
-          || shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND
-          || shoot_executor_.game_status_ == roborts_detection::GameStatus::SETUP){
+          || shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND ){
         PublishMsgs();
       }
     } else if (node_state_ == NodeState::PAUSE) {
