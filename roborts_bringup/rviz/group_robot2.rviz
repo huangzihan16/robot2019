@@ -7,9 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /LaserScan1
-        - /TF1
         - /TF1/Frames1
-        - /Map1
         - /Map2
         - /Path1
         - /Path2
@@ -235,7 +233,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.49979639
+      Pitch: 1.4947964
       Target Frame: map
       Value: ThirdPersonFollower (rviz)
       Yaw: 1.59261405

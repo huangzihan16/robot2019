@@ -22,7 +22,7 @@
   <include file="$(find roborts_bringup)/launch/static_tf.launch" />
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts_bringup)/maps/$(arg map).yaml" respawn="false" />
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts_bringup)/maps/$(arg map).yaml" respawn="true" />
 
   <!-- Run the rplidar A3 node -->
   <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
@@ -35,19 +35,19 @@
   </node>
 
   <!-- Run the initial pose node -->
-  <!-- node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="false"/-->
+  <!-- node name="initial_pose_publisher" pkg="initial_pose" type="initial_pose_publisher" respawn="true"/-->
 
   <!-- Run the back camera node  rosrun roborts_camera roborts_camera_node-->
-  <node pkg="roborts_camera" type="roborts_camera_node" name="roborts_camera_node" respawn="false" />
+  <node pkg="roborts_camera" type="roborts_camera_node" name="roborts_camera_node" respawn="true" />
 
   <!-- Run the localization node -->
-  <node pkg="roborts_localization" type="localization_node" name="localization_node" respawn="false" />
+  <node pkg="roborts_localization" type="localization_node" name="localization_node" respawn="true" />
 
   <!-- Run the global planner node -->
-  <node pkg="roborts_planning" type="global_planner_node" name="global_planner_node" respawn="false" />
+  <node pkg="roborts_planning" type="global_planner_node" name="global_planner_node" respawn="true" />
 
   <!-- Run the local planner node -->
-  <node pkg="roborts_planning" type="local_planner_node" name="local_planner_node" respawn="false" />
+  <node pkg="roborts_planning" type="local_planner_node" name="local_planner_node" respawn="true" />
 
   <!-- Run the detection node -->
   <node pkg="roborts_detection" type="armor_detection_node" name="detection_node" />

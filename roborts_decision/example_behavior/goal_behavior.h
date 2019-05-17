@@ -230,7 +230,7 @@ class GuardGoalBehavior {
       ros::Time current_time = ros::Time::now();
       fix_goal.header.stamp = current_time;
       if (blackboard_->IsMasterCondition()){
-        fix_goal.pose.position.x = 7.5;
+        fix_goal.pose.position.x = 6;
         fix_goal.pose.position.y = 2.5;
         fix_goal.pose.position.z = 0.0;
         fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(270.0/180*3.14);

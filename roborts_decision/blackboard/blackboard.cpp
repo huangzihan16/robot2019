@@ -579,13 +579,11 @@ namespace roborts_decision {
     speed_ = robot_shoot->speed;
     if (speed_ > 12){
       bullet_num_ -= 1;
-      if(bullet_num_ <= 0)
-        bullet_num_ = 0;
     }
   }
 
   void Blackboard::BulletVacantCallback(const roborts_msgs::BulletVacant::ConstPtr& bullet_vacant){
-    if(bullet_vacant->bullet_vacant) {
+    if(bullet_vacant->bullet_vacant){
       bullet_num_=0;
     }
   }

@@ -117,10 +117,10 @@ int main(int argc, char **argv) {
 																																																	return false;
 																																																}
 																																															}, roborts_decision::AbortType::BOTH));
-  // no bullet left
-  std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
+  // bullet supply 
+  std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
 																																															[&]() {
-                                                                                                if (!blackboard_ptr_->IsBulletLeft()) {
+																																																if (blackboard_ptr_->IsGoToSupplyCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -130,6 +130,15 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::PreconditionNode> obtain_buff_condition_(new roborts_decision::PreconditionNode("obtain_buff_condition",blackboard_ptr_,
 																																															[&]() {
                                                                                               if (blackboard_ptr_->IsGoToGainBuffCondition()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  // no bullet left
+  std::shared_ptr<roborts_decision::PreconditionNode> no_bullet_left_condition_(new roborts_decision::PreconditionNode("no_bullet_left_condition",blackboard_ptr_,
+																																															[&]() {
+                                                                                                if (!blackboard_ptr_->IsBulletLeft()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
@@ -149,25 +158,76 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::SelectorNode> offensive_selector(new roborts_decision::SelectorNode("offensive_selector", blackboard_ptr_));          
 
   game_start_selector->AddChildren(stuck_in_obstacle_condition_);
-  game_start_selector->AddChildren(no_bullet_left_condition_);
+  game_start_selector->AddChildren(bullet_supply_condition_);
   game_start_selector->AddChildren(obtain_buff_condition_);
+  game_start_selector->AddChildren(no_bullet_left_condition_);
   game_start_selector->AddChildren(buff_inferior_condition_);
   game_start_selector->AddChildren(offensive_selector);
 
   /****************************************************get stuck************************************************/
   stuck_in_obstacle_condition_->SetChild(get_out_from_stuck_action_);
 
-  /****************************************************no bullet left************************************************/
-  std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
-  // bullet supply 
-  std::shared_ptr<roborts_decision::PreconditionNode> bullet_supply_condition_(new roborts_decision::PreconditionNode("bullet_supply_condition",blackboard_ptr_,
+  /****************************************************bullet supply ************************************************/
+  //=======================================supply_sequence====================================//
+  // supply_sequence
+  std::shared_ptr<roborts_decision::SequenceNode> supply_sequence(new roborts_decision::SequenceNode("supply", blackboard_ptr_)); 
+  bullet_supply_condition_->SetChild(supply_sequence);
+  supply_sequence->AddChildren(supply_goal_action_);
+  supply_sequence->AddChildren(accur_supply_action_);
+  supply_sequence->AddChildren(supply_application_action_);
+  supply_sequence->AddChildren(supply_goalout_action_);
+
+  /****************************************************can obtain buff************************************************/
+  std::shared_ptr<roborts_decision::SelectorNode> gain_buff_selector(new roborts_decision::SelectorNode("gain_buff_selector", blackboard_ptr_)); 
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
 																																															[&]() {
-																																																if (blackboard_ptr_->IsGoToSupplyCondition()) {
+																																																if (blackboard_ptr_->IsGoToGainBuffCondition()) {
 																																																	return true;
 																																																} else {
 																																																	return false;
 																																																}
 																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_enemy_detected_condition_(new roborts_decision::PreconditionNode("buff_enemy_detected_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::FRONT) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_attack_condition_(new roborts_decision::PreconditionNode("buff_attack_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->GetDamageSource()
+                                                                                                    != roborts_decision::DamageSource::NONE) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+  std::shared_ptr<roborts_decision::PreconditionNode> buff_back_condition_(new roborts_decision::PreconditionNode("buff_back_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->EnemyDetected()
+                                                                                                == roborts_decision::EnemyStatus::BACK) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::LOW_PRIORITY));
+
+  obtain_buff_condition_->SetChild(gain_buff_selector);
+  gain_buff_selector ->AddChildren(buff_ready_condition_);
+  gain_buff_selector ->AddChildren(buff_enemy_detected_condition_);
+  gain_buff_selector ->AddChildren(buff_attack_condition_);
+  gain_buff_selector ->AddChildren(buff_back_condition_);
+  gain_buff_selector ->AddChildren(gain_buff_goal_action_);//朝向敌方补弹区
+  buff_ready_condition_ ->SetChild(gain_buff_action_);
+  buff_enemy_detected_condition_ ->SetChild(buff_chase_action_);
+  buff_attack_condition_ ->SetChild(turn_to_hurt_action_);
+  buff_back_condition_ ->SetChild(turn_back_action_);
+
+  /****************************************************no bullet left************************************************/
+  std::shared_ptr<roborts_decision::SelectorNode> no_bullet_left_selector(new roborts_decision::SelectorNode("no_bullet_left_selector", blackboard_ptr_));          
   // can obtain buff
   std::shared_ptr<roborts_decision::PreconditionNode> nobullet_gain_buff_condition_(new roborts_decision::PreconditionNode("nobullet_gain_buff_condition",blackboard_ptr_,
 																																															[&]() {
@@ -181,18 +241,9 @@ int main(int argc, char **argv) {
   std::shared_ptr<roborts_decision::SelectorNode> nobullet_guard_selector(new roborts_decision::SelectorNode("nobullet_guard_selector", blackboard_ptr_)); 
 
   no_bullet_left_condition_->SetChild(no_bullet_left_selector);
-  no_bullet_left_selector->AddChildren(bullet_supply_condition_);
   no_bullet_left_selector->AddChildren(nobullet_gain_buff_condition_);
   no_bullet_left_selector->AddChildren(nobullet_guard_selector);
 
-  //=======================================supply_sequence====================================//
-  // supply_sequence
-  std::shared_ptr<roborts_decision::SequenceNode> supply_sequence(new roborts_decision::SequenceNode("supply", blackboard_ptr_)); 
-  bullet_supply_condition_->SetChild(supply_sequence);
-  supply_sequence->AddChildren(supply_goal_action_);
-  supply_sequence->AddChildren(accur_supply_action_);
-  supply_sequence->AddChildren(supply_application_action_);
-  supply_sequence->AddChildren(supply_goalout_action_);
 
   //=======================================nobullet gain buff selector====================================//
   // nobullet gain buff selector
@@ -256,55 +307,6 @@ int main(int argc, char **argv) {
   nobullet_guard_selector->AddChildren(nobullet_escape_guard_goal_condition_);
   nobullet_guard_selector->AddChildren(guard_action_);
   nobullet_escape_guard_goal_condition_->SetChild(guard_goal_action_);
-
-  /****************************************************can obtain buff************************************************/
-  std::shared_ptr<roborts_decision::SelectorNode> gain_buff_selector(new roborts_decision::SelectorNode("gain_buff_selector", blackboard_ptr_)); 
-  std::shared_ptr<roborts_decision::PreconditionNode> buff_ready_condition_(new roborts_decision::PreconditionNode("buff_ready_condition_",blackboard_ptr_,
-																																															[&]() {
-																																																if (blackboard_ptr_->IsGoToGainBuffCondition()) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-																																															} , roborts_decision::AbortType::BOTH));
-  std::shared_ptr<roborts_decision::PreconditionNode> buff_enemy_detected_condition_(new roborts_decision::PreconditionNode("buff_enemy_detected_condition",blackboard_ptr_,
-																																															[&]() {
-																																																if (blackboard_ptr_->EnemyDetected()
-                                                                                                == roborts_decision::EnemyStatus::FRONT) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-																																															} , roborts_decision::AbortType::BOTH));
-  std::shared_ptr<roborts_decision::PreconditionNode> buff_attack_condition_(new roborts_decision::PreconditionNode("buff_attack_condition",blackboard_ptr_,
-																																															[&]() {
-																																																if (blackboard_ptr_->GetDamageSource()
-                                                                                                    != roborts_decision::DamageSource::NONE) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));
-  std::shared_ptr<roborts_decision::PreconditionNode> buff_back_condition_(new roborts_decision::PreconditionNode("buff_back_condition",blackboard_ptr_,
-																																															[&]() {
-																																																if (blackboard_ptr_->EnemyDetected()
-                                                                                                == roborts_decision::EnemyStatus::BACK) {
-																																																	return true;
-																																																} else {
-																																																	return false;
-																																																}
-																																															} , roborts_decision::AbortType::LOW_PRIORITY));
-
-  obtain_buff_condition_->SetChild(gain_buff_selector);
-  gain_buff_selector ->AddChildren(buff_ready_condition_);
-  gain_buff_selector ->AddChildren(buff_enemy_detected_condition_);
-  gain_buff_selector ->AddChildren(buff_attack_condition_);
-  gain_buff_selector ->AddChildren(buff_back_condition_);
-  gain_buff_selector ->AddChildren(gain_buff_goal_action_);//朝向敌方补弹区
-  buff_ready_condition_ ->SetChild(gain_buff_action_);
-  buff_enemy_detected_condition_ ->SetChild(buff_chase_action_);
-  buff_attack_condition_ ->SetChild(turn_to_hurt_action_);
-  buff_back_condition_ ->SetChild(turn_back_action_);
 
   /****************************************************buff inferior************************************************/
   std::shared_ptr<roborts_decision::SelectorNode> buff_inferior_selector(new roborts_decision::SelectorNode("buff_inferior_selector", blackboard_ptr_)); 
