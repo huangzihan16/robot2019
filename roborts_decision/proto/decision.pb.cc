@@ -138,7 +138,7 @@ void protobuf_AssignDesc_decision_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MultiRobot));
   DecisionConfig_descriptor_ = file->message_type(5);
-  static const int DecisionConfig_offsets_[20] = {
+  static const int DecisionConfig_offsets_[21] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, master_point_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, slave_point_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, simulate_),
@@ -159,6 +159,7 @@ void protobuf_AssignDesc_decision_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, initial_bullet_num_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, self_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, partner_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DecisionConfig, supply_point_),
   };
   DecisionConfig_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -233,7 +234,7 @@ void protobuf_AddDesc_decision_2eproto() {
     "limit\030\002 \001(\002\"I\n\010WhirlVel\022\023\n\013angle_x_vel\030\001"
     " \001(\002\022\023\n\013angle_y_vel\030\002 \001(\002\022\023\n\013angle_z_vel"
     "\030\003 \001(\002\"=\n\nMultiRobot\022/\n\016start_position\030\007"
-    " \001(\0132\027.roborts_decision.Point\"\271\006\n\016Decisi"
+    " \001(\0132\027.roborts_decision.Point\"\350\006\n\016Decisi"
     "onConfig\022-\n\014master_point\030\001 \003(\0132\027.roborts"
     "_decision.Point\022,\n\013slave_point\030\002 \003(\0132\027.r"
     "oborts_decision.Point\022\027\n\010simulate\030\003 \001(\010:"
@@ -254,7 +255,8 @@ void protobuf_AddDesc_decision_2eproto() {
     ".roborts_decision.Point\022\020\n\010offset_x\030\020 \001("
     "\002\022\031\n\021half_robot_length\030\021 \001(\002\022\032\n\022initial_"
     "bullet_num\030\022 \001(\005\022\021\n\tself_name\030\023 \001(\t\022\024\n\014p"
-    "artner_name\030\024 \001(\t", 1337);
+    "artner_name\030\024 \001(\t\022-\n\014supply_point\030\025 \002(\0132"
+    "\027.roborts_decision.Point", 1384);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "decision.proto", &protobuf_RegisterTypes);
   Point::default_instance_ = new Point();
@@ -1973,6 +1975,7 @@ const int DecisionConfig::kHalfRobotLengthFieldNumber;
 const int DecisionConfig::kInitialBulletNumFieldNumber;
 const int DecisionConfig::kSelfNameFieldNumber;
 const int DecisionConfig::kPartnerNameFieldNumber;
+const int DecisionConfig::kSupplyPointFieldNumber;
 #endif  // !_MSC_VER
 
 DecisionConfig::DecisionConfig()
@@ -1988,6 +1991,7 @@ void DecisionConfig::InitAsDefaultInstance() {
   wing_bot_ = const_cast< ::roborts_decision::MultiRobot*>(&::roborts_decision::MultiRobot::default_instance());
   master_bot_ = const_cast< ::roborts_decision::MultiRobot*>(&::roborts_decision::MultiRobot::default_instance());
   wing_bot_task_point_ = const_cast< ::roborts_decision::Point*>(&::roborts_decision::Point::default_instance());
+  supply_point_ = const_cast< ::roborts_decision::Point*>(&::roborts_decision::Point::default_instance());
 }
 
 DecisionConfig::DecisionConfig(const DecisionConfig& from)
@@ -2013,6 +2017,7 @@ void DecisionConfig::SharedCtor() {
   initial_bullet_num_ = 0;
   self_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   partner_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  supply_point_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2035,6 +2040,7 @@ void DecisionConfig::SharedDtor() {
     delete wing_bot_;
     delete master_bot_;
     delete wing_bot_task_point_;
+    delete supply_point_;
   }
 }
 
@@ -2094,7 +2100,7 @@ void DecisionConfig::Clear() {
     }
     offset_x_ = 0;
   }
-  if (_has_bits_[16 / 32] & 983040) {
+  if (_has_bits_[16 / 32] & 2031616) {
     ZR_(half_robot_length_, initial_bullet_num_);
     if (has_self_name()) {
       if (self_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -2105,6 +2111,9 @@ void DecisionConfig::Clear() {
       if (partner_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         partner_name_->clear();
       }
+    }
+    if (has_supply_point()) {
+      if (supply_point_ != NULL) supply_point_->::roborts_decision::Point::Clear();
     }
   }
 
@@ -2413,6 +2422,19 @@ bool DecisionConfig::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(170)) goto parse_supply_point;
+        break;
+      }
+
+      // required .roborts_decision.Point supply_point = 21;
+      case 21: {
+        if (tag == 170) {
+         parse_supply_point:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_supply_point()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -2565,6 +2587,12 @@ void DecisionConfig::SerializeWithCachedSizes(
       20, this->partner_name(), output);
   }
 
+  // required .roborts_decision.Point supply_point = 21;
+  if (has_supply_point()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      21, this->supply_point(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2713,6 +2741,13 @@ void DecisionConfig::SerializeWithCachedSizes(
         20, this->partner_name(), target);
   }
 
+  // required .roborts_decision.Point supply_point = 21;
+  if (has_supply_point()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        21, this->supply_point(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -2810,6 +2845,13 @@ int DecisionConfig::ByteSize() const {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->partner_name());
+    }
+
+    // required .roborts_decision.Point supply_point = 21;
+    if (has_supply_point()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->supply_point());
     }
 
   }
@@ -2945,6 +2987,9 @@ void DecisionConfig::MergeFrom(const DecisionConfig& from) {
     if (from.has_partner_name()) {
       set_partner_name(from.partner_name());
     }
+    if (from.has_supply_point()) {
+      mutable_supply_point()->::roborts_decision::Point::MergeFrom(from.supply_point());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2962,6 +3007,7 @@ void DecisionConfig::CopyFrom(const DecisionConfig& from) {
 }
 
 bool DecisionConfig::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00100000) != 0x00100000) return false;
 
   return true;
 }
@@ -2988,6 +3034,7 @@ void DecisionConfig::Swap(DecisionConfig* other) {
     std::swap(initial_bullet_num_, other->initial_bullet_num_);
     std::swap(self_name_, other->self_name_);
     std::swap(partner_name_, other->partner_name_);
+    std::swap(supply_point_, other->supply_point_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

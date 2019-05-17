@@ -57,5 +57,6 @@ message DecisionConfig {
     optional int32 initial_bullet_num = 18;
     optional string self_name = 19;
     optional string partner_name = 20;
+    required Point supply_point = 21;
 }
 

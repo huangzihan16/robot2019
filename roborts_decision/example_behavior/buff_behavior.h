@@ -9,8 +9,14 @@
 namespace roborts_decision {
 class GainBuffBehavior {
  public:
-  GainBuffBehavior(ChassisExecutor* &chassis_executor, Blackboard* &blackboard) :
-      chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false), i(0), buff_count_(1){ }
+  GainBuffBehavior(ChassisExecutor* &chassis_executor, Blackboard* &blackboard, const std::string & proto_file_path) :
+      chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false), i_(0), buff_count_(1){
+    fix_goals_size_ = 0;
+
+    if (!LoadParam(proto_file_path)) {
+      ROS_ERROR("%s can't open file", __FUNCTION__);
+    }
+  }
 
   void Run() {
     blackboard_->partner_msg_pub_.status = (char)PartnerStatus::GAINBUFF;
@@ -46,8 +52,33 @@ class GainBuffBehavior {
 		}
   }
 
+  bool LoadParam(const std::string &proto_file_path) {
+    roborts_decision::DecisionConfig decision_config;
+    if (!roborts_common::ReadProtoFromTextFile(proto_file_path, &decision_config)) {
+      return false;
+    }
+
+    fix_goals_size_ = (unsigned int)(decision_config.buff_point().size());
+    fix_goals_.resize(fix_goals_size_);
+    for (int i = 0; i != fix_goals_size_; i++) {
+      fix_goals_[i].header.frame_id = "map";
+      fix_goals_[i].pose.position.x = decision_config.buff_point(i).x();
+      fix_goals_[i].pose.position.y = decision_config.buff_point(i).y();
+      fix_goals_[i].pose.position.z = decision_config.buff_point(i).z();
+
+      tf::Quaternion quaternion = tf::createQuaternionFromRPY(decision_config.buff_point(i).roll(),
+                                                              decision_config.buff_point(i).pitch(),
+                                                              decision_config.buff_point(i).yaw());
+      fix_goals_[i].pose.orientation.x = quaternion.x();
+      fix_goals_[i].pose.orientation.y = quaternion.y();
+      fix_goals_[i].pose.orientation.z = quaternion.z();
+      fix_goals_[i].pose.orientation.w = quaternion.w();
+    }
+    return true;
+  }
+
   ~GainBuffBehavior() = default;
-  geometry_msgs::PoseStamped GetAddGuardGoal() {
+  /*geometry_msgs::PoseStamped GetAddGuardGoal() {
     buff_time_duration_ = ros::Time::now() - buff_start_time_;
     if (blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED){
       buff_count_ += 1;
@@ -66,15 +97,33 @@ class GainBuffBehavior {
     fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(goal_q_[i]/180*3.14);
 
     return fix_goal;
+  }*/
+
+  geometry_msgs::PoseStamped GetAddGuardGoal() {
+    buff_time_duration_ = ros::Time::now() - buff_start_time_;
+    if (blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED){
+      buff_count_ += 1;
+      i_ += 1;
+    }
+
+    geometry_msgs::PoseStamped fix_goal;
+    ros::Time current_time = ros::Time::now();
+    fix_goal = fix_goals_[i_ % fix_goals_size_];
+    fix_goal.header.stamp = current_time;
+
+    return fix_goal;
   }
 
 public:
 		bool have_execute_;
 
-    int i;
+    int i_;
     double buff_count_;
     ros::Time buff_start_time_;
     ros::Duration buff_time_duration_;
+
+    std::vector<geometry_msgs::PoseStamped> fix_goals_;
+    unsigned int fix_goals_size_;
  private:
   //! executor
   ChassisExecutor* const chassis_executor_;

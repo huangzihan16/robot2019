@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   roborts_decision::BuffChaseBehavior      buff_chase_behavior_(chassis_executor, blackboard);
   roborts_decision::EscapeBehavior         escape_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::SearchBehavior         search_behavior_(chassis_executor, gimbal_executor, blackboard, full_path);
-  roborts_decision::GainBuffBehavior       gain_buff_behavior_(chassis_executor, blackboard);
+  roborts_decision::GainBuffBehavior       gain_buff_behavior_(chassis_executor, blackboard, full_path);
   
   roborts_decision::BackBootAreaBehavior   back_boot_area_behavior_(chassis_executor, blackboard, full_path);
   roborts_decision::TurnToHurtBehavior     turn_to_hurt_behavior_(chassis_executor, blackboard);

@@ -261,6 +261,19 @@ public:
     last_get_partner_information_time_ = ros::Time::now();
     partner_msg_pub_.patrol_count = 0;
 
+    supply_goal_.header.frame_id = "map";
+    supply_goal_.pose.position.x = decision_config_.supply_point().x();
+    supply_goal_.pose.position.y = decision_config_.supply_point().y();
+    supply_goal_.pose.position.z = decision_config_.supply_point().z();
+    
+    tf::Quaternion quaternion = tf::createQuaternionFromRPY(decision_config_.supply_point().roll(),
+                                                            decision_config_.supply_point().pitch(),
+                                                            decision_config_.supply_point().yaw());
+    supply_goal_.pose.orientation.x = quaternion.x();
+    supply_goal_.pose.orientation.y = quaternion.y();
+    supply_goal_.pose.orientation.z = quaternion.z();
+    supply_goal_.pose.orientation.w = quaternion.w();
+
     test_support_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("support_pose", 1);
     test_enemy_publisher_ = nh.advertise<geometry_msgs::PoseStamped>("enemy_pose", 1);
     if (decision_config_.master() == true)
@@ -594,6 +607,8 @@ public:
   bool have_supplied_;
   ros::Time go_to_supply_time_;
   bool have_gone_to_supply_;
+
+  geometry_msgs::PoseStamped supply_goal_;
 
   ros::Time go_to_gainbuff_time_;
   bool have_gone_to_gainbuff_;

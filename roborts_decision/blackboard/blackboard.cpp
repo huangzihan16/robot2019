@@ -618,15 +618,10 @@ namespace roborts_decision {
 
   geometry_msgs::PoseStamped Blackboard::GetSupplyGoal() {
 
-    geometry_msgs::PoseStamped fix_goal;
     ros::Time current_time = ros::Time::now();
-    fix_goal.header.stamp = current_time;
-    fix_goal.pose.position.x = 4.10;
-    fix_goal.pose.position.y = 4.28;
-    fix_goal.pose.position.z = 0.0;
-    fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
+    supply_goal_.header.stamp = current_time;
 
-    return fix_goal;
+    return supply_goal_;
   }
 
   geometry_msgs::PoseStamped Blackboard::GetGuardGoal() {
