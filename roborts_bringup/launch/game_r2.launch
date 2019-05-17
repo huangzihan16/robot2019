@@ -56,7 +56,7 @@
   <node pkg="back_camera" type="backcamera_node" name="backcamera_node" />
 
   <!-- Run the behavior tree node -->
-  <node pkg="roborts_decision" type="dual_behavior_tree_test" name="decision_node" output="screen" />
+  <node pkg="roborts_decision" type="dual_behavior_tree_test" name="decision_node" output="screen"  />
 
   <!-- Run the rviz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts_bringup)/rviz/group_$(arg identity).rviz" />

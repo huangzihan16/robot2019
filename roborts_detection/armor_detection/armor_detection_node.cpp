@@ -156,7 +156,7 @@ void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstP
     default:
       break;
   }
-  ros::Rate rate(25);
+  ros::Rate rate(35);
   while(ros::ok()) {
 
     if(as_.isPreemptRequested()) {
@@ -297,8 +297,9 @@ void ArmorDetectionNode::ExecuteLoop() {
              }
           
            if(shoot_executor_.unshoot_count_>60){
-             shoot_executor_.bullet_vacant_.bullet_vacant=true;
-             shoot_executor_.bullet_status_pub_.publish(shoot_executor_.bullet_vacant_);
+             //shoot_executor_.bullet_vacant_.bullet_vacant=true;
+             bool unshoot_flag= true;
+              shoot_executor_.bullet_status_pub_.publish(unshoot_flag);
             }
            
         }else{

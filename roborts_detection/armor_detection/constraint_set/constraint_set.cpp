@@ -224,10 +224,12 @@ ErrorInfo ConstraintSet::DetectArmor(bool &detected, std::vector<ArmorInfo> &arm
    std::cout<<"gggggggggggggggggggggggggggg"<<std::endl;
   cv_toolbox_->ReadComplete(read_index_);
   ROS_INFO("read complete");
+  //double end_time = ros::Time::now();
   detection_time_ = std::chrono::duration<double, std::ratio<1, 1000000>>
       (std::chrono::high_resolution_clock::now() - detection_begin).count();
       std::cout<<"hhhhhhhhhhh"<<std::endl;
-
+      //std::cout<<"DETECTION TIME IS:"<<detection_time_<<endl;
+ 
   return error_info_;
 }
 

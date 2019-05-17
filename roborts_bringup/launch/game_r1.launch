@@ -50,7 +50,7 @@
   <node pkg="roborts_planning" type="local_planner_node" name="local_planner_node" respawn="false" />
 
   <!-- Run the detection node -->
-  <node pkg="roborts_detection" type="armor_detection_node" name="detection_node" respawn="true"/>
+  <node pkg="roborts_detection" type="armor_detection_node" name="detection_node" respawn="true" />
 
   <!-- Run the back_camera node -->
   <node pkg="back_camera" type="backcamera_node" name="backcamera_node" />
