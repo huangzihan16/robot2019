@@ -506,10 +506,12 @@ public:
   bool IsGoodIdentityForSupply();
   bool IsPartnerInSupplier();
   bool IsGoToSupplyCondition();
+  bool IsSelfInSupplier();
 
   bool IsGainBuffCondition();
   bool IsPartnerInBuffArea();
   bool IsGoToGainBuffCondition();
+  bool IsSelfInBuffArea();
 
   bool IsEnemyDetected() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);

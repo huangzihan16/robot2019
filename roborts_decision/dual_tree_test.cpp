@@ -739,6 +739,14 @@ int main(int argc, char **argv) {
   escape_guard_goal_condition_->SetChild(guard_goal_action_);
 
   /****************************************************offensive selector************************************************/
+  std::shared_ptr<roborts_decision::PreconditionNode> offensive_getout_supplier_condition_(new roborts_decision::PreconditionNode("offensive_getout_supplier_condition",blackboard_ptr_,
+																																															[&]() {
+																																																if (blackboard_ptr_->remain_hp_ < 500 && blackboard_ptr_->IsSelfInSupplier()) {
+																																																	return true;
+																																																} else {
+																																																	return false;
+																																																}
+																																															} , roborts_decision::AbortType::BOTH));
   std::shared_ptr<roborts_decision::PreconditionNode> offensive_dmp_condition_(new roborts_decision::PreconditionNode("offensive_dmp_condition",blackboard_ptr_,
 																																															[&]() {
 																																																if (blackboard_ptr_->HurtedPerSecond() > 200) {
@@ -796,6 +804,7 @@ int main(int argc, char **argv) {
 																																																}
 																																															} , roborts_decision::AbortType::LOW_PRIORITY));                                                                                            
 
+  offensive_selector->AddChildren(offensive_getout_supplier_condition_);
   offensive_selector->AddChildren(offensive_dmp_condition_);
   offensive_selector->AddChildren(offensive_detect_enemy_condition_);
   offensive_selector->AddChildren(offensive_support_condition_);
@@ -804,6 +813,7 @@ int main(int argc, char **argv) {
   offensive_selector->AddChildren(offensive_search_condition_);
   offensive_selector->AddChildren(patrol_action_);
 
+  offensive_getout_supplier_condition_->SetChild(supply_goalout_action_);
   offensive_dmp_condition_->SetChild(guard_action_);
   offensive_detect_enemy_condition_->SetChild(chase_action_);
   offensive_support_condition_->SetChild(support_action_);

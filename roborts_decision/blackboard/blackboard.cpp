@@ -959,6 +959,15 @@ namespace roborts_decision {
       return false;
   }
 
+  bool Blackboard::IsSelfInSupplier() {
+    UpdateRobotPose();
+    double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
+    if (x_self > 3.575 && x_self < 4.575 && y_self > 4.075 && y_self < 5.075)
+      return true;
+    else 
+      return false;
+  }
+
   /*bool Blackboard::IsGoToSupplyCondition() {
     static int status = 0;
 		ros::Duration time_past = ros::Time::now() - start_time_;
@@ -1077,6 +1086,15 @@ namespace roborts_decision {
     if (x_partner > 5.875 && x_partner < 6.875 && y_partner > 1.325 && y_partner < 2.325) 
       return true;
     else
+      return false;
+  }
+
+  bool Blackboard::IsSelfInBuffArea() {
+    UpdateRobotPose();
+    double x_self = robot_map_pose_.pose.position.x, y_self = robot_map_pose_.pose.position.y;
+    if (x_self > 5.875 && x_self < 6.875 && y_self > 1.325 && y_self < 2.325)
+      return true;
+    else 
       return false;
   }
 
