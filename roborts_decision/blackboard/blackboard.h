@@ -378,7 +378,7 @@ public:
   /*****每次补弹后，记录补弹次数，增加子弹存量********/
   void AddSupplyNum() {
 		supply_number_++;
-		bullet_num_ += 10;
+		bullet_num_ += 100;
 	}
   void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
     // bullet_num_ -= shoot_cmd.request.number;
