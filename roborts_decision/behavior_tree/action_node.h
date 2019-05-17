@@ -950,7 +950,46 @@ class GetOutFromStuckAction : public ActionNode {
   GetOutFromStuckBehavior getoutfromstuck_behavior_;
 };
 
+class AccurSupplyAction : public ActionNode {
+ public:
+  AccurSupplyAction(const Blackboard::Ptr &blackboard_ptr, AccurSupplyBehavior &accur_supply_behavior) :
+      ActionNode::ActionNode("accur_supply_behavior_", blackboard_ptr), accur_supply_behavior_(accur_supply_behavior){
 
+      }
+
+  virtual ~AccurSupplyAction() = default;
+
+ private:
+  virtual void OnInitialize() {
+    //  std::cout << "AccurSupplyAction OnInitialize" << std::endl;
+  };
+
+  virtual BehaviorState Update() {
+			accur_supply_behavior_.Run();
+      ROS_INFO(" accur_supply_behavior_ accur_supply_behavior_ !"); 
+			return accur_supply_behavior_.Update();
+  }
+
+  virtual void OnTerminate(BehaviorState state) {
+    switch (state){
+      case BehaviorState::IDLE:
+				accur_supply_behavior_.Cancel();
+        //  std::cout << "IDLE" << std::endl;
+        break;
+      case BehaviorState::SUCCESS:
+        //  std::cout << "SUCCESS" << std::endl;
+        break;
+      case BehaviorState::FAILURE:
+        //  std::cout << "FAILURE" << std::endl;
+        break;
+      default:
+        //  std::cout << "ERROR" << std::endl;
+        return;
+    }
+  }
+
+  AccurSupplyBehavior accur_supply_behavior_;
+};
 
 }//namespace roborts_decision
 #endif //ROBORTS_DECISION_ACTION_BEHAVIOR_H

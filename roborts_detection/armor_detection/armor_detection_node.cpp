@@ -126,8 +126,12 @@ ErrorInfo ArmorDetectionNode::Init() {
 }
 
 void ArmorDetectionNode::PatrolSuggestCallback (const std_msgs::Int32::ConstPtr &mode){
-  if (mode->data <= 6)
+  if (mode->data <= 6){
     patrol_mode_ = mode->data;
+    chase_mode_ = false;
+  }
+  if (mode->data == 7)
+    chase_mode_ = true;
 }
 void ArmorDetectionNode::ActionCB(const roborts_msgs::ArmorDetectionGoal::ConstPtr &data) {
   roborts_msgs::ArmorDetectionFeedback feedback;
@@ -255,10 +259,11 @@ void ArmorDetectionNode::ExecuteLoop() {
         // fwrite("\n",sizeof("\n"),1,file_fd);
         duration = ros::Time::now() - last_time_;
         gimbal_control_time = duration.toSec();
-        speed = (all_yaw - last_yaw_) / gimbal_control_time;
+        // speed = (all_yaw - last_yaw_) / gimbal_control_time;
+        speed = yaw  / gimbal_control_time;
         last_yaw_ = all_yaw;
         last_time_ = ros::Time::now();
-
+        ROS_INFO("yaw:%f",yaw);
         if (enemy_duration_time > 2 && yaw < 0.2){
           CalcMembership(yaw, MembershipKy, BoundKy_);
           CalcMembership(yaw, MembershipKs, BoundKs_);
@@ -271,13 +276,22 @@ void ArmorDetectionNode::ExecuteLoop() {
   		        }
           }
           speed_estimate = kalmanfilter_.Update(all_yaw, speed);
-          if (speed_estimate > 2 || speed_estimate < -1)
-             speed_estimate = 0;
+          if (chase_mode_){
+            ROS_INFO("chase_mode_:%d,speed_estimate:%f",chase_mode_,speed_estimate);
+            if(speed_estimate > 3 || speed_estimate < -3){
+              speed_estimate = 0;
+            }
+          } else {
+            if(speed_estimate > 2 || speed_estimate < -2)
+              speed_estimate = 0;
+          }
+
+
         } else {
           speed_estimate = 0;
         }
-        gimbal_angle_.yaw_angle =  0.3 * yaw + 0.05 * speed_estimate; 
-        PublishMsgs();
+        gimbal_angle_.yaw_angle =  0.4 * yaw + 0.015 * speed_estimate;
+
         std::lock_guard<std::mutex> guard(mutex_);
         undetected_count_ = undetected_armor_delay_;
 
@@ -288,7 +302,7 @@ void ArmorDetectionNode::ExecuteLoop() {
 		    if (enemy_x_shooter < 0.3 && enemy_x_shooter > -0.3 && armors[0].target_3d.z < 2500) {
           shoot_executor_.Execute();
         //==============bullet=============
-              float diff_spd_=shoot_executor_.speed_-shoot_executor_.last_speed_;
+        float diff_spd_=shoot_executor_.speed_-shoot_executor_.last_speed_;
                if( diff_spd_!=0){//如果射弹了
                shoot_executor_.unshoot_count_=0;
                shoot_executor_.last_speed_=shoot_executor_.speed_;
@@ -296,10 +310,9 @@ void ArmorDetectionNode::ExecuteLoop() {
                shoot_executor_.unshoot_count_++;
              }
           
-           if(shoot_executor_.unshoot_count_>60){
-             //shoot_executor_.bullet_vacant_.bullet_vacant=true;
-             bool unshoot_flag= true;
-              shoot_executor_.bullet_status_pub_.publish(unshoot_flag);
+           if(shoot_executor_.unshoot_count_>200){
+             shoot_executor_.bullet_vacant_.bullet_vacant=true;
+             shoot_executor_.bullet_status_pub_.publish(shoot_executor_.bullet_vacant_);
             }
            
         }else{
@@ -311,11 +324,10 @@ void ArmorDetectionNode::ExecuteLoop() {
 
         gimbal_angle_.yaw_mode = true;
         gimbal_angle_.pitch_mode = true;
-        gimbal_angle_.yaw_angle = 0.05 * kalmanfilter_.UpdateNoMesurement();
+        gimbal_angle_.yaw_angle = 0.015 * kalmanfilter_.UpdateNoMesurement();
         gimbal_angle_.pitch_angle = 0;
-
+        ROS_INFO("Enemy undetected!!!!!!!!!!!!!!");
         undetected_count_--;
-        // PublishMsgs();
         enemy_disappear_time = ros::Time::now();
         shoot_executor_.unshoot_count_=0;
       } else {
@@ -336,8 +348,12 @@ void ArmorDetectionNode::ExecuteLoop() {
           gimbal_angle_.yaw_angle = GetPatrolAngle(patrol_mode_, patrol_count, yaw);
           patrol_count += patrol_dir_;
           last_time = ros::Time::now();
-          PublishMsgs();
         }
+      }
+      if (shoot_executor_.game_status_ == roborts_detection::GameStatus::PRE_MATCH 
+          || shoot_executor_.game_status_ == roborts_detection::GameStatus::ROUND
+          || shoot_executor_.game_status_ == roborts_detection::GameStatus::SETUP){
+        PublishMsgs();
       }
     } else if (node_state_ == NodeState::PAUSE) {
       std::unique_lock<std::mutex> lock(mutex_);

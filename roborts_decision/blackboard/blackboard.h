@@ -51,6 +51,7 @@
 #include "roborts_msgs/SupplierStatus.h"
 #include "roborts_msgs/ProjectileSupply.h"
 #include "roborts_msgs/EnemyInfo.h"
+#include "roborts_msgs/BulletVacant.h"
 
 #include "roborts_msgs/ShootCmd.h"
 
@@ -185,7 +186,10 @@ public:
       identity_number_(1),
  			gain_buff_number_(0),
       is_good_communication_(true),
-      have_connected_(false) {
+      have_connected_(false),
+      have_supplied_(false),
+      have_gone_to_supply_(false),
+      have_gone_to_gainbuff_(false) {
 
     start_time_ = ros::Time::now();
 
@@ -221,6 +225,7 @@ public:
     robot_damage_sub_ = nh.subscribe<roborts_msgs::RobotDamage>("robot_damage",30 , &Blackboard::RobotDamageCallback, this);
     robot_shoot_sub_ = nh.subscribe<roborts_msgs::RobotShoot>("robot_shoot",30 , &Blackboard::RobotShootCallback, this);
     projectile_supply_pub_ = nh.advertise<roborts_msgs::ProjectileSupply>("projectile_supply", 1);
+    bullet_vacant_sub_ = nh.subscribe<roborts_msgs::BulletVacant>("BulletVacant",30 , &Blackboard::BulletVacantCallback, this);
 
     last_enemy_disappear_time_ = ros::Time::now() + ros::Duration(5*60);
     /*******************/
@@ -314,9 +319,13 @@ public:
   void RobotDamageCallback(const roborts_msgs::RobotDamage::ConstPtr& robot_damage);
   //Robot Shoot
   void RobotShootCallback(const roborts_msgs::RobotShoot::ConstPtr& robot_shoot);
+
+  void BulletVacantCallback(const roborts_msgs::BulletVacant::ConstPtr& bullet_vacant);
   //Send Supply Cmd
   void SendSupplyCmd();
-  
+  //Send armor detection command
+  void SendArmorDetectionCmd();
+
   GameStatus GetGameStatus() const{
     // ROS_INFO("%s: %d", __FUNCTION__, (int)game_status_);
     return game_status_;
@@ -369,7 +378,7 @@ public:
   /*****每次补弹后，记录补弹次数，增加子弹存量********/
   void AddSupplyNum() {
 		supply_number_++;
-		bullet_num_ += 100;
+		bullet_num_ += 10;
 	}
   void MinusShootNum(roborts_msgs::ShootCmd shoot_cmd){
     // bullet_num_ -= shoot_cmd.request.number;
@@ -448,7 +457,8 @@ public:
   bool IsMasterCondition();
   bool IsMasterSupplyCondition();
   bool IsMasterGainBuffCondition();
-  
+  bool IsArriveSupplyGoal();
+
   bool IsGoodCommunication() {
     CheckCommunication();
     return is_good_communication_;
@@ -493,9 +503,16 @@ public:
 
   /*******************Functions Used in Behavior Tree*******************/
   bool IsSupplyCondition();
+  bool IsGoodIdentityForSupply();
+  bool IsPartnerInSupplier();
   bool IsGoToSupplyCondition();
+  bool IsSelfInSupplier();
 
   bool IsGainBuffCondition();
+  bool IsPartnerInBuffArea();
+  bool IsGoToGainBuffCondition();
+  bool IsSelfInBuffArea();
+
   bool IsEnemyDetected() const{
     ROS_INFO("%s: %d", __FUNCTION__, (int)enemy_detected_);
     return enemy_detected_;
@@ -505,6 +522,8 @@ public:
 	}
   bool IsBulletLeft() const;
   bool NotGetDamageIn3Sec();
+  bool IsPartnerBulletLeft() const;
+  bool IsArrivedGuardGoal();
 
 private:
   /*******************Update Chassis Pose and Gimbal Pose*******************/
@@ -570,6 +589,14 @@ public:
   /****************补弹tag id******************/
   int tag_id_;
   int back_camera_mode_;
+
+  /****************补弹和buff相关变量******************/
+  bool have_supplied_;
+  ros::Time go_to_supply_time_;
+  bool have_gone_to_supply_;
+
+  ros::Time go_to_gainbuff_time_;
+  bool have_gone_to_gainbuff_;
 
   /*******************Referee System Information*******************/
   //Useless
@@ -657,7 +684,8 @@ private:
   ros::Subscriber robot_heat_sub_;
   ros::Subscriber robot_bonus_sub_;
   ros::Subscriber robot_damage_sub_;
-  ros::Subscriber robot_shoot_sub_;  
+  ros::Subscriber robot_shoot_sub_;
+  ros::Subscriber bullet_vacant_sub_;
   ros::Publisher projectile_supply_pub_; 
 
   /*******************Other Subscriber and Publisher*******************/

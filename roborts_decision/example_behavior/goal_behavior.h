@@ -53,9 +53,20 @@ class SupplyGoalBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
     blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
+
+    if(!blackboard_->have_gone_to_supply_) {
+      blackboard_->have_gone_to_supply_ = true;
+      blackboard_->go_to_supply_time_ = ros::Time::now();
+    }
+
     if(!have_execute_){
-      chassis_executor_->Execute(blackboard_->GetSupplyGoal());
+      geometry_msgs::PoseStamped goal = blackboard_->GetSupplyGoal();
+      goal.pose.position.x = goal.pose.position.x- 0.15;
+      goal.pose.orientation = tf::createQuaternionMsgFromYaw(-95.0/180*3.14);
+      chassis_executor_->Execute(goal);
 			have_execute_ = true;
     }
   }
@@ -90,7 +101,9 @@ class SupplyGoalOutBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::SUPPLY;
     blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
     if(!have_execute_){
       goalout_start_time_ = ros::Time::now();
       goalout_count_ = 1;      
@@ -258,6 +271,93 @@ public:
 };
 
 
+class AccurSupplyBehavior {
+ public:
+  AccurSupplyBehavior(ChassisExecutor* &chassis_executor,
+                Blackboard* &blackboard) : chassis_executor_(chassis_executor),
+                                                       blackboard_(blackboard) {
+    speed_.linear.x = 0;
+    speed_.linear.y = 0;
+    speed_.linear.z = 0;
+    speed_.angular.x = 0;
+    speed_.angular.y = 0;
+    speed_.angular.z = 0;
+
+  }
+
+  void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::STOP;
+    blackboard_->SuggestGimbalPatrol();
+    blackboard_->PublishPartnerInformation();
+
+    geometry_msgs::PoseStamped robot_pose = blackboard_->GetRobotMapPose();
+    geometry_msgs::PoseStamped goal = blackboard_->GetSupplyGoal();
+    double yaw = tf::getYaw(robot_pose.pose.orientation) + 1.57;    //--1.57
+
+
+    double vel = 0.35,angular_vel = 0.4;
+
+    if(robot_pose.pose.position.x - goal.pose.position.x < -0.02)
+      speed_.linear.y = vel;
+    else if(robot_pose.pose.position.x - goal.pose.position.x > 0.02)
+      speed_.linear.y = -vel;
+    else
+      speed_.linear.y = 0.0;
+
+    if(robot_pose.pose.position.y - goal.pose.position.y < -0.02)
+      speed_.linear.x = -vel;
+    else if(robot_pose.pose.position.y - goal.pose.position.y > 0.02)
+      speed_.linear.x = vel;
+    else
+      speed_.linear.x = 0.0;    
+
+    if(yaw < -0.03)
+      speed_.angular.z = angular_vel;
+    else if(yaw > 0.03)
+      speed_.angular.z = -angular_vel;
+    else
+      speed_.angular.z = 0.0;
+
+    chassis_executor_->Execute(speed_);  
+
+    // if(blackboard_->IsArriveSupplyGoal())
+    //   ROS_INFO("arrive arrive");  
+    // else
+    //   ROS_INFO("no no no no no");  
+
+    
+  }
+
+  void Cancel() {
+    chassis_executor_->Cancel();
+  }
+
+  BehaviorState Update() {
+
+		if (blackboard_->IsArriveSupplyGoal()) {
+			chassis_executor_->Cancel();
+			return BehaviorState::SUCCESS;
+		} else {
+      return chassis_executor_->Update();
+		}
+
+
+  }
+
+  ~AccurSupplyBehavior() = default;
+
+ private:
+  //! executor
+  ChassisExecutor* const chassis_executor_;
+
+  //! perception information
+  Blackboard* const blackboard_;
+
+  //! candidate speed twist
+  geometry_msgs::Twist speed_;
+
+
+};
 
 }
 

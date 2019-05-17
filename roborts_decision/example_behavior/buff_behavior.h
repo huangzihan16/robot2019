@@ -13,12 +13,18 @@ class GainBuffBehavior {
       chassis_executor_(chassis_executor), blackboard_(blackboard), have_execute_(false), i(0), buff_count_(1){ }
 
   void Run() {
+    blackboard_->partner_msg_pub_.status = (char)PartnerStatus::GAINBUFF;
     blackboard_->SuggestGimbalPatrol();
     blackboard_->PublishPartnerInformation();
     if(!have_execute_){
       buff_start_time_ = ros::Time::now();
       buff_count_ = 1;
 			have_execute_ = true;
+    }
+
+    if (!blackboard_->have_gone_to_gainbuff_) {
+      blackboard_->have_gone_to_gainbuff_ = true;
+      blackboard_->go_to_gainbuff_time_ = ros::Time::now();
     }
     BehaviorState executor_state = Update();
     if (executor_state != BehaviorState::RUNNING && blackboard_->GetBonusStatus() == BonusStatus::UNOCCUPIED)
