@@ -312,7 +312,7 @@ void ArmorDetectionNode::ExecuteLoop() {
                shoot_executor_.unshoot_count_++;
              }
           
-           if(shoot_executor_.unshoot_count_>200){
+           if(shoot_executor_.unshoot_count_>120){
              shoot_executor_.bullet_vacant_.bullet_vacant=true;
              shoot_executor_.bullet_status_pub_.publish(shoot_executor_.bullet_vacant_);
             }
