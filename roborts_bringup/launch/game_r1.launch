@@ -25,7 +25,7 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(find roborts_bringup)/maps/$(arg map).yaml" respawn="true" />
 
   <!-- Run the rplidar A3 node -->
-  <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen">
+  <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen" respawn="true" >
       <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>  
       <param name="serial_baudrate"     type="int"    value="256000"/><!--A3 -->
       <param name="frame_id"            type="string" value="base_laser_link"/>
@@ -53,10 +53,10 @@
   <node pkg="roborts_detection" type="armor_detection_node" name="detection_node" respawn="true" />
 
   <!-- Run the back_camera node -->
-  <node pkg="back_camera" type="backcamera_node" name="backcamera_node" />
+  <node pkg="back_camera" type="backcamera_node" name="backcamera_node" respawn="true" />
 
   <!-- Run the behavior tree node -->
-  <node pkg="roborts_decision" type="dual_behavior_tree_test" name="decision_node" output="screen" />
+  <node pkg="roborts_decision" type="dual_behavior_tree_test" name="decision_node" output="screen" respawn="true" />
 
   <!-- Run the rviz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find roborts_bringup)/rviz/group_$(arg identity).rviz" />
