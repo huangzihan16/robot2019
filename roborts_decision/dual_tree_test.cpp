@@ -149,7 +149,10 @@ int main(int argc, char **argv) {
 																																															[&]() {
                                                                                               if (blackboard_ptr_->GetEnemyBonusStatus() == roborts_decision::BonusStatus::OCCUPIED
                                                                                               && !blackboard_ptr_->GetRobotBonus()) {
-                                                                                                return true;
+                                                                                                if(blackboard_ptr_->GetBulletNum() < 10)
+                                                                                                  return true;
+                                                                                                else
+                                                                                                  return false;
                                                                                               } else {
                                                                                                 return false;
                                                                                               }
