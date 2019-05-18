@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   roborts_decision::SupplyBehavior        supply_application_behavior_(blackboard);
 	roborts_decision::GainBuffGoalBehavior  gain_buff_goal_behavior_(chassis_executor, blackboard);
 	// roborts_decision::RoundBehavior         gain_buff_round_behavior_(chassis_executor, blackboard, 2);
-  roborts_decision::RoundBehavior         guard_behavior_(chassis_executor, blackboard, 3);
+  roborts_decision::RoundBehavior         guard_behavior_(chassis_executor, blackboard, 5);
   roborts_decision::AccurSupplyBehavior   accur_supply_behavior_(chassis_executor, blackboard);
 
 /***************************************************************/
