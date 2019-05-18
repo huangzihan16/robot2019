@@ -230,15 +230,15 @@ class GuardGoalBehavior {
       ros::Time current_time = ros::Time::now();
       fix_goal.header.stamp = current_time;
       if (blackboard_->IsMasterCondition()){
-        fix_goal.pose.position.x = 6;
-        fix_goal.pose.position.y = 2.5;
+        fix_goal.pose.position.x = 7.5;
+        fix_goal.pose.position.y = 3.5;
         fix_goal.pose.position.z = 0.0;
-        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(270.0/180*3.14);
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       } else {
         fix_goal.pose.position.x = 5.5;
-        fix_goal.pose.position.y = 4.5;
+        fix_goal.pose.position.y = 4.2;
         fix_goal.pose.position.z = 0.0;
-        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(0.0/180*3.14);
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       }
       chassis_executor_->Execute(fix_goal);
 			have_execute_ = true;

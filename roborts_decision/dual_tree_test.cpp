@@ -297,7 +297,7 @@ int main(int argc, char **argv) {
   //=======================================nobullet guard====================================//
   // nobullet guard
   std::shared_ptr<roborts_decision::PreconditionNode> nobullet_escape_guard_goal_condition_(new roborts_decision::PreconditionNode("escape_guard_goal_condition",blackboard_ptr_,
-																																															[&]() {
+																																															[&]() {ROS_INFO("sArrivedGuardGoal%d",blackboard_ptr_->IsArrivedGuardGoal());
 																																																if (blackboard_ptr_->NotGetDamageIn3Sec() && !blackboard_ptr_->IsArrivedGuardGoal()){
 																																																	return true;
 																																																} else {

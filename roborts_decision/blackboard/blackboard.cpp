@@ -1178,7 +1178,7 @@ namespace roborts_decision {
         fix_goal.pose.position.z = 0.0;
         fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       } else {
-        fix_goal.pose.position.x = 5.6;
+        fix_goal.pose.position.x = 5.5;
         fix_goal.pose.position.y = 4.2;
         fix_goal.pose.position.z = 0.0;
         fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
