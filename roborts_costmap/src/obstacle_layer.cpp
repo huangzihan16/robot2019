@@ -350,11 +350,11 @@ void ObstacleLayer::OnInitialize() {
 
   if (strstr(global_frame_.c_str(), "map") == NULL) {
     map_is_global_ = false;
-    reset_thre = -1;
+    reset_thre = 20;
   }
   else {
     map_is_global_ = true;
-    reset_thre = -1;
+    reset_thre = 10;
   }
   
 }

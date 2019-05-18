@@ -1174,14 +1174,14 @@ namespace roborts_decision {
       geometry_msgs::PoseStamped fix_goal;
       if (IsMasterCondition()){
         fix_goal.pose.position.x = 7.5;
-        fix_goal.pose.position.y = 2.5;
+        fix_goal.pose.position.y = 3.5;
         fix_goal.pose.position.z = 0.0;
-        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(270.0/180*3.14);
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       } else {
-        fix_goal.pose.position.x = 1;
-        fix_goal.pose.position.y = 4.5;
+        fix_goal.pose.position.x = 5.6;
+        fix_goal.pose.position.y = 4.2;
         fix_goal.pose.position.z = 0.0;
-        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(0.0/180*3.14);
+        fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       }
       UpdateRobotPose();
       float dis = sqrt((robot_map_pose_.pose.position.x - fix_goal.pose.position.x) * (robot_map_pose_.pose.position.x - fix_goal.pose.position.x)
