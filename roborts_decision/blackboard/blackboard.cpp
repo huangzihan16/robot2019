@@ -1184,6 +1184,14 @@ namespace roborts_decision {
         fix_goal.pose.orientation = tf::createQuaternionMsgFromYaw(-90.0/180*3.14);
       }
       UpdateRobotPose();
+
+      double x_goal = fix_goal.pose.position.x, y_goal = fix_goal.pose.position.y;
+      int map_x_goal, map_y_goal;
+      costmap_2d_->World2MapWithBoundary(x_goal, y_goal, map_x_goal, map_y_goal);
+
+      if (costmap_2d_->GetCost(map_x_goal, map_y_goal) >= 253)
+        return true;
+
       float dis = sqrt((robot_map_pose_.pose.position.x - fix_goal.pose.position.x) * (robot_map_pose_.pose.position.x - fix_goal.pose.position.x)
        + (robot_map_pose_.pose.position.y - fix_goal.pose.position.y) * (robot_map_pose_.pose.position.y - fix_goal.pose.position.y));
       if (dis < 0.2){
