@@ -195,9 +195,9 @@ void TebOptimal::SetVisualization(LocalVisualizationPtr visualize) {
 }
 
 void TebOptimal::Visualize() {
-  if (!visualization_) {
-    return;
-  }
+  // if (!visualization_) {
+  //   return;
+  // }
 
   if (vertex_console_.SizePoses() > 0) {
     visualization_->PublishLocalPlan(vertex_console_);
