@@ -34,6 +34,8 @@ public:
 		}
 
 		ros::Duration time_past = ros::Time::now() - application_time_;
+		ROS_INFO("status_:%d",status_);
+		ROS_INFO("time_past:%f",time_past.toSec());
 		if (time_past.toSec() >= 5 || (status_ == 2 && blackboard_->GetSupplierStatus() == roborts_decision::SupplierStatus::CLOSE)) {
 			blackboard_->AddSupplyNum();
 			status_ = 0;

@@ -522,7 +522,7 @@ namespace roborts_decision {
     red3_ = game_survival->red3;
     red4_ = game_survival->red4;
     blue3_ = game_survival->blue3;
-    blue3_ = game_survival->blue4;
+    blue4_ = game_survival->blue4;
   }
 
   void Blackboard::BonusStatusCallback(const roborts_msgs::BonusStatus::ConstPtr& bonus_status) {
@@ -534,7 +534,18 @@ namespace roborts_decision {
     supplier_status_ = (SupplierStatus)supplier_status->status;
 
     if (supplier_status_ == SupplierStatus::PREPARING || supplier_status_ == SupplierStatus::SUPPLYING) {
-      if (self_identity_ == Identity::SLAVE) {
+
+      bool partner_survive = true;
+      if (id_ == 3)
+        partner_survive = red4_;
+      else if (id_ == 4)
+        partner_survive = red3_;
+      else if (id_ == 13)
+        partner_survive = blue4_;
+      else if (id_ == 14)
+        partner_survive = blue3_;
+
+      if (self_identity_ == Identity::SLAVE && partner_survive) {
         if (!have_supplied_) {
           have_supplied_ = true;
           supply_number_++;
@@ -1031,8 +1042,11 @@ namespace roborts_decision {
 	}*/
 
   bool Blackboard::IsGoToSupplyCondition() {
+    ROS_INFO("supply_number:%d", supply_number_);
     if (IsSupplyCondition()) {
+      ROS_INFO("It's ready for supply! The identity is: %d, and my partner alive is %d", (int)self_identity_, (int)blue3_);
       if (IsGoodIdentityForSupply()) {
+        ROS_INFO("My Identity is good!");
         CheckCommunication();
         if (is_good_communication_) {
           if (!IsPartnerInSupplier())
